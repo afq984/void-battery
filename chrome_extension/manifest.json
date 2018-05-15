@@ -1,0 +1,19 @@
+{
+    "name": "Path of Building Exporter",
+    "version": "0.1",
+    "description": "Export Garena PoE Characters to POB",
+    "manifest_version": 2,
+    "permissions": [
+        "*://web.poe.garena.tw/character-window/*"
+    ],
+    "externally_connectable": {
+        "matches": [
+            "*://localhost/*",
+            "*://void-battery.appspot.com/*"
+        ]
+    },
+    "background": {
+        "scripts": ["background.js"],
+        "persistent": false
+    }
+}
