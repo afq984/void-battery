@@ -124,15 +124,14 @@ def i_item_to_pob(item):
         yield nebuloch.names.translate(item['typeLine'].rpartition('精良的 ')[-1])
     yield "Unique ID: {}".format(item['id'])
     yield "Item Level: {}".format(item['ilvl'])
-    quality = None
+    quality = 0
     radius = None
     for prop in item.get('properties', ()):
         if prop['name'] == '品質':
             quality = prop['values'][0][0].lstrip('+').rstrip('%')
         if prop['name'] == '範圍':
             radius = {'小': 'Small', '中': 'Medium', '大': 'Large'}[prop['values'][0][0]]
-    if quality is not None:
-        yield 'Quality: {}'.format(quality)
+    yield 'Quality: {}'.format(quality)
     if radius is not None:
         yield 'Radius: {}'.format(radius)
     if 'sockets' in item:
