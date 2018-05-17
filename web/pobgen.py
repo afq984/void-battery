@@ -35,7 +35,7 @@ def Tree(char, tree):
         x = item['x']
         sockets.append(
             E.Socket(
-                nodeId=str(tree['jewel_slots'][x]['passiveSkill']['hash']),
+                nodeId=str(tree['jewel_slots'][x]),
                 itemId=str(id)))
 
     return E.Tree(
