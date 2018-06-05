@@ -21,6 +21,7 @@ class CannotTranslateName(Exception):
 
 
 def translate(name):
+    name = name.strip()
     try:
         return NAME_MAP[name]
     except KeyError:
