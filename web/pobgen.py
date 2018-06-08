@@ -104,7 +104,7 @@ def i_item_to_pob(item):
             if isubtype:
                 itype = isubtype[0]
         yield '{} {} {}'.format(rarity, itype, item["id"][-7:])
-    elif rarity == 'UNIQUE':
+    elif rarity in ('UNIQUE', 'RELIC'):
         yield nebuloch.names.translate(clean_name(item['name']))
     if rarity == 'MAGIC':
         twbase = clean_name(item['typeLine']).rpartition('精良的 ')[-1]
