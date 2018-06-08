@@ -201,7 +201,6 @@ def ItemsSkills(items):
     item_list = []
     slot_list = []
     skill_list = []
-    flasknum = 0
     abyss_todo = []
     for id, item in enumerate(items, 1):
         strid = str(id)
@@ -217,8 +216,7 @@ def ItemsSkills(items):
             item_list.append(E.Item(pob, id=strid))
             if inventoryId != 'PassiveJewels':
                 if inventoryId == 'Flask':
-                    flasknum += 1
-                    slot = 'Flask {}'.format(flasknum)
+                    slot = 'Flask {}'.format(item['x'] + 1)
                 else:
                     slot = SLOT_MAP[inventoryId]
                 slot_list.append(E.Slot(name=slot, itemId=strid))
