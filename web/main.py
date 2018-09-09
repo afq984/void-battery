@@ -12,6 +12,7 @@ from flask import Flask, render_template, request, abort
 from pobgen import export
 from nebuloch.names import CannotTranslateName
 from nebuloch.mods import CannotTranslateMod
+import nebuloch
 
 
 app = Flask(__name__)
@@ -73,5 +74,6 @@ def index():
         accountName=request.args.get('accountName', ''),
         character=request.args.get('character', ''),
         data=data,
-        version=google.appengine.api.modules.modules.get_current_version_name()
+        version=google.appengine.api.modules.modules.get_current_version_name(),
+        compat=nebuloch.version
     )

@@ -26,6 +26,10 @@
     main {
       flex: 1 0 auto;
     }
+
+    tag {
+      margin-right: 2em;
+    }
   </style>
 </head>
 
@@ -71,14 +75,17 @@
   <footer class="blue page-footer">
     <div class="container">
       <div class="row">
-        <a class="grey-text text-lighten-3" href="https://docs.google.com/forms/d/1xCzS0IKkDNqtPP2xjbQZf1fNxNbqzM_MFU574TVXOU0" target="_blank">回報問題</a> |
-        <a class="grey-text text-lighten-3" href="https://forum.gamer.com.tw/C.php?bsn=18966&snA=113564" target="_blank">操作說明@巴哈姆特</a> |
-        <a class="grey-text text-lighten-3" href="https://github.com/afg984/void-battery" target="_blank">GitHub</a>
+        <tag><a class="grey-text text-lighten-3" href="https://docs.google.com/forms/d/1xCzS0IKkDNqtPP2xjbQZf1fNxNbqzM_MFU574TVXOU0" target="_blank">回報問題</a></tag>
+        <tag><a class="grey-text text-lighten-3" href="https://forum.gamer.com.tw/C.php?bsn=18966&snA=113564" target="_blank">操作說明@巴哈姆特</a></tag>
+        <tag><a class="grey-text text-lighten-3" href="https://github.com/afg984/void-battery" target="_blank">GitHub</a></tag>
       </div>
     </div>
     <div class="footer-copyright">
       <div class="container">
-        <span class="grey-text text-lighten-4">version: {{ version }}</span>
+        <span class="grey-text text-lighten-4">
+          <tag>更新時間 / {{ version }}</tag>
+          <tag>相容版本 / {{ compat }}</tag>
+        </span>
       </div>
     </div>
   </footer>
