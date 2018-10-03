@@ -109,14 +109,7 @@
     });
     function askForExtensionInstallation(message) {
       var pobcode = document.getElementById("pobcode");
-      pobcode.innerHTML = '請先安裝 Chrome 擴充套件。<br><button class="btn" id="installExtension">安裝</button> 或是<a href="https://chrome.google.com/webstore/detail/kiajcecpeadokhboljndajchpgmekmbl" target="_blank">前往 Chrome 線上應用程式商店</a>';
-      document.getElementById("installExtension").onclick = function () {
-        chrome.webstore.install(
-          "https://chrome.google.com/webstore/detail/kiajcecpeadokhboljndajchpgmekmbl",
-          function extensionSuccessCallback(successMessage) { sendMessage(message); },
-          console.error
-        );
-      };
+      pobcode.innerHTML = '請先安裝 Chrome 擴充套件。<br><a href="https://chrome.google.com/webstore/detail/kiajcecpeadokhboljndajchpgmekmbl" target="_blank">前往 Chrome 線上應用程式商店</a>';
     }
     function sendMessage(message, canAskForInstallation) {
       var submit = document.getElementById("fsubmit");
