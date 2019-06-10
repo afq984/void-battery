@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block style %}
+<style>
+    span.icon {
+        height: 24px;
+        width: 24px;
+        display: inline-block;
+        background-size: contain !important;
+        vertical-align: middle;
+    }
+
+    span.exa {
+        background: url("http://tw.webcdn.pathofexile.com/image/Art/2DItems/Currency/CurrencyAddModToRare.png?h=1&scale=1&scaleIndex=0&v=1745ebafbd533b6f91bccf588ab5efc5&w=1") no-repeat center center
+    }
+
+    span.chaos {
+        background: url("http://tw.webcdn.pathofexile.com/image/Art/2DItems/Currency/CurrencyRerollRare.png?h=1&scale=1&scaleIndex=0&v=c60aa876dd6bab31174df91b1da1b4f9&w=1") no-repeat center center
+    }
+</style>
+
+{% endblock %}
+
+{% block footer %}
+<span class="item">倉庫數據更新時間 / {{ generatedAt }}</span>
+{% endblock %}
+
+
+{% block main %}
+<div class="ui warning message">
+    <div class="header">測試中</div>
+    目前僅支援追憶聯盟標準
+</div>
+
+<div class="ui grid">
+    <div class="three wide column">
+
+        <div class="ui vertical fluid tabular menu">
+            {% for en, zh in groups %}
+            <a href="/ninja/BetrayalSC/{{ en }}/" class="{% if current_group == en %}active {% endif %}item">{{ zh }}
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="thirteen wide stretched column small">
+        <!-- <p style="float: right;"><span class="exa icon"></span> = {{ exaltedPrice }} x <span class="chaos icon"></span></p> -->
+        <table class="ui celled table unstackable">
+            <thead>
+                <tr>
+                    <th><span class="icon"></span>名稱</th>
+                    {% if is_user_stash %}
+                    <th>倉庫 (x, y) <span class="badge"> 註記</span></th>
+                    {% endif %}
+                    <th class="right aligned">價格 <span class="icon"></span></th>
+                    <th class="center aligned">樣本</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in items %}
+                <tr>
+                    <td><span class="icon" style="background: url(&quot;{{ p.icon }}&quot;) no-repeat center center"></span>
+                        <span>{{
+                            p.name }}</span>
+                        <a target="_blank" style="white-space: nowrap" href="http://poedb.tw/xyz.php?name={{ p.name }}&league=Warbands&buyout_only=1&boc_min=1"><i
+                                class="material-icons" style="vertical-align: middle">search</i></a>
+                        {% if is_user_stash %}
+                    <td><span style="font-weight: bold">{{ p.stash }}</span> ({{ p.x }}, {{ p.y
+                        }}){% if
+                        p.note %} <span class="badge">{{ p.note }}</span>{% endif %}</td>
+                    {% endif %}
+                    <td class="right aligned" style="white-space: nowrap"><span class="price">{{ p.price }}</span>
+                        x
+                        <span class="icon {{ p.unit }}">
+                    </td>
+                    <td class="center aligned">{{ p.rated_samples }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

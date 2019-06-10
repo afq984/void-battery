@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Void Battery</title>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-118381291-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+
+    gtag('config', 'UA-118381291-1');
+  </script>
+  <link rel="chrome-webstore-item" href="https://chrome.google.com/webstore/detail/kiajcecpeadokhboljndajchpgmekmbl">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
+
+  <style>
+    body {
+      display: flex;
+      min-height: 100vh;
+      flex-direction: column;
+    }
+
+    main {
+      margin-top: 16px;
+      margin-bottom: 16px;
+      flex: 1 0 auto;
+    }
+  </style>
+  {% block style %}
+  {% endblock %}
+</head>
+
+<body>
+  <nav class="ui inverted pointing menu">
+    <div class="ui container">
+      <a href="/" class="header item{% if request.path == '/' %} active {% endif %}">
+        Void Battery
+      </a>
+
+      {% for path, title in pages %}
+      <a class="item{% if request.path == path %} active{% endif %}" href="{{ path }}">{{ title }}</a>
+      {% endfor %}
+    </div>
+  </nav>
+
+  <main class="ui main container">
+    {% block main %}
+    {% endblock %}
+  </main>
+  <footer class="ui inverted vertical footer segment">
+    <div class="ui center aligned container">
+      <div class="ui horizontal inverted small divided link list">
+          <span class="item">更新時間 / {{ version }}</span>
+          {% block footer %}
+          {% endblock %}
+        <a class="item" href="https://github.com/afg984/void-battery" target="_blank">GitHub</a>
+      </div>
+    </div>
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script>
+  {% block script %}
+  {% endblock %}
+</body>
+
+</html>

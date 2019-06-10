@@ -91,6 +91,7 @@ SLOT_MAP = {
 
 
 def clean_name(name):
+    name = name.replace('追憶之 ', '')
     return re.sub(r'\<\<set\:\w+\>\>', '', name)
 
 
@@ -121,7 +122,7 @@ def i_item_to_pob(item):
         else:
             raise nebuloch.names.CannotTranslateName(twbase)
     else:
-        yield nebuloch.names.translate(item['typeLine'].rpartition('精良的 ')[-1])
+        yield nebuloch.names.translate(item['typeLine'].rpartition('精良的 ')[-1].rpartition('追憶之 ')[-1])
     yield "Unique ID: {}".format(item['id'])
     yield "Item Level: {}".format(item['ilvl'])
     quality = 0
@@ -269,7 +270,7 @@ def main():
     b = args.b
     poesessid = args.poesessid
     if a.lower().endswith('.json') and b.lower().endswith('.json'):
-        with open(a) as af, b as bf:
+        with open(a) as af, open(b) as bf:
             items = json.load(af)
             tree = json.load(bf)
         print(export(items, tree))

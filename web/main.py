@@ -8,11 +8,13 @@ import zlib
 import google.appengine.api.modules.modules
 from google.appengine.api import app_identity
 import cloudstorage as gcs
-from flask import Flask, render_template, request, abort
+import cachetools.func
+from flask import Flask, render_template, request, abort, redirect
 from pobgen import export
 from nebuloch.names import CannotTranslateName
 from nebuloch.mods import CannotTranslateMod
 import nebuloch
+import prices
 
 
 app = Flask(__name__)
@@ -29,7 +31,7 @@ def write_exception_data(data):
         version = '<NONE>'
     m.update(version)
     tracking = m.hexdigest()
-    filename = '/%s/%s.tracking' % (bucket_name, tracking)
+    filename = '/%s/error-dumps/%s.tracking' % (bucket_name, tracking)
     gcs_file = gcs.open(filename, 'w', content_type='binary/octet-stream')
     gcs_file.write(d)
     gcs_file.close()
@@ -37,8 +39,56 @@ def write_exception_data(data):
     return tracking
 
 
-@app.route('/', methods=['GET', 'POST'])
+PAGES = [
+    ('/pob/', 'POB'),
+    ('/ninja/BetrayalSC/', '查價')
+]
+
+@app.route('/')
 def index():
+    return render_template(
+        'index.html',
+        pages=PAGES,
+        version=google.appengine.api.modules.modules.get_current_version_name(),
+    )
+
+@app.route('/ninja/BetrayalSC/')
+def red():
+    return redirect('/ninja/BetrayalSC/Currency/')
+
+
+@cachetools.func.ttl_cache()
+def get_price_info(league):
+    bucket_name = app_identity.get_default_gcs_bucket_name()
+    filename = '/%s/prices/%s.json' % (bucket_name, league)
+    file = gcs.open(filename)
+    data = json.load(file)
+    file.close()
+    return prices.getPriceGroups(data)
+
+
+@app.route('/ninja/BetrayalSC/<group>/')
+def ninja(group):
+    priceGroups, exaltedPrice, generatedAt = get_price_info('BetrayalSC')
+    try:
+        info = priceGroups[group]
+    except KeyError:
+        abort(404)
+    return render_template(
+        'ninja.html',
+        pages=PAGES,
+        current_group=group,
+        groups=prices.Groups,
+        version=google.appengine.api.modules.modules.get_current_version_name(),
+        items=info,
+        exaltedPrice=exaltedPrice,
+        generatedAt=generatedAt,
+        is_user_stash=False,
+    )
+
+
+@app.route('/pob/', methods=['GET', 'POST'])
+def pob():
     if request.method == 'GET':
         data = ''
     else:
@@ -70,7 +120,8 @@ def index():
         if not success:
             data = '{}\n追蹤代碼：{}'.format(error, tracking)
     return render_template(
-        'index.html',
+        'pob.html',
+        pages=PAGES,
         accountName=request.args.get('accountName', ''),
         character=request.args.get('character', ''),
         data=data,
