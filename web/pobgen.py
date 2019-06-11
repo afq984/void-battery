@@ -153,10 +153,16 @@ def i_item_to_pob(item):
         yield tr(mod)
     for cmod in item.get('craftedMods', ()):
         yield '{crafted}' + tr(cmod)
+    for fmod in item.get('fracturedMods', ()):
+        yield '{fractured}' + tr(fmod)
     if item.get('shaper'):
         yield 'Shaper Item'
     if item.get('elder'):
         yield 'Elder Item'
+    if item.get('fractured'):
+        yield 'Fractured Item'
+    if item.get('synthesised'):
+        yield 'Synthesised Item'
 
 
 def item_to_pob(item):
