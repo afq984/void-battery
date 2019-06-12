@@ -125,7 +125,12 @@ class Lexer:
             self.state = self.state(self)
         if self.tokens:
             # print(self.tokens[0])
-            return self.tokens.popleft()
+            r = self.tokens.popleft()
+            # workaround for text error
+            if r.string == '1attack_damage_+%_while_you_have_fortify':
+                self.tokens.appendleft(Token('attack_damage_+%_while_you_have_fortify', TokenType.Text, r.line, r.column+2))
+                return Token(1, TokenType.Number, r.line, r.column)
+            return r
         raise StopIteration()
 
 
