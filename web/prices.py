@@ -55,8 +55,10 @@ def getPriceGroups(jsond):
 
 
     for discriminator, p in priceData.items():
+        if p['chaosPrice'] is None:  # XXX why can we have None here?
+            continue
         c = Fraction(p['chaosPrice'])
-        if c >= exaltedPrice and p['name'] != '崇高石':
+        if exaltedPrice is not None and c >= exaltedPrice and p['name'] != '崇高石':
             q = c / exaltedPrice
             u = 'exa'
         else:
