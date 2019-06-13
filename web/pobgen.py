@@ -43,7 +43,8 @@ def Tree(char, tree):
             E.URL(
                 'https://www.pathofexile.com/passive-skill-tree/' + get_encoded_tree(char, tree)
             ),
-            E.Sockets(*sockets)
+            E.Sockets(*sockets),
+            treeVersion='3_7'
         ),
         activeSpec='1'
     )
