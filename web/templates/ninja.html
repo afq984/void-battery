@@ -28,8 +28,8 @@
 
 {% block main %}
 <div class="ui warning message">
-    <div class="header">測試中</div>
-    目前僅支援戰亂聯盟標準
+    <div class="header">維修中</div>
+    由於 3.8 修改數據格式，目前此頁面無作用
 </div>
 
 <div class="ui grid">
@@ -37,7 +37,7 @@
 
         <div class="ui vertical fluid tabular menu">
             {% for en, zh in groups %}
-            <a href="/ninja/BetrayalSC/{{ en }}/" class="{% if current_group == en %}active {% endif %}item">{{ zh }}
+            <a href="/ninja/LeagueSC/{{ en }}/" class="{% if current_group == en %}active {% endif %}item">{{ zh }}
             </a>
             {% endfor %}
         </div>

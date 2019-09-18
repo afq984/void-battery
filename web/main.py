@@ -53,7 +53,7 @@ def get_application_version():
 
 PAGES = [
     ('/pob/', 'POB'),
-    ('/ninja/BetrayalSC/', '查價')
+    ('/ninja/LeagueSC/', '查價')
 ]
 
 
@@ -66,9 +66,9 @@ def index():
     )
 
 
-@app.route('/ninja/BetrayalSC/')
+@app.route('/ninja/LeagueSC/')
 def red():
-    return redirect('/ninja/BetrayalSC/Currency/')
+    return redirect('/ninja/LeagueSC/Currency/')
 
 
 @cachetools.func.ttl_cache()
@@ -82,8 +82,18 @@ def get_price_info(league):
     return prices.getPriceGroups(data)
 
 
-@app.route('/ninja/BetrayalSC/<group>/')
+@app.route('/ninja/LeagueSC/<group>/')
 def ninja(group):
+    # XXX
+    return render_template(
+        'ninja.html',
+        pages=PAGES,
+        current_group=group,
+        version=get_application_version(),
+        groups=[('Currency', '通貨')],
+        generatedAt='無資料',
+        is_user_stash=False,
+    )
     priceGroups, exaltedPrice, generatedAt = get_price_info('BetrayalSC')
     try:
         info = priceGroups[group]
