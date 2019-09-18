@@ -18,8 +18,8 @@ app = Flask(__name__)
 
 
 def noop(function):
-    def _noop(input):
-        pass
+    def _noop(data):
+        logging.exception('Data example not stored')
     return _noop
 
 
