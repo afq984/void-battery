@@ -14,19 +14,23 @@ with open('out/release/words.json', 'wt') as file:
     json.dump(words, file, ensure_ascii=False, indent=0, sort_keys=True)
 
 
-with open('out/extracted/BaseItemTypes.tc.json') as file:
-    data = json.load(file)
-z = [m[4].strip() for m in data[0]['data']]
+def getnames(fn, fieldname):
+    with open(fn) as file:
+        data = json.load(file)
+    index, = [c['rowid'] for c in data[0]['header'] if c['name'] == fieldname]
+    return [m[index].strip() for m in data[0]['data']]
 
 
-with open('out/extracted/BaseItemTypes.en.json') as file:
-    data = json.load(file)
-e = [m[4].strip() for m in data[0]['data']]
+z = getnames('out/extracted/BaseItemTypes.tc.json', 'Name')
+e = getnames('out/extracted/BaseItemTypes.en.json', 'Name')
+z.extend(getnames('out/extracted/ActiveSkills.tc.json', 'DisplayedName'))
+e.extend(getnames('out/extracted/ActiveSkills.en.json', 'DisplayedName'))
 
 
 ze = collections.defaultdict(list)
 for k, v in zip(z, e):
-    ze[k].append(v)
+    if v and '(NOT CURRENTLY USED)' not in v:
+        ze[k].append(v)
 
 for k, v in ze.items():
     v = set(v)
@@ -37,6 +41,7 @@ for k, v in ze.items():
 # XXX Overrides
 ze['龍骨細劍'] = ['Dragonbone Rapier']
 ze['鏽劍'] = ['Rusted Sword']
+ze['奉獻'] = ['The Offering']
 
 
 with open('out/release/bases.json', 'wt') as file:

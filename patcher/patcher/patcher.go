@@ -293,7 +293,7 @@ func readSizedString(r *bufio.Reader) string {
 
 func main() {
 	conn, err := net.DialTimeout("tcp4", "login.tw.pathofexile.com:12999", time.Second)
-	//conn, err := net.DialTimeout("tcp", "pathofexile.com:12995", time.Second)
+	// conn, err := net.DialTimeout("tcp", "pathofexile.com:12995", time.Second)
 	check(err)
 	p := NewPatcher(conn)
 	fmt.Println("# Game version is", p.GameVersion())
@@ -302,6 +302,8 @@ func main() {
 	p.Sync("Metadata/StatDescriptions/stat_descriptions.txt")
 	p.Sync("Data/BaseItemTypes.dat")
 	p.Sync("Data/Traditional Chinese/BaseItemTypes.dat")
+	p.Sync("Data/ActiveSkills.dat")
+	p.Sync("Data/Traditional Chinese/ActiveSkills.dat")
 	p.Sync("Data/Traditional Chinese/Words.dat")
 	p.MakeLink()
 }

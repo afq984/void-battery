@@ -100,12 +100,7 @@ def i_item_to_pob(item):
     rarity = RARITY_MAP[item['frameType']]
     yield 'Rarity: {}'.format(rarity)
     if rarity == 'RARE':
-        itype = item['category']
-        if not isinstance(itype, str):
-            itype, isubtype = next(iter(itype.items()))
-            if isubtype:
-                itype = isubtype[0]
-        yield '{} {} {}'.format(rarity, itype, item["id"][-7:])
+        yield '{} {}'.format(rarity, item["id"][-7:])
     elif rarity in ('UNIQUE', 'RELIC'):
         yield nebuloch.names.translate(clean_name(item['name']))
     if rarity == 'MAGIC':
@@ -191,6 +186,7 @@ def import_socketed_items(item, slot):
     return gems, jewels
 
 
+# XXX since poe 3.8, category is removed
 # These are the categories that we are uncapable of handling at the moment
 CATEGORY_BLACKLIST = set('gems currency maps cards monsters leaguestones'.split())
 
@@ -213,9 +209,7 @@ def ItemsSkills(items):
     for id, item in enumerate(items, 1):
         strid = str(id)
         inventoryId = item['inventoryId']
-        if next(iter(item['category'])) in CATEGORY_BLACKLIST:
-            pass
-        elif inventoryId in INVENTORY_BLACKLIST or inventoryId.endswith('MasterCrafting'):
+        if inventoryId in INVENTORY_BLACKLIST or inventoryId.endswith('MasterCrafting'):
             pass
         elif item['frameType'] not in RARITY_MAP:
             warnings.warn('frameType = {!r}, inventoryId = {!r}'.format(item['frameType'], inventoryId))

@@ -1,12 +1,25 @@
 #!/usr/bin/env python3
 import sys
 import os
-from PyPoE.cli.exporter import util
+from PyPoE.cli.exporter import util, config
 import tqdm as tqdm_
 
 
 def tqdm(arg1, *args, **kwargs):
     return arg1
+
+
+old_add_option = config.add_option
+
+
+def add_option(name, *args):
+    if name == 'language':
+        old_add_option('language', 'option("English", "Traditional Chinese", default="English")')
+    else:
+        old_add_option(name, *args)
+
+
+config.add_option = add_option
 
 
 class FileSystemObject:
