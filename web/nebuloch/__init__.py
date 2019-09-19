@@ -9,3 +9,11 @@ def datapath(filename):
 with open(datapath('version.txt')) as file:
     version = file.read()
 del file
+
+
+class TranslateError(Exception):
+    def __init__(self, input):
+        self.input = input
+
+    def __str__(self):
+        return repr(self.input)

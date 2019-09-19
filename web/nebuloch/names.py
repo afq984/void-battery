@@ -1,6 +1,6 @@
 import json
 
-from . import datapath
+from . import datapath, TranslateError
 
 
 with open(datapath('bases.json')) as file:
@@ -16,7 +16,7 @@ NAME_MAP.update(WORDS)
 NAME_MAP.update(BASES)
 
 
-class CannotTranslateName(Exception):
+class CannotTranslateName(TranslateError):
     pass
 
 

@@ -7,7 +7,7 @@ import collections
 import json
 from decimal import Decimal
 
-from . import datapath
+from . import datapath, TranslateError
 
 
 R = re.compile(r'(?:%(\d+)\$(\+?)d)|(?:([+]?)%(\d+)%)|([+-]?\d+)|(%%)')
@@ -241,7 +241,7 @@ def build_index(source_lang, dest_lang, mods=None):
     return dict(index)
 
 
-class CannotTranslateMod(Exception):
+class CannotTranslateMod(TranslateError):
     pass
 
 
