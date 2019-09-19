@@ -201,9 +201,15 @@ def repl_symbolic(match):
 class Translator:
     def __init__(self, source_lang, dest_lang, mods=None):
         self.index = build_index(source_lang, dest_lang, mods=mods)
+        self.passives = build_passives_index()
 
     def __call__(self, mod):
-        return translate(mod, self.index)
+        return translate(mod, self.index, self.passives)
+
+
+def build_passives_index():
+    with open(datapath('passives.json')) as file:
+        return json.load(file)
 
 
 def build_index(source_lang, dest_lang, mods=None):
@@ -244,7 +250,16 @@ def load_mods():
         return json.load(file)
 
 
-def translate(mod, index):
+_ALLOCATES_TC = '配置 '
+
+
+def translate(mod, index, passives):
+    if mod.startswith(_ALLOCATES_TC):
+        try:
+            return 'Allocates ' + passives[mod[len(_ALLOCATES_TC):]]
+        except KeyError:
+            raise CannotTranslateMod(mod) from None
+
     query_key = M.sub('#', mod)
     try:
         variants = index[query_key]
