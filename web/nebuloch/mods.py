@@ -256,7 +256,7 @@ _ALLOCATES_TC = '配置 '
 def translate(mod, index, passives):
     if mod.startswith(_ALLOCATES_TC):
         try:
-            return 'Allocates ' + passives[mod[len(_ALLOCATES_TC):]]
+            return 'Allocates ' + passives[mod[len(_ALLOCATES_TC):].strip()]
         except KeyError:
             raise CannotTranslateMod(mod) from None
 
