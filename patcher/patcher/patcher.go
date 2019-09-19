@@ -297,13 +297,12 @@ func main() {
 	check(err)
 	p := NewPatcher(conn)
 	fmt.Println("# Game version is", p.GameVersion())
-	p.Sync("PathOfExile.exe")
-	p.Sync("PathOfExile_x64.exe")
-	p.Sync("Metadata/StatDescriptions/stat_descriptions.txt")
-	p.Sync("Data/BaseItemTypes.dat")
-	p.Sync("Data/Traditional Chinese/BaseItemTypes.dat")
-	p.Sync("Data/ActiveSkills.dat")
-	p.Sync("Data/Traditional Chinese/ActiveSkills.dat")
-	p.Sync("Data/Traditional Chinese/Words.dat")
+	for _, path := range os.Args[1:] {
+		if strings.HasSuffix(path, "/") {
+			p.SyncRecursive(strings.TrimSuffix(path, "/"))
+		} else {
+			p.Sync(path)
+		}
+	}
 	p.MakeLink()
 }
