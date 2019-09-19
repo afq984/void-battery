@@ -249,7 +249,7 @@ def translate(mod, index):
     try:
         variants = index[query_key]
     except KeyError:
-        raise CannotTranslateMod(mod)  # from None
+        raise CannotTranslateMod(mod) from None
     for tc, defaults in variants:
         match = tc.match(mod)
         if match is None:
@@ -262,7 +262,7 @@ def translate(mod, index):
         warnings.warn(
             'Matched TC {!r} has no corresponding '
             'default translations'.format(tc))
-    raise CannotTranslateMod(mod)  # from None
+    raise CannotTranslateMod(mod) from None
 
 
 def debug(mod):
