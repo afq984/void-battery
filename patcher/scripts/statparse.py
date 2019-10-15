@@ -1,6 +1,6 @@
 from collections import namedtuple, deque
 from enum import Enum
-import json
+import ast
 import warnings
 import tqdm
 
@@ -15,27 +15,10 @@ class TokenType(Enum):
     EOF = 7
 
 
-string_workarounds = {
-    '"若範圍內含 40 點力量，\\裂地之擊在暈眩敵人時有 %1%%% 機率獲得耐力球"',
-    '"Velocidad de Ataque y de Lanzamiento de Hechizos aumentada un %1%%%\\si la Recarga del Escudo de Energía comenzó Recientemente"',
-    '"Velocidad de Ataque y de Lanzamiento de Hechizos reducida un %1%%%\\si la Recarga del Escudo de Energía comenzó Recientemente"',
-    '"Projéteis de Ataques têm %1%%% de chance de infligir Sangramento ao Acertar enquanto\\você tem um Lacaio Bestial"',
-    '"Projéteis de Ataques têm %1%%% de chance de Mutilar ao Acertar enquanto\\você tem um Lacaio Bestial"',
-    '"Projéteis de Ataques têm %1%%% de chance de Envenenar ao Acertar enquanto\\você tem um Lacaio Bestial"',
-    '"แช่เย็นศัตรู %1$d เมื่อโจมตีโดน จะทำให้ศัตรูช้าลง\t30%%"',
-    '"%1%%% d\'Augmentation de l\'Effet de Vent favorable sur vous pour chaque\\Aptitude que vous avez utilisé Récemment, allant jusqu\'à 100%%"',
-    '"%1%%% de Réduction de l\'Effet de Vent favorable sur vous pour chaque\\Aptitude que vous avez utilisé Récemment, allant jusqu\'à 100%%"',
-}
-
-
 def parse_string(s):
-    if s in string_workarounds:
-        return eval(s)
-    try:
-        return json.loads(s)
-    except Exception as e:
-        warnings.warn(f'{e} {s}')
-        return eval(s)
+    r = ast.literal_eval(s)
+    assert isinstance(r, str)
+    return r
 
 
 class Token(namedtuple('Token', 'string type line column')):
