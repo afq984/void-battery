@@ -1,4 +1,4 @@
-package main // import "poepatcher"
+package main // import "github.com/afq984/void-battery/patcher/poepatcher"
 
 import (
 	"bufio"

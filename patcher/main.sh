@@ -2,7 +2,7 @@ export1() {
 	venv/bin/python scripts/exporter.py dat json --files=$1 out/extracted/$1.$2.json
 }
 set -eux
-patcher/poepatcher \
+poepatcher/poepatcher \
 	"PathOfExile.exe" \
 	"PathOfExile_x64.exe" \
 	"Metadata/StatDescriptions/stat_descriptions.txt" \
