@@ -166,9 +166,12 @@ class Variant:
             updated_values.append(value)
         return updated_values
 
-    def format(self, values):
+    def format(self, values, cluster_flag):
         assert len(values) == self.value_count, (len(values), self.value_count)
-        return self.formatter.format(*self.apply_flags(values))
+        if cluster_flag:
+            return "Added Small Passive Skills grant: "+self.formatter.format(*self.apply_flags(values))
+        else:
+            return self.formatter.format(*self.apply_flags(values))
 
     def match(self, mod_string):
         match = re.match(self.matcher, mod_string)
@@ -262,7 +265,14 @@ def translate(mod, index, passives):
 
     query_key = M.sub('#', mod)
     try:
-        variants = index[query_key]
+        cluster_flag = False   
+        if "附加的小型天賦給予：" in query_key:
+            cluster_flag = True
+            query_key = query_key[10:]
+            mod = mod[10:]
+            variants = index[query_key]
+        else:
+            variants = index[query_key]
     except KeyError:
         raise CannotTranslateMod(mod) from None
     for tc, defaults in variants:
@@ -273,7 +283,7 @@ def translate(mod, index, passives):
             continue
         for default in defaults:
             if default.qualify(match):
-                return default.format(match)
+                return default.format(match, cluster_flag)
         warnings.warn(
             'Matched TC {!r} has no corresponding '
             'default translations'.format(tc))
