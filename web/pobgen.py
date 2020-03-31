@@ -31,6 +31,9 @@ def get_encoded_tree(char, tree):
 
 def Tree(char, tree):
     sockets = []
+    # XXX since 3.10, we don't have jewel_slots
+    # See also:
+    # https://github.com/afq984/void-battery/issues/2#issuecomment-606179190
     # for id, item in enumerate(tree['items'], 1):
     #     x = item['x']
     #     sockets.append(
