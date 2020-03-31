@@ -31,12 +31,13 @@ def get_encoded_tree(char, tree):
 
 def Tree(char, tree):
     sockets = []
-    for id, item in enumerate(tree['items'], 1):
-        x = item['x']
-        sockets.append(
-            E.Socket(
-                nodeId=str(tree['jewel_slots'][x]),
-                itemId=str(id)))
+    # for id, item in enumerate(tree['items'], 1):
+    #     x = item['x']
+    #     sockets.append(
+    #         E.Socket(
+    #             # nodeId=str(tree['jewel_slots'][x]),
+    #             nodeId=str(tree['hashes'][x]),
+    #             itemId=str(id)))
 
     return E.Tree(
         E.Spec(
@@ -44,7 +45,7 @@ def Tree(char, tree):
                 'https://www.pathofexile.com/passive-skill-tree/' + get_encoded_tree(char, tree)
             ),
             E.Sockets(*sockets),
-            treeVersion='3_8'
+            treeVersion='3_10'
         ),
         activeSpec='1'
     )
