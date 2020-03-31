@@ -1,3 +1,7 @@
+# Prepare data
+
+Use the tools in `../patcher` to populate game data
+
 # Testing locally
 
 ## Method 1: Use dev_appserver.py from Google Cloud SDK
