@@ -166,12 +166,9 @@ class Variant:
             updated_values.append(value)
         return updated_values
 
-    def format(self, values, cluster_flag):
+    def format(self, values):
         assert len(values) == self.value_count, (len(values), self.value_count)
-        if cluster_flag:
-            return "Added Small Passive Skills grant: "+self.formatter.format(*self.apply_flags(values))
-        else:
-            return self.formatter.format(*self.apply_flags(values))
+        return self.formatter.format(*self.apply_flags(values))
 
     def match(self, mod_string):
         match = re.match(self.matcher, mod_string)
@@ -256,6 +253,14 @@ def load_mods():
 _ALLOCATES_TC = '配置 '
 
 
+# Not all mods that starts with `GH_ISSUE3_TC`
+# has a corresponding entry in stats_descriptions.json (at least for now)
+# https://github.com/afq984/void-battery/issues/3
+# https://github.com/Kyusung4698/PoE-Overlay/issues/324
+GH_ISSUE3_TC = '附加的小型天賦給予：'
+GH_ISSUE3_EN = 'Added Small Passive Skills grant: '
+
+
 def translate(mod, index, passives):
     if mod.startswith(_ALLOCATES_TC):
         try:
@@ -264,17 +269,19 @@ def translate(mod, index, passives):
             raise CannotTranslateMod(mod) from None
 
     query_key = M.sub('#', mod)
+    cluster = False
     try:
-        cluster_flag = False   
-        if "附加的小型天賦給予：" in query_key:
-            cluster_flag = True
-            query_key = query_key[10:]
-            mod = mod[10:]
-            variants = index[query_key]
-        else:
-            variants = index[query_key]
+        variants = index[query_key]
     except KeyError:
-        raise CannotTranslateMod(mod) from None
+        if query_key.startswith(GH_ISSUE3_TC):
+            cluster = True
+            query_key = query_key[len(GH_ISSUE3_TC):]
+            try:
+                variants = index[query_key]
+            except ValueError:
+                raise CannotTranslateMod(mod) from None
+        else:
+            raise CannotTranslateMod(mod) from None
     for tc, defaults in variants:
         match = tc.match(mod)
         if match is None:
@@ -283,7 +290,10 @@ def translate(mod, index, passives):
             continue
         for default in defaults:
             if default.qualify(match):
-                return default.format(match, cluster_flag)
+                if cluster:
+                    return GH_ISSUE3_EN + default.format(match)
+                else:
+                    return default.format(match)
         warnings.warn(
             'Matched TC {!r} has no corresponding '
             'default translations'.format(tc))
