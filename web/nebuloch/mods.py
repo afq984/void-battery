@@ -278,7 +278,7 @@ def translate(mod, index, passives):
             query_key = query_key[len(GH_ISSUE3_TC):]
             try:
                 variants = index[query_key]
-            except ValueError:
+            except KeyError:
                 raise CannotTranslateMod(mod) from None
         else:
             raise CannotTranslateMod(mod) from None
