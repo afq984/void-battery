@@ -276,6 +276,7 @@ def translate(mod, index, passives):
         if query_key.startswith(GH_ISSUE3_TC):
             cluster = True
             query_key = query_key[len(GH_ISSUE3_TC):]
+            mod = mod[len(GH_ISSUE3_TC):]
             try:
                 variants = index[query_key]
             except KeyError:
