@@ -15,5 +15,5 @@ dev_appserver.py app.yaml
 ```
 virtualenv venv
 venv/bin/pip install -r requirements.txt
-venv/bin/python main.py
+venv/bin/python local_web.py
 ```
