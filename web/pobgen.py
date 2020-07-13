@@ -131,7 +131,7 @@ def i_item_to_pob(item):
         if prop['name'] == '品質':
             quality = prop['values'][0][0].lstrip('+').rstrip('%')
         if prop['name'] == '範圍':
-            radius = {'小': 'Small', '中': 'Medium', '大': 'Large'}[prop['values'][0][0]]
+            radius = {'小': 'Small', '中': 'Medium', '大': 'Large', '可變的': 'Variable'}[prop['values'][0][0]]
     yield 'Quality: {}'.format(quality)
     if radius is not None:
         yield 'Radius: {}'.format(radius)
