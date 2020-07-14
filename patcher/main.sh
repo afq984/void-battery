@@ -9,13 +9,15 @@ poepatcher/poepatcher \
 	"Data/BaseItemTypes.dat" \
 	"Data/PassiveSkills.dat" \
 	"Data/ActiveSkills.dat" \
+	"Data/SkillGems.dat" \
 	"Data/Traditional Chinese/BaseItemTypes.dat" \
 	"Data/Traditional Chinese/PassiveSkills.dat" \
 	"Data/Traditional Chinese/ActiveSkills.dat" \
+	"Data/Traditional Chinese/SkillGems.dat" \
 	"Data/Traditional Chinese/Words.dat"
 
 cp Content.ggpk.d/latest/Metadata/StatDescriptions/stat_descriptions.txt out/extracted/stat_descriptions.txt
-datfiles=(BaseItemTypes ActiveSkills PassiveSkills)
+datfiles=(BaseItemTypes ActiveSkills PassiveSkills SkillGems)
 venv/bin/python scripts/exporter.py config set language 'English'
 for datfile in "${datfiles[@]}"
 do
