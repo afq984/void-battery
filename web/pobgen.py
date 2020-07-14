@@ -30,17 +30,16 @@ def get_encoded_tree(char, tree):
 
 
 def Tree(char, tree):
+    # from https://web.poe.garena.tw/passive-skill-tree
+    jewelSlots = [26725, 36634, 33989, 41263, 60735, 61834, 31683, 28475, 6230, 48768, 34483, 7960, 46882, 55190, 61419, 2491, 54127, 32763, 26196, 33631, 21984, 29712, 48679, 9408, 12613, 16218, 2311, 22994, 40400, 46393, 61305, 12161, 3109, 49080, 17219, 44169, 24970, 36931, 14993, 10532, 23756, 46519, 23984, 51198, 61666, 6910, 49684, 33753, 18436, 11150, 22748, 64583, 61288, 13170, 9797, 41876, 59585]
     sockets = []
-    # XXX since 3.10, we don't have jewel_slots
-    # See also:
-    # https://github.com/afq984/void-battery/issues/2#issuecomment-606179190
-    # for id, item in enumerate(tree['items'], 1):
-    #     x = item['x']
-    #     sockets.append(
-    #         E.Socket(
-    #             # nodeId=str(tree['jewel_slots'][x]),
-    #             nodeId=str(tree['hashes'][x]),
-    #             itemId=str(id)))
+
+    for id, item in enumerate(tree['items'], 1):
+        x = item['x']
+        sockets.append(
+            E.Socket(
+                nodeId = str(jewelSlots[x]),
+                itemId = str(id)))
 
     return E.Tree(
         E.Spec(
