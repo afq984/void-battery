@@ -2,6 +2,14 @@
 
 Use the tools in `../patcher` to populate game data
 
+# Automated tests
+
+```
+pytest tests
+```
+
+Note that the tests are very limited
+
 # Testing locally
 
 ## Method 1: Use dev_appserver.py from Google Cloud SDK

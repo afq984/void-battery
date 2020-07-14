@@ -21,13 +21,12 @@ def test_roundtrip_1():
 def test_prev_failed():
     assert tr('每顆暴擊球 +0.3% 暴擊率') == '+0.3% Critical Strike Chance per Power Charge'
     assert tr('增加 15% 地雷傷害') == '15% increased Mine Damage'
-    assert tr('每個耐力球增加 0.4% 每秒最大生命回復') == '0.4% of maximum Life Regenerated per second per Endurance Charge'
     assert tr('0.27% 所造成的物理攻擊傷害偷取魔力') == '0.27% of Physical Attack Damage Leeched as Mana'
     assert tr('此物品插槽中寶石由等級 18 的急凍輔助') == 'Socketed Gems are Supported by Level 18 Hypothermia'
 
 
 def test_per_minute_to_per_second_2dp_if_required():
-    assert tr('每秒回復 0.47% 生命') == '0.47% of Life Regenerated per second'
+    assert tr('每秒回復 0.47% 生命') == 'Regenerate 0.47% of Life per second'
 
 
 def test_d_format():
@@ -43,10 +42,10 @@ def test_sign_in_constant():
 
 
 def test_s1d():
-    v = Variant('Chill Enemy for %1$d second when Hit, slowing them by 30%%', ['#'], [])
-    assert v.formatter == 'Chill Enemy for {0:} second when Hit, slowing them by 30%'
-    assert tr('擊中時冰緩敵人 1 秒，緩速敵人 30%') == 'Chill Enemy for 1 second when Hit, slowing them by 30%'
-    assert tr('擊中時冰緩敵人 2 秒，緩速敵人 30%') == 'Chill Enemy for 2 seconds when Hit, slowing them by 30%'
+    v = Variant('Chill Enemy for %1$d second when Hit, reducing their Action Speed by 30%%', ['#'], [])
+    assert v.formatter == 'Chill Enemy for {0:} second when Hit, reducing their Action Speed by 30%'
+    assert tr('被擊中時冰緩敵人 1 秒，減少 30% 他們的行動速度') == 'Chill Enemy for 1 second when Hit, reducing their Action Speed by 30%'
+    assert tr('被擊中時冰緩敵人 2 秒，減少 30% 他們的行動速度') == 'Chill Enemy for 2 seconds when Hit, reducing their Action Speed by 30%'
 
 
 def test_range_looks_like_negative():
