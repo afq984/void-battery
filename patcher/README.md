@@ -17,7 +17,7 @@ sh install.sh
 Download the game files and extract them:
 
 ```
-sh install.sh
+sh main.sh
 ```
 
 Compare the current extracted data with the ones in `../web`:
