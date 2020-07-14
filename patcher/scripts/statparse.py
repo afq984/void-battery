@@ -171,6 +171,8 @@ def getTextType(s):
         return TokenType.Number
     if s[0] == '-' and s[1:].isdigit():
         return TokenType.Number
+    if s[0] == '!' and getTextType(s[1:]) == TokenType.Number:
+        return TokenType.Range
     if s == '#':
         return TokenType.Range
     if '|' not in s:

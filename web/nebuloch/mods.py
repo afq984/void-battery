@@ -46,6 +46,9 @@ class ConfigurationError(Exception):
 
 
 def qualify_range(value, r):
+    if r.startswith('!'):
+        assert '|' not in r
+        return value != int(r[1:])
     low, sep, up = r.partition('|')
     if not sep:
         if low == '#':
@@ -61,6 +64,9 @@ def qualify_range(value, r):
 
 
 def range_default_value(r):
+    if r.startswith('!'):
+        assert '|' not in r
+        return int(r[1:]) + 1
     low, sep, up = r.partition('|')
     if low != '#':
         return int(low)
