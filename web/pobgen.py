@@ -149,7 +149,11 @@ def i_item_to_pob(item):
         item.get('enchantMods', ()),
         item.get('explicitMods', ())
     ):
-        yield tr(mod)
+        if mod.startswith('附加的小型天賦給予：'):
+            for str in mod.split('\n'):
+                yield tr(str)
+        else:
+            yield tr(mod)
     for cmod in item.get('craftedMods', ()):
         yield '{crafted}' + tr(cmod)
     for fmod in item.get('fracturedMods', ()):
