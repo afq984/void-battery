@@ -5,16 +5,13 @@ set -eux
 poepatcher/poepatcher \
 	"PathOfExile.exe" \
 	"PathOfExile_x64.exe" \
-	"Metadata/StatDescriptions/stat_descriptions.txt" \
-	"Data/BaseItemTypes.dat" \
-	"Data/PassiveSkills.dat" \
-	"Data/ActiveSkills.dat" \
-	"Data/SkillGems.dat" \
-	"Data/Traditional Chinese/BaseItemTypes.dat" \
-	"Data/Traditional Chinese/PassiveSkills.dat" \
-	"Data/Traditional Chinese/ActiveSkills.dat" \
-	"Data/Traditional Chinese/SkillGems.dat" \
-	"Data/Traditional Chinese/Words.dat"
+	"Bundles2/_.index.bin" \
+	"Bundles2/Metadata/StatDescriptions.bundle.bin" \
+	"Bundles2/Data.dat.bundle.bin" \
+	"Bundles2/Data.dat_4.bundle.bin" \
+	"Bundles2/Data/Traditional Chinese.dat.bundle.bin" \
+	"Bundles2/Data/Traditional Chinese.dat_2.bundle.bin" \
+	"Bundles2/Data/Traditional Chinese.dat_3.bundle.bin"
 
 cp Content.ggpk.d/latest/Metadata/StatDescriptions/stat_descriptions.txt out/extracted/stat_descriptions.txt
 datfiles=(BaseItemTypes ActiveSkills PassiveSkills SkillGems)
