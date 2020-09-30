@@ -60,7 +60,7 @@ func NewPatcher(conn net.Conn) *Patcher {
 }
 
 func (p *Patcher) getServers() []string {
-	_, err := p.conn.Write([]byte{1, 4})
+	_, err := p.conn.Write([]byte{1, 6})
 	check(err)
 	_, err = p.rdbuf.Discard(33)
 	check(err)
