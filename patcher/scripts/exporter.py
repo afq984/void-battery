@@ -43,13 +43,11 @@ class FileSystemRecord(FileSystemObject):
     def extract(self):
         with open(self.path, 'rb') as file:
             return file.read()
+            
+def get_content_path():
+    return "Content.ggpk.d/latest"
 
-
-def get_content_ggpk(path=None):
-    return FileSystemNode('Content.ggpk.d/latest')
-
-
-util.get_content_ggpk = get_content_ggpk
+util.get_content_path = get_content_path
 tqdm_.tqdm = tqdm
 
 
