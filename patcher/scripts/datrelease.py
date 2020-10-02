@@ -28,8 +28,8 @@ def generate_bases():
     e = getnames('out/extracted/BaseItemTypes.en.json', 'Name')
     z.extend(getnames('out/extracted/ActiveSkills.tc.json', 'DisplayedName'))
     e.extend(getnames('out/extracted/ActiveSkills.en.json', 'DisplayedName'))
-    z.extend(getnames('out/extracted/SkillGems.tc.json', 'Unknown0'))
-    e.extend(getnames('out/extracted/SkillGems.en.json', 'Unknown0'))
+    z.extend(getnames('out/extracted/SkillGems.tc.json', 'SupportSkillName'))
+    e.extend(getnames('out/extracted/SkillGems.en.json', 'SupportSkillName'))
 
     ze = build_mapping(z, e)
 
