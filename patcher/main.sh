@@ -29,4 +29,4 @@ venv/bin/python scripts/exporter.py dat json --files=Words.dat out/extracted/Wor
 
 venv/bin/python scripts/datrelease.py
 venv/bin/python scripts/statparse.py out/extracted/stat_descriptions.txt > out/release/stat_descriptions.json
-python scripts/charversion.py Content.ggpk.d/latest | tee out/release/version.txt
+venv/bin/python scripts/charversion.py Content.ggpk.d/latest | tee out/release/version.txt
