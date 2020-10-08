@@ -230,6 +230,9 @@ class Parser:
         return self.atStart
 
     def atDescription(self):
+        if self.peek().type == TokenType.Text:
+            self.expect(TokenType.Text)
+
         self.expect(TokenType.Line)
         self.description = {}
         self.r.append(self.description)
