@@ -6,7 +6,7 @@ poepatcher/poepatcher \
 	"PathOfExile.exe" \
 	"PathOfExile_x64.exe" \
 	"Bundles2/_.index.bin" \
-	"Bundles2/Metadata/StatDescriptions.bundle.bin" \
+	"Bundles2/_Preload.bundle.bin" \
 	"Bundles2/Data.dat.bundle.bin" \
 	"Bundles2/Data.dat_4.bundle.bin" \
 	"Bundles2/Data/Traditional Chinese.dat.bundle.bin" \
