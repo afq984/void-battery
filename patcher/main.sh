@@ -13,7 +13,9 @@ poepatcher/poepatcher \
 	"Bundles2/Data/Traditional Chinese.dat_2.bundle.bin" \
 	"Bundles2/Data/Traditional Chinese.dat_3.bundle.bin"
 
-cp Content.ggpk.d/latest/Metadata/StatDescriptions/stat_descriptions.txt out/extracted/stat_descriptions.txt
+venv/bin/python scripts/extract.py \
+    "Metadata/StatDescriptions/stat_descriptions.txt"
+
 datfiles=(BaseItemTypes ActiveSkills PassiveSkills SkillGems)
 venv/bin/python scripts/exporter.py config set language 'English'
 for datfile in "${datfiles[@]}"
