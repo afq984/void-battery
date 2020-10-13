@@ -19,6 +19,11 @@ from nebuloch.mods import Translator, CannotTranslateMod
 
 tr = Translator('Traditional Chinese', '')
 
+ALTERNATE_MAP = {
+    '異常的': 'Alternate1',
+    '相異的': 'Alternate2',
+    '幻影的': 'Alternate3',
+}
 
 def get_encoded_tree(char, tree):
     head = [0, 0, 0, 4, char['classId'], char['ascendancyClass'], 0]
@@ -54,7 +59,16 @@ def Tree(char, tree):
 
 
 def Gem(item):
-    nameSpec = nebuloch.names.translate(item['typeLine']).replace(' Support', '')
+    match = re.match('(.+)\s(.+)', item['typeLine'])
+    gemName = item['typeLine']
+    alternate = ''
+    
+    if match != None:
+        alternate = match.group(1)
+        gemName = match.group(2)
+
+    nameSpec = nebuloch.names.translate(gemName).replace(' Support', '')
+    qualityId = ALTERNATE_MAP.get(alternate, 'Default')
     level = 20
     quality = 0
     for prop in item['properties']:
@@ -67,6 +81,7 @@ def Gem(item):
         quality=str(quality),
         enabled='true',
         nameSpec=nameSpec,
+        qualityId=qualityId,
     )
 
 
