@@ -1,2 +1,2 @@
 from main import app
-app.run()
+app.run(host='localhost')
