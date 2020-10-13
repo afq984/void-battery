@@ -12,7 +12,7 @@ if __name__ == '__main__':
             print('%s not exist' % filePath)
             continue
 
-        desPath = os.path.join('out/release', os.path.basename(filePath))
+        desPath = os.path.join('out/extracted', os.path.basename(filePath))
         file = open(desPath, 'wb')
         file.write(data)
         file.close()
