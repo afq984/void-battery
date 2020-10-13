@@ -24,6 +24,24 @@
   </div>
   <input type="hidden" id="data" name="data">
 </form>
+{% if tr_errors %}
+<div class="row">
+  <div class="ui styled accordion">
+    <div class="title">
+      <i class="dropdown icon"></i>
+      {{ tr_errors | length }} 個無法翻譯的名稱或詞綴
+    </div>
+    <div class="content">
+      <ol>
+        {% for error in tr_errors %}
+        <li>{{ error }}</li>
+        {% endfor %}
+      </ol>
+    </div>
+  </div>
+  <hr style="border: none">
+</div>
+{% endif %}
 <div class="row">
   <code id="pobcode" style="word-break: break-all; white-space: pre-line">{{ data }}</code>
   <hr style="border: none">
@@ -115,5 +133,7 @@
       return false;
     }
   };
+
+  $('.ui.accordion').accordion();
 </script>
 {% endblock %}

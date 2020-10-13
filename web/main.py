@@ -7,9 +7,7 @@ import os
 
 import cachetools.func
 from flask import Flask, render_template, request, abort, redirect
-from pobgen import export
-from nebuloch.names import CannotTranslateName
-from nebuloch.mods import CannotTranslateMod
+from pobgen import POBGenerator
 import nebuloch
 import prices
 
@@ -116,6 +114,7 @@ def ninja(group):
 def pob():
     if request.method == 'GET':
         data = ''
+        tr_errors = None
     else:
         r_form_data = request.form['data']
         try:
@@ -127,31 +126,20 @@ def pob():
             tree = j['passive-skills']
         except KeyError:
             abort(400)
-        success = False
+        generator = POBGenerator()
         try:
-            data = export(items, tree)
-        except CannotTranslateName as e:
-            error = '錯誤：無法翻譯此名稱：' + str(e)
-            tracking = write_exception_data(j)
-        except CannotTranslateMod as e:
-            error = '錯誤：無法翻譯此詞綴：' + str(e)
-            tracking = write_exception_data(j)
-        except Exception:
-            error = '伺服器錯誤'
-            tracking = write_exception_data(j)
-        else:
-            success = True
-        if not success:
-            data = '{}'.format(error)
-            tracking = tracking  # trick pyflakes
-            # XXX: restore this when write_exception_data is upgraded to python3
-            # data = '{}\n追蹤代碼：{}'.format(error, tracking)
+            data = generator.export(items, tree)
+            tr_errors = generator.errors
+        except Exception as e:
+            data = f'伺服器錯誤\n{e.__class__.__name__}: {e}'
+            tr_errors = None
     return render_template(
         'pob.html',
         pages=PAGES,
         accountName=request.args.get('accountName', ''),
         character=request.args.get('character', ''),
         data=data,
+        tr_errors=tr_errors,
         version=get_application_version(),
         compat=nebuloch.version
     )
