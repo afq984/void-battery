@@ -1,3 +1,4 @@
+#!/bin/bash
 export1() {
 	venv/bin/python scripts/exporter.py dat json --files=$1 out/extracted/$1.$2.json
 }
