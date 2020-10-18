@@ -1,35 +1,44 @@
 import json
 import collections
+import sys
+
+
+dats = {}
+for lang in ['tc', 'en']:
+    with open(f'out/extracted/dat.{lang}.json') as file:
+        data = json.load(file)
+        for section in data:
+            dats[section['filename'], lang] = section
+
+
+def getjson(name, lang):
+    return dats[name, lang]
 
 
 def generate_words():
-    with open('out/extracted/Words.tc.json') as file:
-        data = json.load(file)
+    data = getjson('Words.dat', 'tc')
 
     words = {}
 
-    for m in data[0]['data']:
+    for m in data['data']:
         words[m[-2].strip()] = m[1].strip()
 
-
-    with open('out/release/words.json', 'wt') as file:
-        json.dump(words, file, ensure_ascii=False, indent=0, sort_keys=True)
+    write_to_file(words, 'out/release/words.json')
 
 
-def getnames(fn, fieldname):
-    with open(fn) as file:
-        data = json.load(file)
-    index, = [c['rowid'] for c in data[0]['header'] if c['name'] == fieldname]
-    return [m[index].strip() for m in data[0]['data']]
+def getnames(fn, lang, fieldname):
+    data = getjson(fn, lang)
+    index, = [c['rowid'] for c in data['header'] if c['name'] == fieldname]
+    return [m[index].strip() for m in data['data']]
 
 
 def generate_bases():
-    z = getnames('out/extracted/BaseItemTypes.tc.json', 'Name')
-    e = getnames('out/extracted/BaseItemTypes.en.json', 'Name')
-    z.extend(getnames('out/extracted/ActiveSkills.tc.json', 'DisplayedName'))
-    e.extend(getnames('out/extracted/ActiveSkills.en.json', 'DisplayedName'))
-    z.extend(getnames('out/extracted/SkillGems.tc.json', 'SupportSkillName'))
-    e.extend(getnames('out/extracted/SkillGems.en.json', 'SupportSkillName'))
+    z = getnames('BaseItemTypes.dat', 'tc', 'Name')
+    e = getnames('BaseItemTypes.dat', 'en', 'Name')
+    z.extend(getnames('ActiveSkills.dat', 'tc', 'DisplayedName'))
+    e.extend(getnames('ActiveSkills.dat', 'en', 'DisplayedName'))
+    z.extend(getnames('SkillGems.dat', 'tc', 'SupportSkillName'))
+    e.extend(getnames('SkillGems.dat', 'en', 'SupportSkillName'))
 
     ze = build_mapping(z, e)
 
@@ -60,8 +69,8 @@ def write_to_file(ze, filename):
 
 
 def generate_passives():
-    z = getnames('out/extracted/PassiveSkills.tc.json', 'Name')
-    e = getnames('out/extracted/PassiveSkills.en.json', 'Name')
+    z = getnames('PassiveSkills.dat', 'tc', 'Name')
+    e = getnames('PassiveSkills.dat', 'en', 'Name')
     ze = build_mapping(z, e)
     write_to_file(ze, 'out/release/passives.json')
 
