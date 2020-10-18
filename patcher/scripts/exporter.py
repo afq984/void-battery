@@ -2,6 +2,7 @@
 import sys
 import os
 from PyPoE.cli.exporter import util, config
+from PyPoE.poe.file import bundle
 import tqdm as tqdm_
 
 
@@ -43,14 +44,16 @@ class FileSystemRecord(FileSystemObject):
     def extract(self):
         with open(self.path, 'rb') as file:
             return file.read()
+            
+def get_content_path():
+    return "Content.ggpk.d/latest"
 
-
-def get_content_ggpk(path=None):
-    return FileSystemNode('Content.ggpk.d/latest')
-
-
-util.get_content_ggpk = get_content_ggpk
+util.get_content_path = get_content_path
 tqdm_.tqdm = tqdm
+
+
+if bundle.ooz is None:
+    bundle.ooz = bundle.ffi.dlopen('ooz/build/liblibooz.so')
 
 
 if __name__ == '__main__':

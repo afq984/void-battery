@@ -2,32 +2,47 @@
 
 This directory contains tools to update the game data.
 
-Dependency:
+### Install tools
 
-* sh or bash
+* bash
 * python3
 * go
-
-Install tools:
-
-```
-sh install.sh
-```
-
-Download the game files and extract them:
+* cmake
 
 ```
-sh main.sh
+./install.sh
 ```
 
-Compare the current extracted data with the ones in `../web`:
+#### or use Docker
 
 ```
-sh diff.sh
+./launch-docker
 ```
 
-Copy the extracted data to `../web`:
+### Download the game files and extract them
 
 ```
-sh release.sh
+./main.sh
+```
+
+#### or use Docker
+
+```
+# in the container
+./main.sh
+
+# out of the container
+./launch-docker ./main.sh
+```
+
+### Compare the current extracted data with the ones in `../web`:
+
+```
+./diff.sh
+```
+
+### Copy the extracted data to `../web`:
+
+```
+./release.sh
 ```

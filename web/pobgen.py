@@ -21,6 +21,13 @@ from nebuloch import TranslateError
 
 _tr = Translator('Traditional Chinese', '')
 
+ALTERNATE_MAP = {
+    '異常的 ': 'Alternate1',
+    '相異的 ': 'Alternate2',
+    '幻影的 ': 'Alternate3',
+    '': 'Default',
+}
+alt_matcher = '|'.join(map(re.escape, ALTERNATE_MAP))
 
 def get_encoded_tree(char, tree):
     head = [0, 0, 0, 4, char['classId'], char['ascendancyClass'], 0]
@@ -174,7 +181,10 @@ class POBGenerator:
         )
 
     def Gem(self, item):
-        nameSpec = self.tr_name(item['typeLine']).replace(' Support', '')
+        match = re.match(r'(%s)(.+)' % alt_matcher, item['typeLine'])
+        alternate, gemName = match.groups()
+        nameSpec = self.tr_name(gemName).replace(' Support', '')
+        qualityId = ALTERNATE_MAP[alternate]
         level = 20
         quality = 0
         for prop in item['properties']:
@@ -187,7 +197,10 @@ class POBGenerator:
             quality=str(quality),
             enabled='true',
             nameSpec=nameSpec,
+            qualityId=qualityId,
         )
+
+
 
     def item_to_pob(self, item):
         return '\n'.join(self.i_item_to_pob(item))

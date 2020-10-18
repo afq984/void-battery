@@ -10,7 +10,7 @@ from decimal import Decimal
 from . import datapath, TranslateError
 
 
-R = re.compile(r'(?:%(\d+)\$(\+?)d)|(?:([+]?)%(\d+)%)|([+-]?\d+)|(%%)')
+R = re.compile(r'(?:{(\d+):(\+?)d})|(?:([+]?){(\d+)})|([+-]?\d+)')
 M = re.compile(r'((?<!\d)[+-]?\d+(?:\.\d+)?)')
 
 
@@ -104,28 +104,26 @@ class Variant:
 
         self.formatter = R.sub(repl_formatter, source)
 
-        matcher_string_python2 = list(map(re.escape, R.split(source)[::7]))
+        matcher_string_python2 = list(map(re.escape, R.split(source)[::6]))
         matcher_string_first = matcher_string_python2[0]
         matcher_string_others = matcher_string_python2[1:]
         matcher_regex_parts = []
         self.matcher_positions = matcher_positions = []
         for match in R.finditer(source):
-            signed, ssigned, sunsigned, unsigned, const, percentage = match.groups()
+            signed, ssigned, sunsigned, unsigned, const = match.groups()
             if signed is not None:
                 if ssigned == '+':
                     matcher_regex_parts.append(r'([+-]\d+(?:\.\d+)?)')
-                    matcher_positions.append(int(signed) - 1)
+                    matcher_positions.append(int(signed))
                 else:
                     assert ssigned == ''
                     matcher_regex_parts.append(r'(\d+(?:\.\d+)?)')
-                    matcher_positions.append(int(signed) - 1)
+                    matcher_positions.append(int(signed))
             elif unsigned is not None:
                 matcher_regex_parts.append(r'(' + re.escape(sunsigned) + r'\-?\d+(?:\.\d+)?)')
-                matcher_positions.append(int(unsigned) - 1)
+                matcher_positions.append(int(unsigned))
             elif const is not None:
                 matcher_regex_parts.append(re.escape(const))
-            elif percentage is not None:
-                matcher_regex_parts.append(re.escape('%'))
             else:
                 assert False
         for pos in self.matcher_positions:
@@ -187,20 +185,16 @@ class Variant:
 
 
 def repl_formatter(match):
-    signed, ssigned, sunsigned, unsigned, const, percentage = match.groups()
-    if percentage:
-        return '%'
+    signed, ssigned, sunsigned, unsigned, const = match.groups()
     if const:
         return const
     if unsigned:
-        return '%s{%d}' % (sunsigned, int(unsigned) - 1)
-    return '{%d:%s}' % (int(signed) - 1, ssigned)
+        return '%s{%d}' % (sunsigned, int(unsigned))
+    return '{%d:%s}' % (int(signed), ssigned)
 
 
 def repl_symbolic(match):
-    signed, ssigned, sunsigned, unsigned, const, percentage = match.groups()
-    if percentage:
-        return '%'
+    signed, ssigned, sunsigned, unsigned, const = match.groups()
     return '#'
 
 
