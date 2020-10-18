@@ -16,6 +16,7 @@ import (
 	"time"
 	"unicode/utf8"
 
+	"github.com/pierrec/lz4"
 	"golang.org/x/text/encoding/unicode"
 )
 
@@ -27,9 +28,56 @@ func check(err error) {
 	}
 }
 
+func checkN(n int, err error) {
+	if err != nil {
+		panic(err)
+	}
+}
+
 var utf16le = unicode.UTF16(unicode.LittleEndian, unicode.IgnoreBOM)
 
-type Patcher struct {
+func readBE16SizedString(r io.Reader) string {
+	lenRaw := make([]byte, 2)
+	checkN(io.ReadFull(r, lenRaw))
+	stringSize := int(binary.BigEndian.Uint16(lenRaw)) * 2
+	utf16b := make([]byte, stringSize)
+	checkN(io.ReadFull(r, utf16b))
+	utf8s, err := utf16le.NewDecoder().String(string(utf16b))
+	check(err)
+	return utf8s
+}
+
+func writeBE16SizedString(w io.Writer, s string) {
+	check(binary.Write(w, binary.BigEndian, uint16(utf8.RuneCountInString(s))))
+	utf16s, err := utf16le.NewEncoder().String(s)
+	check(err)
+	checkN(w.Write([]byte(utf16s)))
+}
+
+func readLE32SizedString(r io.Reader) string {
+	lenRaw := make([]byte, 4)
+	checkN(io.ReadFull(r, lenRaw))
+	stringSize := int(binary.LittleEndian.Uint32(lenRaw)) * 2
+	utf16b := make([]byte, stringSize)
+	checkN(io.ReadFull(r, utf16b))
+	utf8s, err := utf16le.NewDecoder().String(string(utf16b))
+	check(err)
+	return utf8s
+}
+
+type Patcher6DirHeader struct {
+	Unknown          byte
+	CompressedSize1  uint32
+	DecompressedSize uint32
+	CompressedSize2  uint32
+}
+
+type Patcher6FileHeader struct {
+	Type byte
+	Size uint32
+}
+
+type Patcher6 struct {
 	conn        net.Conn
 	rdbuf       *bufio.Reader
 	servers     []string
@@ -43,76 +91,76 @@ const (
 )
 
 type DirEntry struct {
-	Type   byte
+	Patcher6FileHeader
 	Name   string
-	Size   uint32
 	Sha256 [sha256.Size]byte
 }
 
-func NewPatcher(conn net.Conn) *Patcher {
-	p := Patcher{
+func NewPatcher6(conn net.Conn) *Patcher6 {
+	p := Patcher6{
 		conn:        conn,
 		rdbuf:       bufio.NewReader(conn),
 		dirCache:    make(map[string][]DirEntry),
 		sha256Cache: make(map[string][sha256.Size]byte),
 	}
+	p.servers = p.getServers()
 	return &p
 }
 
-func (p *Patcher) getServers() []string {
+func (p *Patcher6) getServers() []string {
 	_, err := p.conn.Write([]byte{1, 6})
 	check(err)
 	_, err = p.rdbuf.Discard(33)
 	check(err)
-	s0 := readSizedString(p.rdbuf)
+	s0 := readBE16SizedString(p.rdbuf)
 	return []string{
-		readSizedString(p.rdbuf),
+		readBE16SizedString(p.rdbuf),
 		s0,
 	}
 }
 
-func (p *Patcher) Servers() []string {
-	if p.servers == nil {
-		p.servers = p.getServers()
-	}
+func (p *Patcher6) Servers() []string {
 	return p.servers
 }
 
-func (p *Patcher) listDir(path string) []DirEntry {
-	writeHead := []byte{03, 00, 00}
-	binary.BigEndian.PutUint16(writeHead[1:], uint16(utf8.RuneCountInString(path)))
-	utf16path, err := utf16le.NewEncoder().String(path)
-	check(err)
-	_, err = p.conn.Write(append(writeHead, utf16path...))
-	check(err)
+func (p *Patcher6) listDir(path string) []DirEntry {
+	checkN(p.conn.Write([]byte{3}))
+	writeBE16SizedString(p.conn, path)
 
-	_, err = p.rdbuf.Discard(1)
-	check(err)
+	var dirHeader Patcher6DirHeader
+	check(binary.Read(p.rdbuf, binary.BigEndian, &dirHeader))
 
-	dirName := readSizedString(p.rdbuf)
+	if dirHeader.CompressedSize1 > 16777216 {
+		panic(fmt.Errorf("compressed size too large: %d", dirHeader.CompressedSize1))
+	}
+	if dirHeader.DecompressedSize > 16777216 {
+		panic(fmt.Errorf("decompressed size too large: %d", dirHeader.DecompressedSize))
+	}
+	compressed := make([]byte, dirHeader.CompressedSize1)
+	uncompressed := make([]byte, dirHeader.DecompressedSize)
+	checkN(io.ReadFull(p.rdbuf, compressed))
+	checkN(lz4.UncompressBlock(compressed, uncompressed))
+	r := bytes.NewBuffer(uncompressed)
+
+	dirName := readLE32SizedString(r)
 	_ = dirName
 
 	var memberLen uint32
-	err = binary.Read(p.rdbuf, binary.BigEndian, &memberLen)
-	check(err)
+	check(binary.Read(r, binary.LittleEndian, &memberLen))
 
 	entries := make([]DirEntry, memberLen)
 
 	for i := uint32(0); i < memberLen; i++ {
 		e := &entries[i]
-		var err error
-		e.Type, err = p.rdbuf.ReadByte()
-		check(err)
-		e.Name = readSizedString(p.rdbuf)
-		check(binary.Read(p.rdbuf, binary.BigEndian, &e.Size))
-		_, err = io.ReadFull(p.rdbuf, e.Sha256[:])
-		check(err)
+		check(binary.Read(r, binary.LittleEndian, &e.Patcher6FileHeader))
+		e.Name = readLE32SizedString(r)
+		checkN(io.ReadFull(r, e.Sha256[:]))
 	}
 
 	return entries
 }
 
-func (p *Patcher) ListDir(path string) []DirEntry {
+func (p *Patcher6) ListDir(path string) []DirEntry {
 	if _, ok := p.dirCache[path]; !ok {
 		p.dirCache[path] = p.listDir(path)
 	}
@@ -120,7 +168,7 @@ func (p *Patcher) ListDir(path string) []DirEntry {
 }
 
 // GameVersion returns the game version on the patch server.
-func (p *Patcher) GameVersion() string {
+func (p *Patcher6) GameVersion() string {
 	s := p.Servers()
 	u, err := url.Parse(s[0])
 	check(err)
@@ -128,7 +176,7 @@ func (p *Patcher) GameVersion() string {
 }
 
 // MakeLink creates a symbolic link from Content.ggpk.d/latest to the directory of the latest version.
-func (p *Patcher) MakeLink() {
+func (p *Patcher6) MakeLink() {
 	target := p.GameVersion()
 	link := path.Join(SaveDir, "latest")
 	check(os.MkdirAll(SaveDir, 0777))
@@ -153,12 +201,12 @@ func (p *Patcher) MakeLink() {
 }
 
 // ResourceURL returns the URL of resource
-func (p *Patcher) ResourceURL(resource string) string {
+func (p *Patcher6) ResourceURL(resource string) string {
 	return p.Servers()[0] + resource
 }
 
 // AltResourceURL returns the alternative URL of resource
-func (p *Patcher) AltResourceURL(resource string) string {
+func (p *Patcher6) AltResourceURL(resource string) string {
 	return p.Servers()[1] + resource
 }
 
@@ -171,7 +219,7 @@ func DirName(resource string) string {
 }
 
 // Sha256 returns the sha256 checksum of the given resource.
-func (p *Patcher) Sha256(resource string) [sha256.Size]byte {
+func (p *Patcher6) Sha256(resource string) [sha256.Size]byte {
 	if sum, ok := p.sha256Cache[resource]; ok {
 		return sum
 	}
@@ -186,12 +234,12 @@ func (p *Patcher) Sha256(resource string) [sha256.Size]byte {
 }
 
 // SyncPath returns the synchronized path of Patcher.Sync(resource).
-func (p *Patcher) SyncPath(resource string) string {
+func (p *Patcher6) SyncPath(resource string) string {
 	return path.Join(SaveDir, p.GameVersion(), resource)
 }
 
 // Sync synchronizes the resource of the given path.
-func (p *Patcher) Sync(resource string) {
+func (p *Patcher6) Sync(resource string) {
 	resourceURL := p.ResourceURL(resource)
 	syncPath := p.SyncPath(resource)
 
@@ -221,7 +269,7 @@ func (p *Patcher) Sync(resource string) {
 }
 
 // SyncRecursive synchronizes the directory recursively.
-func (p *Patcher) SyncRecursive(dir string) {
+func (p *Patcher6) SyncRecursive(dir string) {
 	for _, sub := range p.ListDir(dir) {
 		var subpath string
 		if dir == "" {
@@ -240,7 +288,7 @@ func (p *Patcher) SyncRecursive(dir string) {
 	}
 }
 
-func (p *Patcher) AriaRecursive(dir string) {
+func (p *Patcher6) AriaRecursive(dir string) {
 	for _, sub := range p.ListDir(dir) {
 		var subpath string
 		if dir == "" {
@@ -277,25 +325,13 @@ func sha256File(path string) []byte {
 	return h.Sum(nil)
 }
 
-func readSizedString(r *bufio.Reader) string {
-	lenU16, err := r.Peek(2)
-	check(err)
-	stringSize := int(binary.BigEndian.Uint16(lenU16)) * 2
-	_, err = r.Discard(2)
-	check(err)
-	utf16b := make([]byte, stringSize)
-	_, err = io.ReadFull(r, utf16b)
-	check(err)
-	utf8s, err := utf16le.NewDecoder().String(string(utf16b))
-	check(err)
-	return utf8s
-}
+const GarenaPatchServer = "login.tw.pathofexile.com:12999"
+const GGGPatchServer = "pathofexile.com:12995"
 
 func main() {
-	conn, err := net.DialTimeout("tcp4", "login.tw.pathofexile.com:12999", time.Second)
-	// conn, err := net.DialTimeout("tcp", "pathofexile.com:12995", time.Second)
+	conn, err := net.DialTimeout("tcp", GarenaPatchServer, time.Second)
 	check(err)
-	p := NewPatcher(conn)
+	p := NewPatcher6(conn)
 	fmt.Println("# Game version is", p.GameVersion())
 	for _, path := range os.Args[1:] {
 		if strings.HasSuffix(path, "/") {
