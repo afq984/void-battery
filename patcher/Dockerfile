@@ -8,4 +8,4 @@ ARG GID=1000
 RUN addgroup -g $GID patcher
 RUN adduser -G patcher -u $UID -D patcher
 USER $UID:$GID
-ENTRYPOINT bash
+CMD ["bash"]
