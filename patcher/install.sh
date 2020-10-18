@@ -7,7 +7,7 @@ venv/bin/pip install git+https://github.com/OmegaK2/PyPoE#egg=PyPoE[cli] tqdm
 
 # ooz
 rm -rf ooz
-git clone https://github.com/zao/ooz.git
+git clone --depth=1 https://github.com/zao/ooz.git
 sed -i s/TEMP_FAILURE_RETRY//g ooz/libpoe/poe/util/random_access_file.cpp  # for musl
 mkdir ooz/build
 cmake -S ooz -B ooz/build -G Ninja
