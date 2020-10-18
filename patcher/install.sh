@@ -1,8 +1,18 @@
-python -m venv venv
+set -ex
+
+# pypoe
+virtualenv -p python3 venv --system-site-packages
 venv/bin/pip install git+https://github.com/OmegaK2/PyPoE#egg=PyPoE[cli] tqdm
-venv/bin/pypoe_exporter config set ggpk_path install.sh  # just to suppress warnings
+
+# ooz
+rm -rf ooz
+git clone https://github.com/zao/ooz.git
+sed -i s/TEMP_FAILURE_RETRY//g ooz/libpoe/poe/util/random_access_file.cpp  # for musl
+mkdir ooz/build
+cmake -S ooz -B ooz/build -G Ninja
+ninja -C ooz/build
+
+# poepatcher
 cd poepatcher
 go build
 cd ..
-mkdir -p out/release
-mkdir -p out/extracted

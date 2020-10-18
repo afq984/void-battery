@@ -2,6 +2,10 @@ export1() {
 	venv/bin/python scripts/exporter.py dat json --files=$1 out/extracted/$1.$2.json
 }
 set -eux
+
+mkdir -p out/release
+mkdir -p out/extracted
+
 poepatcher/poepatcher \
 	"PathOfExile.exe" \
 	"PathOfExile_x64.exe" \

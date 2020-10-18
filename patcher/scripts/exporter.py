@@ -2,6 +2,7 @@
 import sys
 import os
 from PyPoE.cli.exporter import util, config
+from PyPoE.poe.file import bundle
 import tqdm as tqdm_
 
 
@@ -49,6 +50,10 @@ def get_content_path():
 
 util.get_content_path = get_content_path
 tqdm_.tqdm = tqdm
+
+
+if bundle.ooz is None:
+    bundle.ooz = bundle.ffi.dlopen('ooz/build/liblibooz.so')
 
 
 if __name__ == '__main__':
