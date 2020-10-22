@@ -51,7 +51,7 @@ def get_application_version():
 
 PAGES = [
     ('/pob/', 'POB'),
-    ('/ninja/LeagueSC/', '查價')
+    # ('/ninja/LeagueSC/', '查價'),
 ]
 
 
@@ -64,8 +64,9 @@ def index():
     )
 
 
-@app.route('/ninja/LeagueSC/')
+# @app.route('/ninja/LeagueSC/')
 def red():
+    # XXX
     return redirect('/ninja/LeagueSC/Currency/')
 
 
@@ -80,7 +81,7 @@ def get_price_info(league):
     return prices.getPriceGroups(data)
 
 
-@app.route('/ninja/LeagueSC/<group>/')
+# @app.route('/ninja/LeagueSC/<group>/')
 def ninja(group):
     # XXX
     return render_template(
