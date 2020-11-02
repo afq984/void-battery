@@ -111,6 +111,11 @@ def ninja(group):
     )
 
 
+@app.route('/pob/fingerprint')
+def pob_fingerprint():
+    return nebuloch.fingerprint
+
+
 @app.route('/pob/', methods=['GET', 'POST'])
 def pob():
     if request.method == 'GET':

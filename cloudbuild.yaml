@@ -1,0 +1,41 @@
+timeout: '600s'
+
+steps:
+- id: Docker
+  name: 'gcr.io/cloud-builders/docker'
+  dir: patcher
+  entrypoint: bash
+  args: ['./build-docker.sh']
+
+- id: Patch
+  name: 'gcr.io/cloud-builders/docker'
+  dir: patcher
+  entrypoint: bash
+  args: ['./launch-docker', './main.sh']
+
+- id: Maybe cancel
+  name: 'gcr.io/cloud-builders/gcloud'
+  entrypoint: bash
+  dir: patcher
+  args:
+  - -xc
+  - |
+    curl --fail -o remote_fingerprint.txt https://void-battery.appspot.com/pob/fingerprint || exit $?
+    cmp remote_fingerprint.txt out/release/fingerprint.txt
+    status=$?
+    if [[ $status == 0 ]]; then
+      gcloud builds cancel $BUILD_ID
+    elif [[ $status != 1 ]]; then
+      exit $status
+    fi
+
+- id: Release
+  name: 'gcr.io/cloud-builders/gcloud'
+  entrypoint: 'bash'
+  dir: patcher
+  args: ['./release.sh']
+
+- id: Deploy
+  dir: web
+  name: 'gcr.io/cloud-builders/gcloud'
+  args: ['app', 'deploy', '--stop-previous-version']

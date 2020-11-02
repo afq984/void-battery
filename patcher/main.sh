@@ -26,3 +26,4 @@ venv/bin/python scripts/exporter.py dat json --files "${datfiles[@]}" -lang 'Tra
 venv/bin/python scripts/datrelease.py
 venv/bin/python scripts/statparse.py out/extracted/stat_descriptions.txt > out/release/stat_descriptions.json
 venv/bin/python scripts/charversion.py Content.ggpk.d/latest | tee out/release/version.txt
+venv/bin/python scripts/fingerprint.py out/release/{bases.json,stat_descriptions.json,words.json,passives.json,version.txt} | tee out/release/fingerprint.txt

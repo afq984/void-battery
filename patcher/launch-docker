@@ -1,4 +1,8 @@
 #!/bin/bash
+set -ex
 mkdir -p out
 mkdir -p Content.ggpk.d
-docker build --tag void-battery-patcher-env . && docker run --rm --mount type=bind,source="$PWD"/main.sh,target=/patcher/main.sh,readonly --mount type=bind,source="$PWD"/scripts,target=/patcher/scripts,readonly --mount type=bind,source="$PWD"/out,target=/patcher/out --mount type=bind,source="$PWD"/Content.ggpk.d,target=/patcher/Content.ggpk.d void-battery-patcher-env "$@"
+docker run --rm --env HOME=/tmp --user "$(id -u):$(id -g)" \
+    --volume="$PWD"/out:/patcher/out \
+    --volume="$PWD"/Content.ggpk.d:/patcher/Content.ggpk.d \
+    void-battery-patcher-env "$@"

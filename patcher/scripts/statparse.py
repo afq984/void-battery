@@ -40,7 +40,7 @@ class Lexer:
         self.buffer = deque()
         self.tokens = deque()
         self.state = inSpace
-        self.tqdm = tqdm.tqdm(total=size // 2)
+        self.tqdm = tqdm.tqdm(total=size // 2, mininterval=1)
 
     def posafter(self):
         line = self.line + self.stored.count('\n')

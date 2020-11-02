@@ -11,6 +11,11 @@ with open(datapath('version.txt')) as file:
 del file
 
 
+with open(datapath('fingerprint.txt')) as file:
+    fingerprint = file.read()
+del file
+
+
 class TranslateError(Exception):
     def __init__(self, input):
         self.input = input

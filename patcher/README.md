@@ -4,10 +4,14 @@ This directory contains tools to update the game data.
 
 ### Install tools
 
+Have these dependencies installed:
+
 * bash
 * python3
 * go
 * cmake
+
+Then run:
 
 ```
 ./install.sh
@@ -16,7 +20,7 @@ This directory contains tools to update the game data.
 #### or use Docker
 
 ```
-./launch-docker
+./build-docker.sh
 ```
 
 ### Download the game files and extract them
@@ -28,10 +32,6 @@ This directory contains tools to update the game data.
 #### or use Docker
 
 ```
-# in the container
-./main.sh
-
-# out of the container
 ./launch-docker ./main.sh
 ```
 
