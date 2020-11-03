@@ -37,5 +37,7 @@ steps:
 
 - id: Deploy
   dir: web
+  env:
+  - 'TZ=Asia/Taipei'
   name: 'gcr.io/cloud-builders/gcloud'
   args: ['app', 'deploy', '--stop-previous-version']
