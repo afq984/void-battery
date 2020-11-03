@@ -12,7 +12,7 @@ del file
 
 
 with open(datapath('fingerprint.txt')) as file:
-    fingerprint = file.read()
+    fingerprint = file.read().rstrip()
 del file
 
 

@@ -22,7 +22,5 @@ steps:
 - id: Maybe deploy
   name: 'gcr.io/cloud-builders/gcloud'
   entrypoint: bash
-  env:
-  - 'TZ=Asia/Taipei'
   dir: web
   args: ['maybe-deploy.sh']

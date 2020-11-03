@@ -2,6 +2,8 @@
 
 Use the tools in `../patcher` to populate game data
 
+Run `sh touch-versions.sh` to update version info
+
 # Automated tests
 
 ```

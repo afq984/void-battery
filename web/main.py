@@ -45,8 +45,27 @@ def write_exception_data(data):
     return tracking
 
 
+_application_version = None
+git_sha1 = None
+
+
+def set_versions():
+    global _application_version, git_sha1
+    here = os.path.dirname(os.path.abspath(__file__))
+    with open(os.path.join(here, 'updated.txt')) as file:
+        _application_version = file.read().rstrip()
+    with open(os.path.join(here, 'version.txt')) as file:
+        git_sha1 = file.read().rstrip()
+set_versions()
+
+
 def get_application_version():
-    return os.environ.get('GAE_VERSION', '<unknown-version>')
+    return _application_version
+
+
+@app.route('/version')
+def version():
+    return git_sha1
 
 
 PAGES = [
