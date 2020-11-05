@@ -56,6 +56,8 @@ def set_versions():
         _application_version = file.read().rstrip()
     with open(os.path.join(here, 'version.txt')) as file:
         git_sha1 = file.read().rstrip()
+
+
 set_versions()
 
 

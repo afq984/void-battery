@@ -9,6 +9,7 @@ import base64
 import struct
 import zlib
 import json
+import logging
 import warnings
 import functools
 
@@ -114,10 +115,10 @@ class POBGenerator:
         try:
             return function(text)
         except TranslateError as e:
-            return self.report_error(e)
+            return self._report_error(e)
 
-    def report_error(self, e):
-        warnings.warn(e)
+    def _report_error(self, e):
+        logging.exception('Translation failed')
         self.errors.append(e)
         return f'void_battery_{e.__class__.__name__}_{len(self.errors)}'
 
