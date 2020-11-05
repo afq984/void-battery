@@ -25,6 +25,14 @@ class DivFlag:
         return value * self.div
 
 
+class UnknownFlag(UserWarning):
+    pass
+
+
+class NoMatchingTranslation(UserWarning):
+    pass
+
+
 FLAGS = {
     'negate': DivFlag(-1),
     'divide_by_one_hundred': DivFlag(100),
@@ -97,6 +105,8 @@ class Variant:
 
         self.flags = [set() for r in ranges]
         for flag, idx1 in flags:
+            if flag not in FLAGS and flag not in IGNORED_FLAGS:
+                warnings.warn(flag, UnknownFlag)
             if flag in IGNORED_FLAGS:
                 continue
             if idx1 is None:
@@ -220,18 +230,17 @@ def build_index(source_lang, dest_lang, mods=None):
     for mod in mods:
         keys = mod['keys']
         if dest_lang not in mod['langs']:
-            warnings.warn('{} does not have a {!r} translation'.format(
-                keys,
-                dest_lang,
-            ))
+            warnings.warn(
+                f'{keys} does not have a {dest_lang!r} translation',
+                NoMatchingTranslation,
+            )
             continue
         raw_target_variants = mod['langs'][dest_lang]
         if source_lang not in mod['langs']:
             warnings.warn(
-                '{} does not have a {!r} translation'.format(
-                    keys,
-                    source_lang,
-                ))
+                f'{keys} does not have a {source_lang!r} translation',
+                NoMatchingTranslation,
+            )
             raw_source_variants = mod['langs'][dest_lang]
         else:
             raw_source_variants = mod['langs'][source_lang]
