@@ -16,7 +16,7 @@ import functools
 from lxml.builder import E
 import lxml.etree
 import nebuloch.names
-from nebuloch.mods import Translator, CannotTranslateMod
+from nebuloch.mods import Translator
 from nebuloch import TranslateError
 
 
@@ -29,6 +29,7 @@ ALTERNATE_MAP = {
     '': 'Default',
 }
 alt_matcher = '|'.join(map(re.escape, ALTERNATE_MAP))
+
 
 def get_encoded_tree(char, tree):
     head = [0, 0, 0, 4, char['classId'], char['ascendancyClass'], 0]
@@ -48,8 +49,8 @@ def Tree(char, tree):
         x = item['x']
         sockets.append(
             E.Socket(
-                nodeId = str(jewelSlots[x]),
-                itemId = str(id)))
+                nodeId=str(jewelSlots[x]),
+                itemId=str(id)))
 
     return E.Tree(
         E.Spec(
@@ -201,8 +202,6 @@ class POBGenerator:
             qualityId=qualityId,
         )
 
-
-
     def item_to_pob(self, item):
         return '\n'.join(self.i_item_to_pob(item))
 
@@ -260,7 +259,7 @@ class POBGenerator:
             loc = mod.find('\n附加的小型天賦給予：')
             if loc != -1:
                 yield self.tr_mod(mod[:loc])
-                yield self.tr_mod(mod[loc+1:])
+                yield self.tr_mod(mod[loc + 1:])
             else:
                 yield self.tr_mod(mod)
         for cmod in item.get('craftedMods', ()):
@@ -303,7 +302,6 @@ def export(items, tree):
 
 
 def main():
-    import sys
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('a')
@@ -312,7 +310,6 @@ def main():
     args = parser.parse_args()
     a = args.a
     b = args.b
-    poesessid = args.poesessid
     if a.lower().endswith('.json') and b.lower().endswith('.json'):
         with open(a) as af, open(b) as bf:
             items = json.load(af)

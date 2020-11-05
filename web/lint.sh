@@ -1,6 +1,6 @@
 #!/bin/bash
 set -eux
-pyflakes main.py nebuloch/ tests/
+pyflakes pobgen.py main.py nebuloch/ tests/
 set +e
 pycodestyle --ignore=E501 nebuloch/ tests/
-pycodestyle --ignore=E501 main.py
+pycodestyle --ignore=E501 main.py pobgen.py
