@@ -30,6 +30,7 @@ FLAGS = {
     'divide_by_one_hundred': DivFlag(100),
     'per_minute_to_per_second': DivFlag(60),
     'per_minute_to_per_second_2dp_if_required': DivFlag(60),
+    'per_minute_to_per_second_2dp': DivFlag(60),
     'milliseconds_to_seconds': DivFlag(1000),
     'divide_by_ten_0dp': DivFlag(10),
 }
