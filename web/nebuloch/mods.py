@@ -14,6 +14,17 @@ R = re.compile(r'(?:{(\d+):(\+?)d})|(?:([+]?){(\d+)})|([+-]?\d+)')
 M = re.compile(r'((?<!\d)[+-]?\d+(?:\.\d+)?)')
 
 
+class MulFlag:
+    def __init__(self, mul):
+        self.mul = mul
+
+    def apply(self, value):
+        return value * self.mul
+
+    def unapply(self, value):
+        return value / self.mul
+
+
 class DivFlag:
     def __init__(self, div):
         self.div = div
@@ -34,7 +45,7 @@ class NoMatchingTranslation(UserWarning):
 
 
 FLAGS = {
-    'negate': DivFlag(-1),
+    'negate': MulFlag(-1),
     'divide_by_one_hundred': DivFlag(100),
     'per_minute_to_per_second': DivFlag(60),
     'per_minute_to_per_second_2dp_if_required': DivFlag(60),
@@ -44,7 +55,9 @@ FLAGS = {
 }
 
 IGNORED_FLAGS = {
-    'reminderstring'
+    'reminderstring',
+    'ReminderTextLifeLeech',
+    '2reminderstring',
 }
 
 PLACEHOLDER = '#'
