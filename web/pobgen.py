@@ -72,6 +72,8 @@ RARITY_MAP = {
     9: 'RELIC'
 }
 
+# corresponds to:
+# `local slotMap =` in ImportTab.lua in POB
 SLOT_MAP = {
     'Amulet': 'Amulet',
     'Belt': 'Belt',
@@ -83,6 +85,7 @@ SLOT_MAP = {
     'Offhand2': 'Weapon 2 Swap',
     'Ring': 'Ring 1',
     'Ring2': 'Ring 2',
+    'Trinket': 'Trinket',  # https://github.com/PathOfBuildingCommunity/PathOfBuilding/issues/1721
     'Weapon': 'Weapon 1',
     'Weapon2': 'Weapon 1 Swap'
 }
