@@ -159,6 +159,7 @@ def pob():
         except Exception as e:
             data = f'伺服器錯誤\n{e.__class__.__name__}: {e}'
             tr_errors = None
+            logging.exception('Unexpected exception')
     return render_template(
         'pob.html',
         pages=PAGES,
