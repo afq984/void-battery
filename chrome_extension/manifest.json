@@ -9,7 +9,8 @@
     "externally_connectable": {
         "matches": [
             "*://localhost/*",
-            "*://void-battery.appspot.com/*"
+            "*://void-battery.appspot.com/*",
+            "*://void-battery.afq984.org/*"
         ]
     },
     "background": {
