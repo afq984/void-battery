@@ -4,7 +4,6 @@ import json
 import zlib
 import os
 
-import cachetools.func
 from flask import Flask, render_template, request, abort, redirect
 from pobgen import POBGenerator
 import nebuloch
@@ -90,7 +89,7 @@ def red():
     return redirect('/ninja/LeagueSC/Currency/')
 
 
-@cachetools.func.ttl_cache()
+# @cachetools.func.ttl_cache()
 def get_price_info(league):
     import cloudstorage as gcs
     bucket_name = 'void-battery.appspot.com'
