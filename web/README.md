@@ -14,16 +14,19 @@ Note that the tests are very limited
 
 # Testing locally
 
-## Method 1: Use dev_appserver.py from Google Cloud SDK
+Start the web server and visit http://localhost:5000
+
+## Method 1: Use a virtual environment
 
 ```
-dev_appserver.py app.yaml
+virtualenv env
+env/bin/pip install -r requirements.txt
+env/bin/python local_web.py
 ```
 
-## Method 2: Use a virtual environment
+## Method 2: Use docker
 
 ```
-virtualenv venv
-venv/bin/pip install -r requirements.txt
-venv/bin/python local_web.py
+docker build . -t asia.gcr.io/void-battery/v0
+docker run -p 5000:5000 -e PORT=5000 asia.gcr.io/void-vattery/v0:latest
 ```
