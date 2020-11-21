@@ -1,8 +1,6 @@
 #!/bin/bash
 set -e
 
-sh touch-versions.sh
-
 remote_fingerprint="$(curl -s --fail https://void-battery.appspot.com/pob/fingerprint)"
 echo fingerprints:
 echo "remote: $remote_fingerprint"
@@ -21,5 +19,5 @@ if [[ "$remote_fingerprint" == "$local_fingerprint" && "$remote_version" == "$lo
 then
     echo "Fingerprint and version same, skip deployment"
 else
-    gcloud app deploy --version="$(git branch --show-current)"
+    gcloud run deploy v0 --image=asia.gcr.io/void-battery/v0 --max-instances=1 --platform=managed --allow-unauthenticated --region=asia-east1
 fi

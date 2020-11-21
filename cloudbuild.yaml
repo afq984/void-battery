@@ -1,7 +1,7 @@
 timeout: '600s'
 
 steps:
-- id: Docker
+- id: Patcher Docker
   name: 'gcr.io/cloud-builders/docker'
   dir: patcher
   entrypoint: bash
@@ -19,8 +19,27 @@ steps:
   dir: patcher
   args: ['./release.sh']
 
+- id: Touch Versions
+  name: 'gcr.io/cloud-builders/gcloud'
+  entrypoint: 'bash'
+  dir: web
+  args: ['touch-versions.sh']
+
+- id: Build Docker Image
+  name: 'gcr.io/cloud-builders/docker'
+  dir: web
+  args: ['build', '.', '-t', 'asia.gcr.io/void-battery/v0']
+
+- id: Push Docker Image
+  name: 'gcr.io/cloud-builders/docker'
+  dir: web
+  args: ['push', 'asia.gcr.io/void-battery/v0']
+
 - id: Maybe deploy
   name: 'gcr.io/cloud-builders/gcloud'
   entrypoint: bash
   dir: web
   args: ['maybe-deploy.sh']
+
+images:
+- 'asia.gcr.io/void-battery/v0'
