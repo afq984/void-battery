@@ -4,10 +4,9 @@ import json
 import zlib
 import os
 
-from flask import Flask, render_template, request, abort, redirect
+from flask import Flask, render_template, request, abort
 from pobgen import POBGenerator
 import nebuloch
-import prices
 
 
 app = Flask(__name__)
@@ -77,53 +76,6 @@ def index():
         'index.html',
         pages=PAGES,
         version=get_application_version(),
-    )
-
-
-# @app.route('/ninja/LeagueSC/')
-def red():
-    # XXX
-    return redirect('/ninja/LeagueSC/Currency/')
-
-
-# @cachetools.func.ttl_cache()
-def get_price_info(league):
-    import cloudstorage as gcs
-    bucket_name = 'void-battery.appspot.com'
-    filename = '/%s/prices/%s.json' % (bucket_name, league)
-    file = gcs.open(filename)
-    data = json.load(file)
-    file.close()
-    return prices.getPriceGroups(data)
-
-
-# @app.route('/ninja/LeagueSC/<group>/')
-def ninja(group):
-    # XXX
-    return render_template(
-        'ninja.html',
-        pages=PAGES,
-        current_group=group,
-        version=get_application_version(),
-        groups=[('Currency', '通貨')],
-        generatedAt='無資料',
-        is_user_stash=False,
-    )
-    priceGroups, exaltedPrice, generatedAt = get_price_info('BetrayalSC')
-    try:
-        info = priceGroups[group]
-    except KeyError:
-        abort(404)
-    return render_template(
-        'ninja.html',
-        pages=PAGES,
-        current_group=group,
-        groups=prices.Groups,
-        version=get_application_version(),
-        items=info,
-        exaltedPrice=exaltedPrice,
-        generatedAt=generatedAt,
-        is_user_stash=False,
     )
 
 
