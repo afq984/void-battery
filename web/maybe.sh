@@ -12,12 +12,12 @@ remote_version="$(curl -s --fail https://void-battery.afq984.org/version)"
 echo versions:
 echo "remote: $remote_version"
 
-local_version="$(cat version.txt)"
+local_version="$(git rev-parse --verify HEAD)"
 echo " local: $local_version"
 
 if [[ "$remote_fingerprint" == "$local_fingerprint" && "$remote_version" == "$local_version" ]]
 then
-    echo "Fingerprint and version same, skip deployment"
+    echo "Fingerprint and version same, command skipped"
 else
-    gcloud run deploy v0 --image=asia.gcr.io/void-battery/v0 --max-instances=1 --platform=managed --allow-unauthenticated --region=asia-east1
+    exec "$@"
 fi

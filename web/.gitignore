@@ -1,7 +1,4 @@
 *.pyc
 .pytest_cache
 /env/
-/lib/
 /nebuloch/data/
-/version.txt
-/updated.txt

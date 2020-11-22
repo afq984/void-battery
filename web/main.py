@@ -49,11 +49,8 @@ git_sha1 = None
 
 def set_versions():
     global _application_version, git_sha1
-    here = os.path.dirname(os.path.abspath(__file__))
-    with open(os.path.join(here, 'updated.txt')) as file:
-        _application_version = file.read().rstrip()
-    with open(os.path.join(here, 'version.txt')) as file:
-        git_sha1 = file.read().rstrip()
+    _application_version = os.environ.get('VOID_BATTERY_UPDATED', '<unknown>')
+    git_sha1 = os.environ.get('VOID_BATTERY_VERSION', '<unknown>')
 
 
 set_versions()
