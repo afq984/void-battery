@@ -1,7 +1,7 @@
 #!/bin/bash
 set -ex
 gcloud run deploy v0 \
-    --image=asia.gcr.io/void-battery/v0 \
+    --image=gcr.io/void-battery/v0 \
     --max-instances=1 --platform=managed \
     --allow-unauthenticated \
     --region=asia-east1 \

@@ -27,6 +27,6 @@ env/bin/python local_web.py
 ## Method 2: Use docker
 
 ```
-docker build . -t asia.gcr.io/void-battery/v0
-docker run -p 5000:5000 -e PORT=5000 asia.gcr.io/void-vattery/v0:latest
+docker build . -t gcr.io/void-battery/v0
+docker run -p 5000:5000 -e PORT=5000 gcr.io/void-vattery/v0:latest
 ```
