@@ -1,6 +1,6 @@
 {
     "name": "Path of Building Exporter",
-    "version": "0.3",
+    "version": "0.4",
     "description": "Export Garena PoE Characters to POB",
     "manifest_version": 2,
     "permissions": [

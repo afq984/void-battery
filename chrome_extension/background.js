@@ -20,7 +20,7 @@ chrome.runtime.onMessageExternal.addListener(
                     }
                 }
             }
-            xhr.open("GET", "http://web.poe.garena.tw/character-window/get-" + x + "?accountName=" + encodeURIComponent(request.accountName) + "&character=" + encodeURIComponent(request.character), true);
+            xhr.open("GET", "https://web.poe.garena.tw/character-window/get-" + x + "?accountName=" + encodeURIComponent(request.accountName) + "&character=" + encodeURIComponent(request.character), true);
             xhr.send();
         }
         getX("items");
