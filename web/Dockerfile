@@ -1,4 +1,4 @@
-FROM alpine:latest
+FROM docker.io/alpine:latest
 RUN apk add python3 py3-flask py3-lxml py3-gunicorn
 
 ENV PYTHONUNBUFFERED True
