@@ -3,7 +3,7 @@ set -ex
 
 # pypoe
 virtualenv -p python3 venv --system-site-packages
-venv/bin/pip install git+https://github.com/OmegaK2/PyPoE#egg=PyPoE[cli] tqdm
+venv/bin/pip install git+https://github.com/spadea96334/PyPoE#egg=PyPoE[cli] tqdm
 
 # ooz
 rm -rf ooz
