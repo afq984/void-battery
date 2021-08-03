@@ -58,7 +58,7 @@ def Tree(char, tree):
                 'https://www.pathofexile.com/passive-skill-tree/' + get_encoded_tree(char, tree)
             ),
             E.Sockets(*sockets),
-            treeVersion='3_14'
+            treeVersion='3_15'
         ),
         activeSpec='1'
     )
