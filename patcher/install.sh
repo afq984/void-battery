@@ -14,6 +14,4 @@ cmake -S ooz -B ooz/build -G Ninja
 ninja -C ooz/build
 
 # poepatcher
-cd poepatcher
-go build
-cd ..
+go build -o bin/ ./cmd/...

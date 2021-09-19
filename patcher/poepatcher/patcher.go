@@ -1,4 +1,4 @@
-package main // import "github.com/afq984/void-battery/patcher/poepatcher"
+package poepatcher
 
 import (
 	"bufio"
@@ -13,7 +13,6 @@ import (
 	"os"
 	"path"
 	"strings"
-	"time"
 	"unicode/utf8"
 
 	"github.com/pierrec/lz4/v4"
@@ -323,22 +322,4 @@ func sha256File(path string) []byte {
 	check(err)
 
 	return h.Sum(nil)
-}
-
-const GarenaPatchServer = "login.tw.pathofexile.com:12999"
-const GGGPatchServer = "pathofexile.com:12995"
-
-func main() {
-	conn, err := net.DialTimeout("tcp", GarenaPatchServer, time.Second)
-	check(err)
-	p := NewPatcher6(conn)
-	fmt.Println("# Game version is", p.GameVersion())
-	for _, path := range os.Args[1:] {
-		if strings.HasSuffix(path, "/") {
-			p.SyncRecursive(strings.TrimSuffix(path, "/"))
-		} else {
-			p.Sync(path)
-		}
-	}
-	p.MakeLink()
 }

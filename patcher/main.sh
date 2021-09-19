@@ -5,7 +5,7 @@ set -eux
 mkdir -p out/release
 mkdir -p out/extracted
 
-poepatcher/poepatcher \
+bin/poepatcher \
 	"PathOfExile.exe" \
 	"PathOfExile_x64.exe" \
 	"Bundles2/_.index.bin" \
@@ -18,7 +18,7 @@ poepatcher/poepatcher \
 	"Bundles2/Data/Traditional Chinese.dat.6.bundle.bin" \
 	"Bundles2/Data/Traditional Chinese.dat.7.bundle.bin" \
 	"Bundles2/Data/Traditional Chinese.dat.9.bundle.bin" \
-	"Bundles2/Data/Traditional Chinese.dat.B.bundle.bin" 
+	"Bundles2/Data/Traditional Chinese.dat.B.bundle.bin"
 
 venv/bin/python scripts/extract.py \
 	"Metadata/StatDescriptions/stat_descriptions.txt"
