@@ -12,36 +12,6 @@ import nebuloch
 app = Flask(__name__)
 
 
-def noop(function):
-    def _noop(data):
-        logging.exception('Data example not stored')
-    return _noop
-
-
-@noop
-def write_exception_data(data):
-    # This function is to be updated to python3 APIs.
-    import google.appengine.api.modules.modules
-    from google.appengine.api import app_identity
-    import cloudstorage as gcs
-    bucket_name = app_identity.get_default_gcs_bucket_name()
-    j = json.dumps(data, separators=',:', ensure_ascii=False, sort_keys=True)
-    jb = j.encode('utf-8')
-    d = zlib.compress(jb)
-    m = hashlib.sha1(jb)
-    version = google.appengine.api.modules.modules.get_current_version_name()
-    if version is None:
-        version = '<NONE>'
-    m.update(version)
-    tracking = m.hexdigest()
-    filename = '/%s/error-dumps/%s.tracking' % (bucket_name, tracking)
-    gcs_file = gcs.open(filename, 'w', content_type='binary/octet-stream')
-    gcs_file.write(d)
-    gcs_file.close()
-    logging.exception('Logged exception to {}'.format(filename))
-    return tracking
-
-
 _application_version = None
 git_sha1 = None
 
@@ -66,7 +36,6 @@ def version():
 
 PAGES = [
     ('/pob/', 'POB'),
-    # ('/ninja/LeagueSC/', '查價'),
 ]
 
 
