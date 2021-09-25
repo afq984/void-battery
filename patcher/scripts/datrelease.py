@@ -3,42 +3,37 @@ import collections
 import sys
 
 
-dats = {}
-for lang in ['tc', 'en']:
-    with open(f'out/extracted/dat.{lang}.json') as file:
-        data = json.load(file)
-        for section in data:
-            dats[section['filename'], lang] = section
-
-
 def getjson(name, lang):
-    return dats[name, lang]
+    out = []
+    with open(f'out/extracted/{name}.{lang}.jsonl', encoding='utf8') as file:
+        for line in file:
+            out.append(json.loads(line))
+    return out
 
 
 def generate_words():
-    data = getjson('Words.dat', 'tc')
+    data = getjson('Words', 'tc')
 
     words = {}
 
-    for m in data['data']:
-        words[m[-2].strip()] = m[1].strip()
+    for m in data:
+        words[m['Text2'].strip()] = m['Text'].strip()
 
     write_to_file(words, 'out/release/words.json')
 
 
 def getnames(fn, lang, fieldname):
     data = getjson(fn, lang)
-    index, = [c['rowid'] for c in data['header'] if c['name'] == fieldname]
-    return [m[index].strip() for m in data['data']]
+    return [m[fieldname].strip() for m in data]
 
 
 def generate_bases():
-    z = getnames('BaseItemTypes.dat', 'tc', 'Name')
-    e = getnames('BaseItemTypes.dat', 'en', 'Name')
-    z.extend(getnames('ActiveSkills.dat', 'tc', 'DisplayedName'))
-    e.extend(getnames('ActiveSkills.dat', 'en', 'DisplayedName'))
-    z.extend(getnames('SkillGems.dat', 'tc', 'SupportSkillName'))
-    e.extend(getnames('SkillGems.dat', 'en', 'SupportSkillName'))
+    z = getnames('BaseItemTypes', 'tc', 'Name')
+    e = getnames('BaseItemTypes', 'en', 'Name')
+    z.extend(getnames('ActiveSkills', 'tc', 'DisplayedName'))
+    e.extend(getnames('ActiveSkills', 'en', 'DisplayedName'))
+    z.extend(getnames('SkillGems', 'tc', 'SupportSkillName'))
+    e.extend(getnames('SkillGems', 'en', 'SupportSkillName'))
 
     ze = build_mapping(z, e)
 
@@ -69,8 +64,8 @@ def write_to_file(ze, filename):
 
 
 def generate_passives():
-    z = getnames('PassiveSkills.dat', 'tc', 'Name')
-    e = getnames('PassiveSkills.dat', 'en', 'Name')
+    z = getnames('PassiveSkills', 'tc', 'Name')
+    e = getnames('PassiveSkills', 'en', 'Name')
     ze = build_mapping(z, e)
     write_to_file(ze, 'out/release/passives.json')
 

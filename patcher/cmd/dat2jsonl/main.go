@@ -33,7 +33,6 @@ defaults to the name of the dat file`)
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	defs, err := schema.Parse(b)
 	if err != nil {
 		log.Fatal(err)
@@ -42,7 +41,6 @@ defaults to the name of the dat file`)
 	if tableName == "" {
 		tableName = getTableName(datFile)
 	}
-
 	def, ok := defs[tableName]
 	if !ok {
 		log.Fatalf("table name not found: %q", tableName)
