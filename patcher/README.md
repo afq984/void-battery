@@ -9,7 +9,8 @@ Have these dependencies installed:
 * bash
 * python3
 * go
-* cmake
+* curl
+* gcc
 
 Then run:
 
