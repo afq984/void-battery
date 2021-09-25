@@ -26,7 +26,7 @@ bin/extract --ggpkd=Content.ggpk.d/latest --out=out/extracted/stat_descriptions.
 
 dat2json() {
 	bin/extract --ggpkd=Content.ggpk.d/latest --path="$2" --out="$3.dat"
-	bin/dat2jsonl --dat="$3.dat" --table-name="$1" --schema=out/schema.min.json > "$3.jsonl"
+	bin/dat2jsonl --dat="$3.dat" --table-name="$1" --schema=schema.min.json > "$3.jsonl"
 }
 
 datfiles=(BaseItemTypes ActiveSkills PassiveSkills SkillGems Words)
