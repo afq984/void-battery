@@ -7,4 +7,3 @@
 ## Branches
 
 * `master` -- should be the same as the website
-* `dev` -- development branch; merged to master after testing
