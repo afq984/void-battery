@@ -1,0 +1,12 @@
+on: [push, pull_request]
+
+jobs:
+  patcher:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: patcher
+    steps:
+    - uses: actions/checkout/@v2
+    - run: ./build-docker.sh
+    - run: ./launch-docker ./main.sh
