@@ -40,7 +40,7 @@ class Lexer:
         self.buffer = deque()
         self.tokens = deque()
         self.state = inSpace
-        self.tqdm = tqdm.tqdm(total=size // 2, mininterval=1)
+        self.tqdm = tqdm.tqdm(total=size, mininterval=1)
 
     def posafter(self):
         line = self.line + self.stored.count('\n')
@@ -331,6 +331,16 @@ class Parser:
         raise Exception(f'{token.line}:{token.column}: unexpected {token.type.name} {token.string!r}, {message}')
 
 
+def file_chars(file):
+    c = 0
+    while True:
+        s = file.read(4096)
+        if not s:
+            break
+        c += len(s)
+    return c
+
+
 LANG_WHITELIST = {'Traditional Chinese', ''}
 import argparse
 import sys
@@ -341,7 +351,9 @@ parser = argparse.ArgumentParser()
 parser.add_argument('filename')
 args = parser.parse_args()
 with open(args.filename, encoding='utf-16') as file:
-    lexer = Lexer(args.filename, file, size=os.stat(args.filename).st_size)
+    size = file_chars(file)
+    file.seek(0)
+    lexer = Lexer(args.filename, file, size=size)
     parser = Parser()
     parsed = parser.parse(lexer)
     for item in parsed:

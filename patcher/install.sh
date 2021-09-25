@@ -1,19 +1,9 @@
 #!/bin/bash
 set -ex
 
-# pypoe
-virtualenv -p python3 venv --system-site-packages
-venv/bin/pip install git+https://github.com/spadea96334/PyPoE#egg=PyPoE[cli] tqdm
+curl -o schema.min.json -fL https://github.com/poe-tool-dev/dat-schema/releases/download/latest/schema.min.json
 
-# ooz
-rm -rf ooz
-git clone --depth=1 https://github.com/zao/ooz.git
-sed -i s/TEMP_FAILURE_RETRY//g ooz/libpoe/poe/util/random_access_file.cpp  # for musl
-mkdir ooz/build
-cmake -S ooz -B ooz/build -G Ninja
-ninja -C ooz/build
+virtualenv venv
+venv/bin/python -m pip install tqdm
 
-# poepatcher
-cd poepatcher
-go build
-cd ..
+go build -o bin/ ./cmd/...

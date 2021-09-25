@@ -5,7 +5,7 @@ set -eux
 mkdir -p out/release
 mkdir -p out/extracted
 
-poepatcher/poepatcher \
+bin/poepatcher \
 	"PathOfExile.exe" \
 	"PathOfExile_x64.exe" \
 	"Bundles2/_.index.bin" \
@@ -18,14 +18,23 @@ poepatcher/poepatcher \
 	"Bundles2/Data/Traditional Chinese.dat.6.bundle.bin" \
 	"Bundles2/Data/Traditional Chinese.dat.7.bundle.bin" \
 	"Bundles2/Data/Traditional Chinese.dat.9.bundle.bin" \
-	"Bundles2/Data/Traditional Chinese.dat.B.bundle.bin" 
+	"Bundles2/Data/Traditional Chinese.dat.B.bundle.bin"
 
-venv/bin/python scripts/extract.py \
-	"Metadata/StatDescriptions/stat_descriptions.txt"
+bin/extract --ggpkd=Content.ggpk.d/latest --out=out/extracted/stat_descriptions.txt \
+	--path=Metadata/StatDescriptions/stat_descriptions.txt
 
-datfiles=(BaseItemTypes ActiveSkills PassiveSkills SkillGems Words.dat)
-venv/bin/python scripts/exporter.py dat json --files "${datfiles[@]}" -lang 'English' out/extracted/dat.en.json
-venv/bin/python scripts/exporter.py dat json --files "${datfiles[@]}" -lang 'Traditional Chinese' out/extracted/dat.tc.json
+
+dat2json() {
+	bin/extract --ggpkd=Content.ggpk.d/latest --path="$2" --out="$3.dat"
+	bin/dat2jsonl --dat="$3.dat" --table-name="$1" --schema=schema.min.json > "$3.jsonl"
+}
+
+datfiles=(BaseItemTypes ActiveSkills PassiveSkills SkillGems Words)
+for datfile in "${datfiles[@]}"
+do
+	dat2json "$datfile" "Data/$datfile.dat" "out/extracted/$datfile.en"
+	dat2json "$datfile" "Data/Traditional Chinese/$datfile.dat" "out/extracted/$datfile.tc"
+done
 
 venv/bin/python scripts/datrelease.py
 venv/bin/python scripts/statparse.py out/extracted/stat_descriptions.txt > out/release/stat_descriptions.json

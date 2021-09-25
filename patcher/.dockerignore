@@ -3,3 +3,7 @@
 !scripts/
 !poepatcher/
 !main.sh
+!go.mod
+!go.sum
+!cmd/
+!dat/
