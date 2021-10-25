@@ -7,6 +7,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io"
+	"log"
 	"net"
 	"net/http"
 	"net/url"
@@ -265,6 +266,12 @@ func (p *Patcher6) Sync(resource string) {
 	}
 
 	fmt.Printf("Downloaded %d bytes: %s\n", n, resource)
+	localSha256 = sha256File(syncPath)
+	if !bytes.Equal(localSha256, remoteSha256[:]) {
+		log.Fatalf("sha256 mismatch %s\nremote: %x\nlocal: %x",
+			resource, remoteSha256, localSha256,
+		)
+	}
 }
 
 // SyncRecursive synchronizes the directory recursively.
