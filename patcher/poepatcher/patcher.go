@@ -260,6 +260,16 @@ func (p *Patcher6) Sync(resource string) {
 	check(err)
 	defer resp.Body.Close()
 
+	if resp.StatusCode != http.StatusOK {
+		body, err := io.ReadAll(resp.Body)
+		log.Fatalf(
+			"bad status code: %d\nbody: %q\nerr: %s",
+			resp.StatusCode,
+			string(body),
+			err,
+		)
+	}
+
 	n, err := io.Copy(file, resp.Body)
 	if err != nil {
 		panic(err)
