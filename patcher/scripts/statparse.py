@@ -15,10 +15,25 @@ class TokenType(Enum):
     EOF = 7
 
 
+def _unescape(c, _map={
+    'n': '\n',
+}):
+    try:
+        return _map[c]
+    except KeyError:
+        if c in 'uU':
+            raise Exception('unsupported escape sequence \\{c}')
+        print(f'unexpected escape sequence \\{c}', file=sys.stderr)
+        return f'\\{c}'
+
 def parse_string(s):
-    r = ast.literal_eval(s)
-    assert isinstance(r, str)
-    return r
+    assert s[0] == '"'
+    assert s[-1] == '"'
+    siter = iter(s)
+    return ''.join(
+        _unescape(next(siter)) if c == '\\' else c
+        for c in siter
+    )
 
 
 class Token(namedtuple('Token', 'string type line column')):
