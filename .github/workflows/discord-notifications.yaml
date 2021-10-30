@@ -1,0 +1,13 @@
+on: [push, pull_request]
+name: discord-notifications
+
+defaults:
+  run:
+    working-directory: discord-notifications
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - run: docker build .
