@@ -1,0 +1,24 @@
+steps:
+- # Build the binary and put it into the builder image.
+  name: gcr.io/cloud-builders/docker
+  args: ['build', '--tag=gcr.io/void-battery/discord-notifier', '.']
+
+- # Push the container image to Container Registry
+  name: gcr.io/cloud-builders/docker
+  args: ['push', 'gcr.io/void-battery/discord-notifier']
+
+- # Deploy to Cloud Run
+  name: gcr.io/cloud-builders/gcloud
+  args:
+    - run
+    - deploy
+    - discord-notifier
+    - --platform=managed
+    - --region=asia-east1
+    - --image=gcr.io/void-battery/discord-notifier
+    - --no-allow-unauthenticated
+    - --update-env-vars=CONFIG_PATH=gs://void-battery-notifier/notifier.yaml
+
+# Push the image with tags.
+images:
+- gcr.io/$PROJECT_ID/discord-notifier

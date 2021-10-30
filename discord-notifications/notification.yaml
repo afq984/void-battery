@@ -1,0 +1,10 @@
+# gsutil cp notifier.yaml gs://void-battery-notifier/notifier.yaml
+apiVersion: cloud-build-notifiers/v1
+kind: YourNotifier
+metadata:
+  name: discord-notifier
+spec:
+  notification:
+    # this is actually unused
+    # the notifier hard-codes the filter
+    filter: build.status != Build.Status.STATUS_UNKNOWN
