@@ -7,7 +7,7 @@ def datapath(filename):
 
 
 with open(datapath('version.txt')) as file:
-    version = file.read()
+    version = file.read().rstrip()
 del file
 
 

@@ -34,6 +34,15 @@ def version():
     return git_sha1
 
 
+@app.route('/version.json')
+def version_json():
+    return {
+        'application': get_application_version(),
+        'commit': git_sha1,
+        'compatible': nebuloch.version,
+    }
+
+
 PAGES = [
     ('/pob/', 'POB'),
 ]
