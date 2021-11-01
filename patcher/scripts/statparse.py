@@ -29,7 +29,7 @@ def _unescape(c, _map={
 def parse_string(s):
     assert s[0] == '"'
     assert s[-1] == '"'
-    siter = iter(s)
+    siter = iter(s[1:-1])
     return ''.join(
         _unescape(next(siter)) if c == '\\' else c
         for c in siter
