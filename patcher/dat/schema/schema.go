@@ -38,6 +38,8 @@ func (c *column) asStructField() (*types.StructField, error) {
 		t = &types.Pad{Bytes: 4}
 	case "foreignrow":
 		t = &types.Pad{Bytes: 8}
+	case "enumrow":
+		t = &types.Pad{Bytes: 4}
 	case "string":
 		t = &types.Pointer{T: &types.UTF16LEString{}}
 	case "row":
