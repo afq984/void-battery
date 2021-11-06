@@ -263,8 +263,9 @@ func (p *Patcher6) Sync(resource string) {
 	if resp.StatusCode != http.StatusOK {
 		body, err := io.ReadAll(resp.Body)
 		log.Fatalf(
-			"bad status code: %d\nbody: %q\nerr: %s",
+			"bad status code: %d\nURL: %s\nbody: %q\nerr: %s",
 			resp.StatusCode,
+			resourceURL,
 			string(body),
 			err,
 		)
