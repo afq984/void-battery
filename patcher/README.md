@@ -2,9 +2,9 @@
 
 This directory contains tools to update the game data.
 
-### Install tools
+### Build tools
 
-Have these dependencies installed:
+First have these dependencies installed:
 
 * bash
 * python3
@@ -19,22 +19,10 @@ Then run:
 ./install.sh
 ```
 
-#### or use Docker
-
-```
-./build-docker.sh
-```
-
 ### Download the game files and extract them
 
 ```
 ./main.sh
-```
-
-#### or use Docker
-
-```
-./launch-docker ./main.sh
 ```
 
 ### Compare the current extracted data with the ones in `../web`:

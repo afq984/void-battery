@@ -1,8 +1,0 @@
-#!/bin/bash
-set -ex
-mkdir -p out
-mkdir -p Content.ggpk.d
-docker run --rm --env HOME=/tmp --user "$(id -u):$(id -g)" \
-    --volume="$PWD"/out:/patcher/out \
-    --volume="$PWD"/Content.ggpk.d:/patcher/Content.ggpk.d \
-    void-battery-patcher-env "$@"
