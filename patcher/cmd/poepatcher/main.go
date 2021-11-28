@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	_ "github.com/afq984/void-battery/patcher/cmd"
 	"github.com/afq984/void-battery/patcher/poepatcher"
 )
 

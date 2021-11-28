@@ -7,6 +7,8 @@ import (
 
 	"github.com/oriath-net/pogo/poefs"
 	"github.com/spf13/pflag"
+
+	_ "github.com/afq984/void-battery/patcher/cmd"
 )
 
 var ggpkDir string

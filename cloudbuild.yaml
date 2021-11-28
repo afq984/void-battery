@@ -1,17 +1,11 @@
 timeout: '600s'
 
 steps:
-- id: Patcher Docker
-  name: 'gcr.io/cloud-builders/docker'
-  dir: patcher
-  entrypoint: bash
-  args: ['./build-docker.sh']
-
 - id: Patch
-  name: 'gcr.io/cloud-builders/docker'
+  name: 'docker.io/alpine:latest'
   dir: patcher
-  entrypoint: bash
-  args: ['./launch-docker', './main.sh']
+  entrypoint: sh
+  args: ['./alpine-main.sh']
 
 - id: Release
   name: 'gcr.io/cloud-builders/gcloud'
