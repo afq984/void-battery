@@ -3,3 +3,4 @@ __pycache__/
 schema.min.json
 build.ninja
 .ninja_log
+/scripts/ninja_syntax.py

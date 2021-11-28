@@ -1,5 +1,5 @@
 FROM docker.io/alpine:latest
-RUN apk add --no-cache python3 py3-virtualenv go build-base git curl bash
+RUN apk add --no-cache python3 py3-virtualenv go build-base git curl bash samurai
 COPY . /patcher/
 WORKDIR /patcher
 RUN bash install.sh

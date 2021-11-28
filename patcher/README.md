@@ -11,6 +11,7 @@ Have these dependencies installed:
 * go
 * curl
 * gcc
+* ninja
 
 Then run:
 

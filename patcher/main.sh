@@ -20,4 +20,4 @@ bin/poepatcher \
 	"Bundles2/Data/Traditional Chinese.dat.B.bundle.bin"
 
 venv/bin/python scripts/genbuild.py
-venv/bin/python -m ninja
+ninja

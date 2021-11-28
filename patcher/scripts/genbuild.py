@@ -1,7 +1,7 @@
 import os
 import shlex
 
-from ninja import ninja_syntax
+import ninja_syntax
 
 
 targets = [
