@@ -1,9 +1,9 @@
 {
     "name": "Path of Building Exporter",
-    "version": "0.4",
+    "version": "0.5",
     "description": "Export Garena PoE Characters to POB",
-    "manifest_version": 2,
-    "permissions": [
+    "manifest_version": 3,
+    "host_permissions": [
         "*://web.poe.garena.tw/character-window/*"
     ],
     "externally_connectable": {
@@ -13,7 +13,6 @@
         ]
     },
     "background": {
-        "scripts": ["background.js"],
-        "persistent": false
+        "service_worker": "background.js"
     }
 }

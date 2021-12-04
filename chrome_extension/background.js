@@ -1,30 +1,55 @@
-chrome.runtime.onMessageExternal.addListener(
-    function(request, sender, sendResponse) {
-        var r = {};
-        var completedCount = 0;
-        function getX(x) {
-            var xhr = new XMLHttpRequest();
-            xhr.onreadystatechange = function onReadyStateChange() {
-                if (xhr.readyState === XMLHttpRequest.DONE) {
-                    if (xhr.status != 200) {
-                        if (completedCount != -1) {
-                            completedCount = -1;
-                            sendResponse({error: "get-" + x, status: xhr.status});
-                        }
-                    } else {
-                        r[x] = JSON.parse(xhr.responseText);
-                        completedCount += 1;
-                        if (completedCount == 2) {
-                            sendResponse(r);
-                        }
-                    }
-                }
-            }
-            xhr.open("GET", "https://web.poe.garena.tw/character-window/get-" + x + "?accountName=" + encodeURIComponent(request.accountName) + "&character=" + encodeURIComponent(request.character), true);
-            xhr.send();
-        }
-        getX("items");
-        getX("passive-skills");
-        return true;
-    }
-);
+async function get(what, accountName, character) {
+  const file = `get-${what}`;
+  let response;
+  try {
+    const params = new URLSearchParams({
+      accountName: accountName,
+      character: character,
+    });
+    const url = new URL(
+      `https://web.poe.garena.tw/character-window/${file}?${params.toString()}`
+    );
+    response = await fetch(url);
+  } catch (e) {
+    throw {
+      error: file,
+      status: e.toString(),
+    };
+  }
+  if (response.status !== 200) {
+    throw {
+      error: file,
+      status: response.status,
+    };
+  }
+  try {
+    return await response.json();
+  } catch (e) {
+    throw {
+      error: file,
+      status: e.toString(),
+    };
+  }
+}
+
+async function getContent(sendResponse, accountName, character) {
+  let response;
+  try {
+    response = {
+      items: await get("items", accountName, character),
+      "passive-skills": await get("passive-skills", accountName, character),
+    };
+  } catch (e) {
+    response = e;
+  }
+  sendResponse(response);
+}
+
+chrome.runtime.onMessageExternal.addListener(function (
+  request,
+  sender,
+  sendResponse
+) {
+  getContent(sendResponse, request.accountName, request.character);
+  return true;
+});
