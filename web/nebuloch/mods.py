@@ -10,7 +10,7 @@ from decimal import Decimal
 from . import datapath, TranslateError
 
 
-R = re.compile(r'(?:{(\d+):(\+?)d})|(?:([+]?){(\d+)})|([+-]?\d+)')
+R = re.compile(r'(?:(\+?){([^}]*)})|((?<!\d)[+-]?\d+(?:\.\d+)?)')
 M = re.compile(r'((?<!\d)[+-]?\d+(?:\.\d+)?)')
 
 
@@ -102,7 +102,8 @@ def fix_source(source):
         return source
     splitted = source.split('%d%')
     return splitted[0] + ''.join(
-        '%{}%{}'.format(*spec) for spec in enumerate(splitted[1:], 1))
+        '%{}%{}'.format(*spec) for spec in enumerate(splitted[1:], 1)
+    )
 
 
 class Variant:
@@ -110,7 +111,7 @@ class Variant:
         source = fix_source(source)
 
         self.source = source
-        self.symbolic = R.sub(repl_symbolic, source)
+        self.symbolic = R.sub('#', source)
 
         self.ranges = ranges
         self.default_values = [range_default_value(r) for r in ranges]
@@ -128,53 +129,64 @@ class Variant:
 
         self.formatter = R.sub(repl_formatter, source)
 
-        matcher_string_python2 = list(map(re.escape, R.split(source)[::6]))
-        matcher_string_first = matcher_string_python2[0]
-        matcher_string_others = matcher_string_python2[1:]
+        matcher_string_first, *matcher_string_others = map(
+            re.escape, R.split(source)[::4]
+        )
         matcher_regex_parts = []
         self.matcher_positions = matcher_positions = []
+
         for match in R.finditer(source):
-            signed, ssigned, sunsigned, unsigned, const = match.groups()
-            if signed is not None:
-                if ssigned == '+':
-                    matcher_regex_parts.append(r'([+-]\d+(?:\.\d+)?)')
-                    matcher_positions.append(int(signed))
-                else:
-                    assert ssigned == ''
-                    matcher_regex_parts.append(r'(\d+(?:\.\d+)?)')
-                    matcher_positions.append(int(signed))
-            elif unsigned is not None:
-                matcher_regex_parts.append(r'(' + re.escape(sunsigned) + r'\-?\d+(?:\.\d+)?)')
-                matcher_positions.append(int(unsigned))
-            elif const is not None:
+            prefix, format_spec, const = match.groups()
+
+            if const is not None:
                 matcher_regex_parts.append(re.escape(const))
+                continue
+
+            pos, col, options = format_spec.partition(':')
+            if not prefix:
+                if '+' in options:
+                    matcher_regex_parts.append(r'([+-]\d+(?:\.\d+)?)')
+                else:
+                    matcher_regex_parts.append(r'(\d+(?:\.\d+)?)')
             else:
-                assert False
-        for pos in self.matcher_positions:
-            self.default_values[pos] = None
+                assert '+' not in options, (options, source)
+                matcher_regex_parts.append(
+                    r'(' + re.escape(prefix) + r'\-?\d+(?:\.\d+)?)'
+                )
+
+            if pos == '':
+                matcher_positions.append(None)
+            else:
+                matcher_positions.append(int(pos))
+
+        if all(p is None for p in matcher_positions):
+            matcher_positions[:] = range(len(matcher_positions))
+        else:
+            assert all(p is not None for p in matcher_positions), source
 
         assert len(matcher_regex_parts) == len(matcher_string_others)
-        assert all(pos < self.value_count for pos in matcher_positions), (source, self.value_count)
+        assert all(pos < self.value_count for pos in matcher_positions), (
+            source,
+            self.value_count,
+        )
         self.matcher = matcher_string_first + ''.join(
             itertools.chain.from_iterable(
-                zip(matcher_regex_parts, matcher_string_others)))
+                zip(matcher_regex_parts, matcher_string_others)
+            )
+        )
 
     def __str__(self):
         return '{} {} {}'.format(
             ' '.join(self.ranges),
             json.dumps(self.source, ensure_ascii=False),
-            self.flags
+            self.flags,
         )
 
     def __repr__(self):
         return '<Variant {}>'.format(self)
 
     def qualify(self, values):
-        return all(
-            qualify_range(value, r)
-            for (value, r)
-            in zip(values, self.ranges)
-        )
+        return all(qualify_range(value, r) for (value, r) in zip(values, self.ranges))
 
     def apply_flags(self, values):
         updated_values = []
@@ -209,17 +221,15 @@ class Variant:
 
 
 def repl_formatter(match):
-    signed, ssigned, sunsigned, unsigned, const = match.groups()
+    prefix, format_spec, const = match.groups()
     if const:
         return const
-    if unsigned:
-        return '%s{%d}' % (sunsigned, int(unsigned))
-    return '{%d:%s}' % (int(signed), ssigned)
-
-
-def repl_symbolic(match):
-    signed, ssigned, sunsigned, unsigned, const = match.groups()
-    return '#'
+    pos, col, options = format_spec.partition(':')
+    if '+' in format_spec:
+        py_format_spec = '+'
+    else:
+        py_format_spec = ''
+    return f'{prefix}{{{pos}:{py_format_spec}}}'
 
 
 class Translator:
@@ -287,7 +297,7 @@ GH_ISSUE3_EN = 'Added Small Passive Skills grant: '
 def translate(mod, index, passives):
     if mod.startswith(_ALLOCATES_TC):
         try:
-            return 'Allocates ' + passives[mod[len(_ALLOCATES_TC):].strip()]
+            return 'Allocates ' + passives[mod[len(_ALLOCATES_TC) :].strip()]
         except KeyError:
             raise CannotTranslateMod(mod) from None
 
@@ -298,8 +308,8 @@ def translate(mod, index, passives):
     except KeyError:
         if query_key.startswith(GH_ISSUE3_TC):
             cluster = True
-            query_key = query_key[len(GH_ISSUE3_TC):]
-            mod = mod[len(GH_ISSUE3_TC):]
+            query_key = query_key[len(GH_ISSUE3_TC) :]
+            mod = mod[len(GH_ISSUE3_TC) :]
             try:
                 variants = index[query_key]
             except KeyError:
@@ -319,8 +329,8 @@ def translate(mod, index, passives):
                 else:
                     return default.format(match)
         warnings.warn(
-            'Matched TC {!r} has no corresponding '
-            'default translations'.format(tc))
+            'Matched TC {!r} has no corresponding ' 'default translations'.format(tc)
+        )
     raise CannotTranslateMod(mod) from None
 
 
@@ -351,6 +361,7 @@ def debug(mod):
 
 def main():
     import sys
+
     debug(sys.argv[1])
 
 

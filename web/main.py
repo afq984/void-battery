@@ -94,5 +94,5 @@ def pob():
         data=data,
         tr_errors=tr_errors,
         version=get_application_version(),
-        compat=nebuloch.version
+        compat=nebuloch.version,
     )
