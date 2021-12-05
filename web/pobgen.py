@@ -36,41 +36,36 @@ def get_encoded_tree(char, tree):
     return base64.urlsafe_b64encode(
         struct.pack(
             '>BBBBBBB{}H'.format(len(tree["hashes"])),
-            *itertools.chain(head, tree['hashes']))
+            *itertools.chain(head, tree['hashes']),
+        )
     ).decode('ascii')
 
 
 def Tree(char, tree):
     # from https://web.poe.garena.tw/passive-skill-tree
+    # fmt: off
     jewelSlots = [26725, 36634, 33989, 41263, 60735, 61834, 31683, 28475, 6230, 48768, 34483, 7960, 46882, 55190, 61419, 2491, 54127, 32763, 26196, 33631, 21984, 29712, 48679, 9408, 12613, 16218, 2311, 22994, 40400, 46393, 61305, 12161, 3109, 49080, 17219, 44169, 24970, 36931, 14993, 10532, 23756, 46519, 23984, 51198, 61666, 6910, 49684, 33753, 18436, 11150, 22748, 64583, 61288, 13170, 9797, 41876, 59585]
+    # fmt: on
     sockets = []
 
     for id, item in enumerate(tree['items'], 1):
         x = item['x']
-        sockets.append(
-            E.Socket(
-                nodeId=str(jewelSlots[x]),
-                itemId=str(id)))
+        sockets.append(E.Socket(nodeId=str(jewelSlots[x]), itemId=str(id)))
 
     return E.Tree(
         E.Spec(
             E.URL(
-                'https://www.pathofexile.com/passive-skill-tree/' + get_encoded_tree(char, tree)
+                'https://www.pathofexile.com/passive-skill-tree/'
+                + get_encoded_tree(char, tree)
             ),
             E.Sockets(*sockets),
-            treeVersion='3_16'
+            treeVersion='3_16',
         ),
-        activeSpec='1'
+        activeSpec='1',
     )
 
 
-RARITY_MAP = {
-    0: 'NORMAL',
-    1: 'MAGIC',
-    2: 'RARE',
-    3: 'UNIQUE',
-    9: 'RELIC'
-}
+RARITY_MAP = {0: 'NORMAL', 1: 'MAGIC', 2: 'RARE', 3: 'UNIQUE', 9: 'RELIC'}
 
 # corresponds to:
 # `local slotMap =` in ImportTab.lua in POB
@@ -87,7 +82,7 @@ SLOT_MAP = {
     'Ring2': 'Ring 2',
     'Trinket': 'Trinket',  # https://github.com/PathOfBuildingCommunity/PathOfBuilding/issues/1721
     'Weapon': 'Weapon 1',
-    'Weapon2': 'Weapon 1 Swap'
+    'Weapon2': 'Weapon 1 Swap',
 }
 
 
@@ -101,14 +96,15 @@ def clean_name(name):
 CATEGORY_BLACKLIST = set('gems currency maps cards monsters leaguestones'.split())
 
 # These are the inventoryId's that are causing trouble
-INVENTORY_BLACKLIST = set((
-    # We are only importing equipped items, and quest items are currently
-    # causing troubles, so we are ignoring them for now
-    'MainInventory',
-
-    'Map',  # The item is on Zana's Map Device
-    'Cursor'  # The item is on the cursor
-))
+INVENTORY_BLACKLIST = set(
+    (
+        # We are only importing equipped items, and quest items are currently
+        # causing troubles, so we are ignoring them for now
+        'MainInventory',
+        'Map',  # The item is on Zana's Map Device
+        'Cursor',  # The item is on the cursor
+    )
+)
 
 
 class POBGenerator:
@@ -138,12 +134,18 @@ class POBGenerator:
             L0 = max(enumerate(skills, 1), key=lambda m: len(m[1]))
         defsock, maxlink_skill = L0
         pob = E.PathOfBuilding(
-            E.Build(level=str(char['level']), targetVersion='3_0', mainSocketGroup=str(defsock)),
+            E.Build(
+                level=str(char['level']),
+                targetVersion='3_0',
+                mainSocketGroup=str(defsock),
+            ),
             skills,
             Tree(char, tree),
             items,
         )
-        return base64.urlsafe_b64encode(zlib.compress(lxml.etree.tostring(pob))).decode('ascii')
+        return base64.urlsafe_b64encode(zlib.compress(lxml.etree.tostring(pob))).decode(
+            'ascii'
+        )
 
     def ItemsSkills(self, items):
         item_list = []
@@ -153,10 +155,16 @@ class POBGenerator:
         for id, item in enumerate(items, 1):
             strid = str(id)
             inventoryId = item['inventoryId']
-            if inventoryId in INVENTORY_BLACKLIST or inventoryId.endswith('MasterCrafting'):
+            if inventoryId in INVENTORY_BLACKLIST or inventoryId.endswith(
+                'MasterCrafting'
+            ):
                 pass
             elif item['frameType'] not in RARITY_MAP:
-                warnings.warn('frameType = {!r}, inventoryId = {!r}'.format(item['frameType'], inventoryId))
+                warnings.warn(
+                    'frameType = {!r}, inventoryId = {!r}'.format(
+                        item['frameType'], inventoryId
+                    )
+                )
             else:
                 pob = self.item_to_pob(item)
                 item_list.append(E.Item(pob, id=strid))
@@ -179,10 +187,7 @@ class POBGenerator:
                 slot_list.append(E.Slot(name=slot, itemId=strid))
         return (
             E.Items(*(item_list + slot_list)),
-            E.Skills(
-                *skill_list,
-                sortGemsByDPS='true'
-            )
+            E.Skills(*skill_list, sortGemsByDPS='true'),
         )
 
     def Gem(self, item):
@@ -231,7 +236,9 @@ class POBGenerator:
         if rarity == 'MAGIC':
             yield self.tr_with_report(self.parse_magic, item)
         else:
-            yield self.tr_name(item['typeLine'].rpartition('精良的 ')[-1].rpartition('追憶之 ')[-1])
+            yield self.tr_name(
+                item['typeLine'].rpartition('精良的 ')[-1].rpartition('追憶之 ')[-1]
+            )
         yield "Unique ID: {}".format(item['id'])
         yield "Item Level: {}".format(item['ilvl'])
         quality = 0
@@ -240,7 +247,9 @@ class POBGenerator:
             if prop['name'] == '品質':
                 quality = prop['values'][0][0].lstrip('+').rstrip('%')
             if prop['name'] == '範圍':
-                radius = {'小': 'Small', '中': 'Medium', '大': 'Large', '可變的': 'Variable'}[prop['values'][0][0]]
+                radius = {'小': 'Small', '中': 'Medium', '大': 'Large', '可變的': 'Variable'}[
+                    prop['values'][0][0]
+                ]
         yield 'Quality: {}'.format(quality)
         if radius is not None:
             yield 'Radius: {}'.format(radius)
@@ -252,17 +261,19 @@ class POBGenerator:
             yield 'Sockets: ' + sockstr
         if item.get('corrupted'):
             yield 'Corrupted'
-        n_implicits = len(item.get('implicitMods', ())) + len(item.get('enchantMods', ()))
+        n_implicits = len(item.get('implicitMods', ())) + len(
+            item.get('enchantMods', ())
+        )
         yield 'Implicits: {}'.format(n_implicits)
         for mod in itertools.chain(
             item.get('implicitMods', ()),
             item.get('enchantMods', ()),
-            item.get('explicitMods', ())
+            item.get('explicitMods', ()),
         ):
             loc = mod.find('\n附加的小型天賦給予：')
             if loc != -1:
                 yield self.tr_mod(mod[:loc])
-                yield self.tr_mod(mod[loc + 1:])
+                yield self.tr_mod(mod[loc + 1 :])
             else:
                 yield self.tr_mod(mod)
         for cmod in item.get('craftedMods', ()):
@@ -293,7 +304,13 @@ class POBGenerator:
             else:
                 groups[groupId].append(self.Gem(socketedItem))
         gems = [
-            E.Skill(*gems, enabled='true', slot=slot, mainActiveSkillCalcs='nil', mainActiveSkill='nil')
+            E.Skill(
+                *gems,
+                enabled='true',
+                slot=slot,
+                mainActiveSkillCalcs='nil',
+                mainActiveSkill='nil',
+            )
             for gems in groups.values()
         ]
         return gems, jewels
@@ -306,6 +323,7 @@ def export(items, tree):
 
 def main():
     import argparse
+
     parser = argparse.ArgumentParser()
     parser.add_argument('a')
     parser.add_argument('b')
