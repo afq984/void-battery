@@ -9,6 +9,9 @@ from pobgen import POBGenerator
 import nebuloch
 
 
+EXTENSION_ID = 'kiajcecpeadokhboljndajchpgmekmbl'
+
+
 app = Flask(__name__)
 
 
@@ -95,4 +98,5 @@ def pob():
         tr_errors=tr_errors,
         version=get_application_version(),
         compat=nebuloch.version,
+        extension_id=EXTENSION_ID,
     )
