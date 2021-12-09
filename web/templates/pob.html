@@ -55,7 +55,7 @@
 
 {% block script %}
 <script>
-  var extensionId = "kiajcecpeadokhboljndajchpgmekmbl";
+  var extensionId = "{{ extension_id }}";
   var clipboard = new ClipboardJS('#copyButton');
   clipboard.on('success', function clipboardOnSuccess(e) {
     $("#copyButton").popup("toggle");
