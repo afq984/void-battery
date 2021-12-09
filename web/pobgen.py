@@ -32,11 +32,18 @@ alt_matcher = '|'.join(map(re.escape, ALTERNATE_MAP))
 
 
 def get_encoded_tree(char, tree):
-    head = [0, 0, 0, 4, char['classId'], char['ascendancyClass'], 0]
+    head = [0, 0, 0, 6, char['classId'], char['ascendancyClass'], len(tree['hashes'])]
+    masteryEffects = []
+    for child in tree['mastery_effects']:
+        effect = int(child) >> 16
+        node = int(child) & 65535
+        masteryEffects.append(effect)
+        masteryEffects.append(node)
+
     return base64.urlsafe_b64encode(
         struct.pack(
-            '>BBBBBBB{}H'.format(len(tree["hashes"])),
-            *itertools.chain(head, tree['hashes']),
+            '>BBBBBBB{}HBB{}H'.format(len(tree["hashes"]), len(masteryEffects)),
+            *itertools.chain(head, tree['hashes'], [0, len(tree['mastery_effects'])], masteryEffects)
         )
     ).decode('ascii')
 
