@@ -7,14 +7,17 @@ steps:
   env:
   - 'DOCKER_BUILDKIT=1'
 
-- id: Push Docker Image
+- id: Check Versions
   name: 'gcr.io/cloud-builders/docker'
-  dir: web
   entrypoint: bash
-  args: ['maybe.sh', 'docker', 'push', 'gcr.io/void-battery/v0']
+  args: ['web/maybe.sh', 'touch', 'needs-update']
 
-- id: Maybe deploy
-  name: 'gcr.io/cloud-builders/gcloud'
-  dir: web
+- id: Maybe Push
+  name: 'gcr.io/cloud-builders/docker'
   entrypoint: bash
-  args: ['maybe.sh', './deploy.sh']
+  args: ['-c', '! test -f needs-update || docker push gcr.io/void-battery/v0']
+
+- id: Maybe Deploy
+  name: 'gcr.io/cloud-builders/gcloud'
+  entrypoint: bash
+  args: ['-c', '! test -f needs-update || web/deploy.sh']
