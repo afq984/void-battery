@@ -4,14 +4,14 @@ steps:
 - id: Build Docker Image
   name: 'gcr.io/cloud-builders/docker'
   args: ['build', '.', '-t', 'gcr.io/void-battery/v0']
+  env:
+  - 'DOCKER_BUILDKIT=1'
 
 - id: Push Docker Image
   name: 'gcr.io/cloud-builders/docker'
   dir: web
   entrypoint: bash
   args: ['maybe.sh', 'docker', 'push', 'gcr.io/void-battery/v0']
-  env:
-  - 'DOCKER_BUILDKIT=1'
 
 - id: Maybe deploy
   name: 'gcr.io/cloud-builders/gcloud'
