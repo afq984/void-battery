@@ -1,29 +1,18 @@
 timeout: '600s'
 
 steps:
-- id: Patch
-  name: 'docker.io/alpine:latest'
-  dir: patcher
-  entrypoint: sh
-  args: ['./alpine-main.sh']
-
-- id: Release
-  name: 'gcr.io/cloud-builders/gcloud'
-  entrypoint: 'bash'
-  dir: patcher
-  args: ['./release.sh']
-
 - id: Build Docker Image
   name: 'gcr.io/cloud-builders/docker'
-  dir: web
   entrypoint: bash
-  args: ['maybe.sh', 'docker', 'build', '.', '-t', 'gcr.io/void-battery/v0']
+  args: ['docker', 'build', '.', '-t', 'gcr.io/void-battery/v0']
 
 - id: Push Docker Image
   name: 'gcr.io/cloud-builders/docker'
   dir: web
   entrypoint: bash
   args: ['maybe.sh', 'docker', 'push', 'gcr.io/void-battery/v0']
+  env:
+  - 'DOCKER_BUILDKIT=1'
 
 - id: Maybe deploy
   name: 'gcr.io/cloud-builders/gcloud'

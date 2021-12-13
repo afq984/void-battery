@@ -1,4 +1,4 @@
 *.pyc
 .pytest_cache
-/env/
+/venv/
 /nebuloch/data/

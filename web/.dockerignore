@@ -1,4 +1,0 @@
-*.pyc
-.pytest_cache
-/env/
-/lib/

@@ -1,0 +1,16 @@
+*
+!web/main.py
+!web/pobgen.py
+!web/nebuloch/*.py
+!web/nebuloch/data/*
+!web/templates/*
+!patcher
+patcher/bin
+patcher/scripts/__pycache__
+patcher/scripts/ninja_syntax.py
+patcher/schema.min.json
+patcher/build.ninja
+patcher/.ninja_log
+patcher/Content.ggpk.d
+patcher/venv
+patcher/out
