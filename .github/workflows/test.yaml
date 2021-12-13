@@ -18,13 +18,6 @@ jobs:
         go-version: 1.x
     - run: go test -v ./...
 
-  alpine-patcher:
-    runs-on: ubuntu-latest
-    container: alpine:latest
-    steps:
-    - uses: actions/checkout@v2
-    - run: ./alpine-main.sh
-
   web-test:
     runs-on: ubuntu-latest
     steps:
