@@ -147,7 +147,7 @@ class Variant:
                 if '+' in options:
                     matcher_regex_parts.append(r'([+-]\d+(?:\.\d+)?)')
                 else:
-                    matcher_regex_parts.append(r'(\d+(?:\.\d+)?)')
+                    matcher_regex_parts.append(r'(\-?\d+(?:\.\d+)?)')
             else:
                 assert '+' not in options, (options, source)
                 matcher_regex_parts.append(
