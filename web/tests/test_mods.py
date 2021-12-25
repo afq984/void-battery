@@ -150,3 +150,12 @@ def test_default_with_const():
     v = Variant('zero {} 999 one {}', ['#', '#'], [])
     assert v.symbolic == 'zero # # one #'
     assert v.format([0, 1]) == 'zero 0 999 one 1'
+
+
+def test_negative():
+    v = Variant('範圍內每 1 點配置敏捷為 {0} 敏捷', ['#', '#'], [])
+    assert v.symbolic == '範圍內每 # 點配置敏捷為 # 敏捷'
+    assert (
+        tr('範圍內每 1 點配置敏捷為 -1 敏捷')
+        == '-1 Dexterity per 1 Dexterity on Allocated Passives in Radius'
+    )
