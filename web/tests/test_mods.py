@@ -122,11 +122,11 @@ def test_float_literal():
 
 
 def test_float_literal2():
-    v = Variant('近戰暴擊時觸發 1 個插槽中的冰冷法術，有 0.15 秒冷卻時間', ['#'], [])
+    v = Variant('近戰暴擊時觸發 1 個插槽中的冰冷法術，有 0.25 秒冷卻時間', ['#'], [])
     assert v.symbolic == '近戰暴擊時觸發 # 個插槽中的冰冷法術，有 # 秒冷卻時間'
     assert (
-        tr('近戰暴擊時觸發 1 個插槽中的冰冷法術，有 0.15 秒冷卻時間')
-        == 'Trigger a Socketed Cold Spell on Melee Critical Strike, with a 0.15 second Cooldown'
+        tr('近戰暴擊時觸發 1 個插槽中的冰冷法術，有 0.25 秒冷卻時間')
+        == 'Trigger a Socketed Cold Spell on Melee Critical Strike, with a 0.25 second Cooldown'
     )
 
 
