@@ -1,5 +1,6 @@
 import os
 import shlex
+import subprocess
 
 import ninja_syntax
 
@@ -7,11 +8,11 @@ import ninja_syntax
 targets = [
     "PathOfExile.exe",
     "Bundles2/_.index.bin",
-    "Bundles2/_Preload.bundle.bin",
+    "Bundles2/_Preload_3.bundle.bin",
     "Bundles2/Data.dat.7.bundle.bin",
     "Bundles2/Data.dat.C.bundle.bin",
     "Bundles2/Data.dat.D.bundle.bin",
-    "Bundles2/Data.dat.E.bundle.bin",
+    "Bundles2/Data.dat.E_3.bundle.bin",
     "Bundles2/Data/Traditional Chinese.dat.2.bundle.bin",
     "Bundles2/Data/Traditional Chinese.dat.6.bundle.bin",
     "Bundles2/Data/Traditional Chinese.dat.7.bundle.bin",
@@ -41,6 +42,9 @@ def write_dat2json(writer, table_name, path, out):
         implicit=["bin/dat2jsonl", "schema.min.json"],
         variables={"table_name": table_name},
     )
+
+
+subprocess.check_call(['bin/poepatcher', *targets])
 
 
 with open("build.ninja", "w", encoding="utf8") as file:
