@@ -8,8 +8,10 @@ import ninja_syntax
 targets = [
     "PathOfExile.exe",
     "Bundles2/_.index.bin",
-    "Bundles2/_Preload_3.bundle.bin",
+    "Bundles2/_Preload_2.bundle.bin",
+    "Bundles2/Data.dat.6.bundle.bin",
     "Bundles2/Data.dat.7.bundle.bin",
+    "Bundles2/Data.dat.9.bundle.bin",
     "Bundles2/Data.dat.C.bundle.bin",
     "Bundles2/Data.dat.D.bundle.bin",
     "Bundles2/Data.dat.E_3.bundle.bin",
