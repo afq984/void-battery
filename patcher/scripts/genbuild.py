@@ -15,6 +15,7 @@ targets = [
     "Bundles2/Data.dat.C.bundle.bin",
     "Bundles2/Data.dat.D.bundle.bin",
     "Bundles2/Data.dat.E_3.bundle.bin",
+    "Bundles2/Data/Japanese.dat.1.bundle.bin",
     "Bundles2/Data/Traditional Chinese.dat.2.bundle.bin",
     "Bundles2/Data/Traditional Chinese.dat.6.bundle.bin",
     "Bundles2/Data/Traditional Chinese.dat.7.bundle.bin",
