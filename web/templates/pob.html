@@ -87,9 +87,9 @@
           if (response.status == 500) {
             description = "Garena 伺服器錯誤";
           } else if (response.status == 404) {
-            description = "帳號或角色名稱不正確（區分大小寫）";
+            description = "角色名稱不正確";
           } else if (response.status == 403) {
-            description = "角色資訊未公開";
+            description = "帳號不正確或角色資訊未公開";
           } else {
             description = "未知錯誤";
           }
