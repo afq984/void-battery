@@ -123,7 +123,13 @@ def test_is_valid_base64(chrome: Chrome, pob_url: str):
     assert t.xpath('/PathOfBuilding/Items')
 
 
-def test_bad_character(chrome: Chrome, pob_url: str):
+def test_bad_account(chrome: Chrome, pob_url: str):
     result = submit(chrome, pob_url, '--bad--', '--character--')
 
-    assert result == '錯誤：帳號或角色名稱不正確（區分大小寫）'
+    assert result == '錯誤：帳號不正確或角色資訊未公開'
+
+
+def test_bad_character(chrome: Chrome, pob_url: str):
+    result = submit(chrome, pob_url, 'afg984', '--bad-character--')
+
+    assert result == '錯誤：角色名稱不正確'
