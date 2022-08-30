@@ -25,7 +25,7 @@ def test_prev_failed():
         tr('0.27% 所造成的物理攻擊傷害偷取魔力') == '0.27% of Physical Attack Damage Leeched as Mana'
     )
     assert (
-        tr('此物品插槽中寶石由等級 18 的急凍輔助')
+        tr('插槽中寶石被等級 18 的急凍輔助')
         == 'Socketed Gems are Supported by Level 18 Hypothermia'
     )
 
@@ -102,7 +102,7 @@ def test_not_translated():
 
 def test_negative_unsigned():
     # This is a fixed translation bug
-    assert tr('30% 較少幻化武器時間') == '30% less Animate Weapon Duration'
+    assert tr('30% 更少幻化武器時間') == '30% less Animate Weapon Duration'
 
 
 def test_divide_by_ten_0dp():
