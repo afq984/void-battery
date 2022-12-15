@@ -15,9 +15,12 @@ class TokenType(Enum):
     EOF = 7
 
 
-def _unescape(c, _map={
-    'n': '\n',
-}):
+def _unescape(
+    c,
+    _map={
+        'n': '\n',
+    },
+):
     try:
         return _map[c]
     except KeyError:
@@ -26,23 +29,20 @@ def _unescape(c, _map={
         print(f'unexpected escape sequence \\{c}', file=sys.stderr)
         return f'\\{c}'
 
+
 def parse_string(s):
     assert s[0] == '"'
     assert s[-1] == '"'
     siter = iter(s[1:-1])
-    return ''.join(
-        _unescape(next(siter)) if c == '\\' else c
-        for c in siter
-    )
+    return ''.join(_unescape(next(siter)) if c == '\\' else c for c in siter)
 
 
 class Token(namedtuple('Token', 'string type line column')):
     @property
     def value(self):
-        return {
-            TokenType.Number: int,
-            TokenType.String: parse_string,
-        }.get(self.type, lambda x: x)(self.string)
+        return {TokenType.Number: int, TokenType.String: parse_string,}.get(
+            self.type, lambda x: x
+        )(self.string)
 
 
 class Lexer:
@@ -126,7 +126,14 @@ class Lexer:
             r = self.tokens.popleft()
             # workaround for text error
             if r.string == '1attack_damage_+%_while_you_have_fortify':
-                self.tokens.appendleft(Token('attack_damage_+%_while_you_have_fortify', TokenType.Text, r.line, r.column+2))
+                self.tokens.appendleft(
+                    Token(
+                        'attack_damage_+%_while_you_have_fortify',
+                        TokenType.Text,
+                        r.line,
+                        r.column + 2,
+                    )
+                )
                 return Token(1, TokenType.Number, r.line, r.column)
             # workaround for error:
             # 1# "ได้รับ %1% ชาร์จ เมื่อคุณถูกปะทะโดยศัตรู"
@@ -270,7 +277,9 @@ class Parser:
         return self.atRanges
 
     def atRanges(self):
-        self.variant['ranges'] = [self.expect(TokenType.Number, TokenType.Range).string for k in self.keys]
+        self.variant['ranges'] = [
+            self.expect(TokenType.Number, TokenType.Range).string for k in self.keys
+        ]
         return self.atVariantText
 
     def atVariantText(self):
@@ -303,7 +312,9 @@ class Parser:
                     token = nexttok
 
     def atLang(self):
-        self.description['langs'][self.expect(TokenType.String).value] = self.variants = []
+        self.description['langs'][
+            self.expect(TokenType.String).value
+        ] = self.variants = []
         self.expect(TokenType.Line)
         return self.atVariantList
 
@@ -343,7 +354,9 @@ class Parser:
             self.undo(token)
 
     def unexpected(self, token, message):
-        raise Exception(f'{token.line}:{token.column}: unexpected {token.type.name} {token.string!r}, {message}')
+        raise Exception(
+            f'{token.line}:{token.column}: unexpected {token.type.name} {token.string!r}, {message}'
+        )
 
 
 def file_chars(file):
@@ -356,12 +369,25 @@ def file_chars(file):
     return c
 
 
+def hack(data):
+    for item in data:
+        if item['keys'] == [
+            "local_unique_jewel_projectile_damage_+1%_per_x_dex_in_radius"
+        ]:
+            for (lang, variants) in item['langs'].items():
+                for variant in variants:
+                    if variant['source'] == "範圍內每 {0:d} 點已配置敏捷，增加 {1}% 投射物傷害":
+                        variant['source'] = "範圍內每 {0:d} 點已配置敏捷，增加 1% 投射物傷害"
+
+
 LANG_WHITELIST = {'Traditional Chinese', ''}
 import argparse
 import sys
 import os
+
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 import pjson
+
 parser = argparse.ArgumentParser()
 parser.add_argument('filename')
 args = parser.parse_args()
@@ -375,5 +401,6 @@ with open(args.filename, encoding='utf-16') as file:
         langs = item['langs']
         item['langs'] = {k: langs[k] for k in langs if k in LANG_WHITELIST}
         # remove other languages do decrease memory usage on GAE
+    hack(parsed)
     sys.stdout.writelines(pjson.PrettyJSONEncoder().iterencode(parsed))
     lexer.tqdm.close()
