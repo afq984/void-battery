@@ -37,15 +37,15 @@ func (c *column) asStructField() (*types.StructField, error) {
 	case "f32":
 		t = &types.Pad{Bytes: 4}
 	case "foreignrow":
-		t = &types.Pad{Bytes: 8}
+		t = &types.Pad{Bytes: 16}
 	case "enumrow":
 		t = &types.Pad{Bytes: 4}
 	case "string":
 		t = &types.Pointer{T: &types.UTF16LEString{}}
 	case "row":
-		t = &types.Pad{Bytes: 4}
-	case "array":
 		t = &types.Pad{Bytes: 8}
+	case "array":
+		t = &types.Pad{Bytes: (&types.Array{}).Size()}
 	default:
 		return nil, fmt.Errorf("unknown type: %q", c.Type)
 	}

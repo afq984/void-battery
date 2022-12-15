@@ -68,7 +68,7 @@ func TestValueAt(t *testing.T) {
 			ty: &Pointer{&Int32{}},
 			fixed: []byte{
 				// ptr to 6
-				6, 0, 0, 0,
+				6, 0, 0, 0, 0, 0, 0, 0,
 			},
 			dynamic: []byte{
 				// padding
@@ -83,9 +83,9 @@ func TestValueAt(t *testing.T) {
 			ty: &Array{&Int32{}},
 			fixed: []byte{
 				// offset
-				2, 0, 0, 0,
+				2, 0, 0, 0, 0, 0, 0, 0,
 				// count
-				2, 0, 0, 0,
+				2, 0, 0, 0, 0, 0, 0, 0,
 			},
 			dynamic: []byte{
 				// arbitary padding
@@ -103,7 +103,7 @@ func TestValueAt(t *testing.T) {
 
 		{
 			ty:    &Pointer{T: &UTF16LEString{}},
-			fixed: []byte{0, 0, 0, 0},
+			fixed: []byte{0, 0, 0, 0, 0, 0, 0, 0},
 			dynamic: []byte{
 				'a', 0,
 				'b', 0,

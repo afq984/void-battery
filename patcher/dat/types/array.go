@@ -14,16 +14,16 @@ type Array struct {
 var _ Scalar = &Array{}
 
 func (t *Array) Size() int64 {
-	return 8
+	return 16
 }
 
 func (t *Array) ValueAt(r *File, off int64) (Value, error) {
 	var arrayHeader struct {
-		Count  int32
-		Offset int32
+		Count  int64
+		Offset int64
 	}
 	err := binary.Read(
-		io.NewSectionReader(r, off, 8),
+		io.NewSectionReader(r, off, t.Size()),
 		binary.LittleEndian,
 		&arrayHeader,
 	)

@@ -9,18 +9,13 @@ targets = [
     "PathOfExile.exe",
     "Bundles2/_.index.bin",
     "Bundles2/_Preload_2.bundle.bin",
-    "Bundles2/Data.dat.6.bundle.bin",
-    "Bundles2/Data.dat.7.bundle.bin",
-    "Bundles2/Data.dat.9.bundle.bin",
-    "Bundles2/Data.dat.C.bundle.bin",
-    "Bundles2/Data.dat.D.bundle.bin",
-    "Bundles2/Data.dat.E_3.bundle.bin",
-    "Bundles2/Data/Japanese.dat.1.bundle.bin",
-    "Bundles2/Data/Traditional Chinese.dat.2.bundle.bin",
-    "Bundles2/Data/Traditional Chinese.dat.6.bundle.bin",
-    "Bundles2/Data/Traditional Chinese.dat.7.bundle.bin",
-    "Bundles2/Data/Traditional Chinese.dat.9.bundle.bin",
-    "Bundles2/Data/Traditional Chinese.dat.B.bundle.bin",
+
+    "Bundles2/_Login_3.bundle.bin",
+    "Bundles2/_Startup.bundle.bin",
+    "Bundles2/Data/Traditional Chinese.dat64.B_2.bundle.bin",
+    "Bundles2/Data/Traditional Chinese.dat64.D.bundle.bin",
+    "Bundles2/Data/Traditional Chinese.dat64.1.bundle.bin",
+    "Bundles2/Data/Traditional Chinese.dat64.E.bundle.bin",
 ]
 
 objects = [os.path.join("Content.ggpk.d", "latest", target) for target in targets]
@@ -33,7 +28,7 @@ def write_build(writer):
 
 def write_dat2json(writer, table_name, path, out):
     writer.build(
-        f"{out}.dat",
+        f"{out}.dat64",
         "extract",
         implicit=["bin/extract", stampfile],
         variables={"path": shlex.quote(path)},
@@ -41,7 +36,7 @@ def write_dat2json(writer, table_name, path, out):
     writer.build(
         f"{out}.jsonl",
         "dat2jsonl",
-        inputs=f"{out}.dat",
+        inputs=f"{out}.dat64",
         implicit=["bin/dat2jsonl", "schema.min.json"],
         variables={"table_name": table_name},
     )
@@ -92,7 +87,7 @@ with open("build.ninja", "w", encoding="utf8") as file:
             write_dat2json(
                 writer,
                 datfile,
-                f"Data/{lang}{datfile}.dat",
+                f"Data/{lang}{datfile}.dat64",
                 f"out/extracted/{datfile}.{l}",
             )
             json_files.append(f"out/extracted/{datfile}.{l}.jsonl")

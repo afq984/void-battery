@@ -63,7 +63,7 @@ defaults to the name of the dat file`)
 	for i := int64(0); i < d.RowCount; i++ {
 		k, err := rowType.ValueAt(d.File, d.RowOffset(i))
 		if err != nil {
-			log.Fatal(err)
+			log.Fatalf("%T %s", rowType, err)
 		}
 		j, err := k.MarshalJSON()
 		if err != nil {
