@@ -66,7 +66,7 @@ def Tree(char, tree):
                 + get_encoded_tree(char, tree)
             ),
             E.Sockets(*sockets),
-            treeVersion='3_20',
+            treeVersion='3_21',
         ),
         activeSpec='1',
     )
