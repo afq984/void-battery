@@ -22,7 +22,7 @@ def test_prev_failed():
     assert tr('每顆暴擊球 +0.3% 暴擊率') == '+0.3% Critical Strike Chance per Power Charge'
     assert tr('增加 15% 地雷傷害') == '15% increased Mine Damage'
     assert (
-        tr('0.27% 所造成的物理攻擊傷害偷取魔力') == '0.27% of Physical Attack Damage Leeched as Mana'
+        tr('0.27% 物理攻擊傷害偷取魔力') == '0.27% of Physical Attack Damage Leeched as Mana'
     )
     assert (
         tr('插槽中寶石被等級 18 的急凍輔助')
@@ -82,10 +82,10 @@ def test_s1d():
 def test_range_looks_like_negative():
     assert (
         rt(
-            'Attacks with this Weapon deal 80-120 added Chaos Damage against\n'
+            'Attacks with this Weapon deal 80 to 120 added Chaos Damage against\n'
             'Enemies affected by at least 5 Poisons'
         )
-        == '使用此武器攻擊中毒 5 層以上的敵人\n附加 80 至 120 混沌傷害'
+        == '使用此武器攻擊至少有 5 層中毒的敵人，附加 80 至 120 混沌傷害'
     )
 
 
