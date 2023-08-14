@@ -1,6 +1,9 @@
 timeout: '600s'
 
 steps:
+- name: gcr.io/cloud-builders/git
+  args: ['submodule', 'update', '--init', '--recursive']
+
 - id: Build Docker Image
   name: 'gcr.io/cloud-builders/docker'
   args: ['build', '.', '-t', 'gcr.io/void-battery/v0']
