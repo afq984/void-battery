@@ -2,7 +2,8 @@ FROM docker.io/alpine:latest AS patcher
 
 WORKDIR /patcher
 COPY patcher /patcher
-RUN apk add --no-cache python3 py3-virtualenv go build-base git curl bash samurai
+RUN apk add --no-cache python3 py3-virtualenv go build-base git curl bash samurai \
+    meson cmake pkgconfig libsodium-dev libunistring-dev
 RUN ./install.sh
 RUN ./main.sh
 

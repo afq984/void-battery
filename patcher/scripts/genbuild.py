@@ -7,15 +7,17 @@ import ninja_syntax
 
 targets = [
     "PathOfExile.exe",
-    "Bundles2/_.index.bin",
-    "Bundles2/_Preload_2.bundle.bin",
 
-    "Bundles2/_Login_3.bundle.bin",
+    "Bundles2/_.index.bin",
     "Bundles2/_Startup.bundle.bin",
-    "Bundles2/Data/Traditional Chinese.dat64.B_2.bundle.bin",
-    "Bundles2/Data/Traditional Chinese.dat64.D.bundle.bin",
-    "Bundles2/Data/Traditional Chinese.dat64.1.bundle.bin",
-    "Bundles2/Data/Traditional Chinese.dat64.E.bundle.bin",
+    "Bundles2/Login_1.bundle.bin",
+    "Bundles2/Preload.bundle.bin",
+
+    "Bundles2/Folders/data/0/traditional chinese.dat64.bundle.bin",
+    "Bundles2/Folders/data/1/traditional chinese.dat64.bundle.bin",
+    "Bundles2/Folders/data/4/traditional chinese.dat64.bundle.bin",
+    "Bundles2/Folders/data/5/traditional chinese.dat64.bundle.bin",
+    "Bundles2/Folders/data/F/traditional chinese.dat64.bundle.bin",
 ]
 
 objects = [os.path.join("Content.ggpk.d", "latest", target) for target in targets]
@@ -30,7 +32,7 @@ def write_dat2json(writer, table_name, path, out):
     writer.build(
         f"{out}.dat64",
         "extract",
-        implicit=["bin/extract", stampfile],
+        implicit=["extract/build/extract", stampfile],
         variables={"path": shlex.quote(path)},
     )
     writer.build(
@@ -54,10 +56,10 @@ with open("build.ninja", "w", encoding="utf8") as file:
     writer.rule(
         "extract",
         [
-            "bin/extract",
-            "--ggpkd=Content.ggpk.d/latest",
-            "--out=$out",
-            "--path=$path",
+            "extract/build/extract",
+            "Content.ggpk.d/latest",
+            "$out",
+            "$path",
         ],
     )
     writer.rule(
@@ -68,7 +70,7 @@ with open("build.ninja", "w", encoding="utf8") as file:
     writer.build(
         "out/extracted/stat_descriptions.txt",
         "extract",
-        implicit=["bin/extract", stampfile],
+        implicit=["extract/build/extract", stampfile],
         variables={"path": "Metadata/StatDescriptions/stat_descriptions.txt"},
     )
 
