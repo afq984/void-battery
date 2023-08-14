@@ -1,0 +1,9 @@
+[submodule "patcher/extract/ooz"]
+	path = patcher/extract/ooz
+	url = https://github.com/zao/ooz.git
+[submodule "patcher/extract/subprojects/--recusrive"]
+	path = patcher/extract/subprojects/--recusrive
+	url = https://github.com/zao/ooz.git
+[submodule "patcher/extract/subprojects/ooz"]
+	path = patcher/extract/subprojects/ooz
+	url = https://github.com/zao/ooz.git

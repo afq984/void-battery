@@ -8,3 +8,6 @@ virtualenv venv
 venv/bin/python -m pip install tqdm
 
 go build -o bin/ ./cmd/...
+
+meson setup --wipe --optimization=2 extract/build extract
+ninja -C extract/build
