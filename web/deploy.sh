@@ -1,6 +1,7 @@
 #!/bin/bash
 set -ex
 gcloud run deploy v0 \
+    --project=void-battery \
     --image=gcr.io/void-battery/v0 \
     --max-instances=1 --platform=managed \
     --allow-unauthenticated \
