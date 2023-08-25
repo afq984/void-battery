@@ -30,9 +30,40 @@ ALTERNATE_MAP = {
 }
 alt_matcher = '|'.join(map(re.escape, ALTERNATE_MAP))
 
+# tools/gen_class_ids.py
+CLASS_AND_ASCENDANCY_CLASS_IDS = {
+    'Scion': (0, 0),
+    'Ascendant': (0, 1),
+    'Marauder': (1, 0),
+    'Juggernaut': (1, 1),
+    'Berserker': (1, 2),
+    'Chieftain': (1, 3),
+    'Ranger': (2, 0),
+    'Raider': (2, 1),
+    'Deadeye': (2, 2),
+    'Pathfinder': (2, 3),
+    'Witch': (3, 0),
+    'Occultist': (3, 1),
+    'Elementalist': (3, 2),
+    'Necromancer': (3, 3),
+    'Duelist': (4, 0),
+    'Slayer': (4, 1),
+    'Gladiator': (4, 2),
+    'Champion': (4, 3),
+    'Templar': (5, 0),
+    'Inquisitor': (5, 1),
+    'Hierophant': (5, 2),
+    'Guardian': (5, 3),
+    'Shadow': (6, 0),
+    'Assassin': (6, 1),
+    'Trickster': (6, 2),
+    'Saboteur': (6, 3),
+}
+
 
 def get_encoded_tree(char, tree):
-    head = [0, 0, 0, 6, char['classId'], char['ascendancyClass'], len(tree['hashes'])]
+    classId, ascendancyClass = CLASS_AND_ASCENDANCY_CLASS_IDS[char['class']]
+    head = [0, 0, 0, 6, classId, ascendancyClass, len(tree['hashes'])]
     masteryEffects = []
     for child in tree['mastery_effects']:
         effect = int(child) >> 16
@@ -43,7 +74,9 @@ def get_encoded_tree(char, tree):
     return base64.urlsafe_b64encode(
         struct.pack(
             '>BBBBBBB{}HBB{}H'.format(len(tree["hashes"]), len(masteryEffects)),
-            *itertools.chain(head, tree['hashes'], [0, len(tree['mastery_effects'])], masteryEffects)
+            *itertools.chain(
+                head, tree['hashes'], [0, len(tree['mastery_effects'])], masteryEffects
+            ),
         )
     ).decode('ascii')
 
