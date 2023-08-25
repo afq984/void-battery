@@ -10,7 +10,7 @@ targets = [
 
     "Bundles2/_.index.bin",
     "Bundles2/_Startup.bundle.bin",
-    "Bundles2/Login_1.bundle.bin",
+    "Bundles2/Login_2.bundle.bin",
     "Bundles2/Preload.bundle.bin",
 
     "Bundles2/Folders/data/0/traditional chinese.dat64.bundle.bin",
