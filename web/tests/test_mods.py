@@ -50,12 +50,12 @@ def test_explicit_sign():
 
 
 def test_sign_in_constant():
-    v = Variant('每 25 等角色等級使插槽的主動技能寶石等級 +1', ['#'], [])
-    assert v.symbolic == '每 # 等角色等級使插槽的主動技能寶石等級 #'
-    assert M.sub('#', '每 25 等角色等級使插槽的主動技能寶石等級 +1') == '每 # 等角色等級使插槽的主動技能寶石等級 #'
+    v = Variant('玩家每 {0} 等級，插槽中的技能寶石等級 +1', ['1|#'], [])
+    assert v.symbolic == '玩家每 # 等級，插槽中的技能寶石等級 #'
+    assert M.sub('#', '玩家每 25 等級，插槽中的技能寶石等級 +1') == '玩家每 # 等級，插槽中的技能寶石等級 #'
     assert (
-        tr('每 25 等角色等級使插槽的主動技能寶石等級 +1')
-        == '+1 to Level of Socketed Active Skill Gems per 25 Player Levels'
+        tr('玩家每 25 等級，插槽中的技能寶石等級 +1')
+        == '+1 to Level of Socketed Skill Gems per 25 Player Levels'
     )
 
 
