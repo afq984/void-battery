@@ -66,8 +66,8 @@ def get_encoded_tree(char, tree):
     head = [0, 0, 0, 6, classId, ascendancyClass, len(tree['hashes'])]
     masteryEffects = []
     for child in tree['mastery_effects']:
-        effect = int(child) >> 16
-        node = int(child) & 65535
+        effect = tree['mastery_effects'][child]
+        node = int(child)
         masteryEffects.append(effect)
         masteryEffects.append(node)
 
