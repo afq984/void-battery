@@ -105,7 +105,7 @@ def Tree(char, tree):
     )
 
 
-RARITY_MAP = {0: 'NORMAL', 1: 'MAGIC', 2: 'RARE', 3: 'UNIQUE', 9: 'RELIC'}
+RARITY_MAP = {0: 'NORMAL', 1: 'MAGIC', 2: 'RARE', 3: 'UNIQUE', 9: 'RELIC', 10: 'RELIC'}
 
 # corresponds to:
 # `local slotMap =` in ImportTab.lua in POB
