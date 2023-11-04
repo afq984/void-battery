@@ -9,6 +9,7 @@
     "externally_connectable": {
         "matches": [
             "*://localhost/*",
+            "*://localhost.localdomain/*",
             "*://void-battery.afq984.org/*"
         ]
     },
