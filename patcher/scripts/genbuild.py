@@ -15,9 +15,9 @@ targets = [
 
     "Bundles2/Folders/data/0/traditional chinese.dat64.bundle.bin",
     "Bundles2/Folders/data/1/traditional chinese.dat64.bundle.bin",
-    "Bundles2/Folders/data/4/traditional chinese.datl64.bundle.bin",
-    "Bundles2/Folders/data/5/traditional chinese.dat64.bundle.bin",
     "Bundles2/Folders/data/F/traditional chinese.dat64.bundle.bin",
+    "Bundles2/Folders/data/4/french.dat64.bundle.bin",
+    "Bundles2/Folders/data/4/traditional chinese.dat64.bundle.bin",
 ]
 
 objects = [os.path.join("Content.ggpk.d", "latest", target) for target in targets]
