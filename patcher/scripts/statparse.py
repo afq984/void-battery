@@ -378,6 +378,11 @@ def hack(data):
                 for variant in variants:
                     if variant['source'] == "範圍內每 {0:d} 點已配置敏捷，增加 {1}% 投射物傷害":
                         variant['source'] = "範圍內每 {0:d} 點已配置敏捷，增加 1% 投射物傷害"
+        if item['keys'] == ['map_supporter_players_random_movement_velocity_+%_final_when_hit']:
+            for (lang, variants) in item['langs'].items():
+                for variant in variants:
+                    if variant['source'] == '被擊中時，玩家獲得隨機移動速度詞綴，\n從 {0}% 更少至 {1}% 更多，直到再次被擊中':
+                        variant['source'] = '被擊中時，玩家獲得隨機移動速度詞綴，\n從 {0}% 更少至 {0}% 更多，直到再次被擊中'
 
 
 LANG_WHITELIST = {'Traditional Chinese', ''}

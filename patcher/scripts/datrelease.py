@@ -32,8 +32,6 @@ def generate_bases():
     e = getnames('BaseItemTypes', 'en', 'Name')
     z.extend(getnames('ActiveSkills', 'tc', 'DisplayedName'))
     e.extend(getnames('ActiveSkills', 'en', 'DisplayedName'))
-    z.extend(getnames('SkillGems', 'tc', 'SupportSkillName'))
-    e.extend(getnames('SkillGems', 'en', 'SupportSkillName'))
 
     ze = build_mapping(z, e)
 
