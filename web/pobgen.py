@@ -143,6 +143,7 @@ INVENTORY_BLACKLIST = set(
         'MainInventory',
         'Map',  # The item is on Zana's Map Device
         'Cursor',  # The item is on the cursor
+        'ExpandedMainInventory' # 3.23 Wildwood bag
     )
 )
 
