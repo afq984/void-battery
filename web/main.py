@@ -100,3 +100,12 @@ def pob():
         compat=nebuloch.version,
         extension_id=EXTENSION_ID,
     )
+
+
+@app.route('/privacy/')
+def privacy():
+    return render_template(
+        'privacy.html',
+        pages=PAGES,
+        version=get_application_version(),
+    )
