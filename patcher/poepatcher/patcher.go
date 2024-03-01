@@ -104,6 +104,7 @@ func NewPatcher6(conn net.Conn) *Patcher6 {
 		sha256Cache: make(map[string][sha256.Size]byte),
 	}
 	p.servers = p.getServers()
+	fmt.Println("# Servers:", strings.Join(p.servers, " "))
 	return &p
 }
 
