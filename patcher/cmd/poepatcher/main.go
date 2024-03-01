@@ -11,7 +11,7 @@ import (
 	"github.com/afq984/void-battery/patcher/poepatcher"
 )
 
-const GarenaPatchServer = "login.tw.pathofexile.com:12999"
+const TWPatchServer = "patch.pathofexile.tw:12999"
 const GGGPatchServer = "pathofexile.com:12995"
 
 func check(err error) {
@@ -21,7 +21,7 @@ func check(err error) {
 }
 
 func main() {
-	conn, err := net.DialTimeout("tcp", GarenaPatchServer, time.Second)
+	conn, err := net.DialTimeout("tcp", TWPatchServer, time.Second)
 	check(err)
 	p := poepatcher.NewPatcher6(conn)
 	fmt.Println("# Game version is", p.GameVersion())
