@@ -7,7 +7,7 @@ async function get(what, accountName, character) {
       character: character,
     });
     const url = new URL(
-      `https://web.poe.garena.tw/character-window/${file}?${params.toString()}`
+      `https://pathofexile.tw/character-window/${file}?${params.toString()}`
     );
     response = await fetch(url);
   } catch (e) {

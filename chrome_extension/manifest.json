@@ -1,10 +1,10 @@
 {
     "name": "Path of Building Exporter",
-    "version": "0.5",
-    "description": "Export Garena PoE Characters to POB",
+    "version": "0.6",
+    "description": "Export pathofexile.tw PoE Characters to POB",
     "manifest_version": 3,
     "host_permissions": [
-        "*://web.poe.garena.tw/character-window/*"
+        "*://pathofexile.tw/character-window/*"
     ],
     "externally_connectable": {
         "matches": [
