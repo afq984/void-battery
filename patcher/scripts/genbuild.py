@@ -13,12 +13,10 @@ targets = [
     "Bundles2/Login_2.bundle.bin",
     "Bundles2/Preload.bundle.bin",
 
-    "Bundles2/Folders/1/data.dat64_1.bundle.bin",
-    "Bundles2/Folders/5/data.dat64_1.bundle.bin",
-    "Bundles2/Folders/9/data.dat64.bundle.bin",
-    "Bundles2/Folders/B/data.dat64.bundle.bin",
     "Bundles2/Folders/data/0/traditional chinese.dat64.bundle.bin",
-    "Bundles2/Folders/data/4/french.dat64.bundle.bin",
+    "Bundles2/Folders/data/1/traditional chinese.dat64.bundle.bin",
+    "Bundles2/Folders/data/4/traditional chinese.dat64.bundle.bin",
+    "Bundles2/Folders/data/F/traditional chinese.dat64.bundle.bin",
 ]
 
 objects = [os.path.join("Content.ggpk.d", "latest", target) for target in targets]
