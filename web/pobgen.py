@@ -87,10 +87,23 @@ def Tree(char, tree):
     jewelSlots = [26725, 36634, 33989, 41263, 60735, 61834, 31683, 28475, 6230, 48768, 34483, 7960, 46882, 55190, 61419, 2491, 54127, 32763, 26196, 33631, 21984, 29712, 48679, 9408, 12613, 16218, 2311, 22994, 40400, 46393, 61305, 12161, 3109, 49080, 17219, 44169, 24970, 36931, 14993, 10532, 23756, 46519, 23984, 51198, 61666, 6910, 49684, 33753, 18436, 11150, 22748, 64583, 61288, 13170, 9797, 41876, 59585, 43670, 29914, 18060]
     # fmt: on
     sockets = []
+    overrides = []
+    classId, ascendancyClass = CLASS_AND_ASCENDANCY_CLASS_IDS[char['class']]
 
     for id, item in enumerate(tree['items'], 1):
         x = item['x']
         sockets.append(E.Socket(nodeId=str(jewelSlots[x]), itemId=str(id)))
+
+    for nodeId in tree['skill_overrides']:
+        item = tree['skill_overrides'][nodeId]
+        if not item['isTattoo'] :
+            continue
+        try:
+            name = nebuloch.names.translate(item['name'])
+        except TranslateError as e:
+            # todo: handle error
+            continue
+        overrides.append(E.Override(dn=str(name), nodeId=str(nodeId)))
 
     return E.Tree(
         E.Spec(
@@ -99,6 +112,10 @@ def Tree(char, tree):
                 + get_encoded_tree(char, tree)
             ),
             E.Sockets(*sockets),
+            E.Overrides(*overrides),
+            ascendClassId=str(ascendancyClass),
+            classId=str(classId),
+            nodes='.'.join(str(node) for node in tree['hashes']),
             treeVersion='3_24',
         ),
         activeSpec='1',
