@@ -60,6 +60,16 @@ CLASS_AND_ASCENDANCY_CLASS_IDS = {
     'Saboteur': (6, 3),
 }
 
+CLASS_MAP = {
+    '野蠻人': 'Marauder',
+    '遊俠': 'Ranger',
+    '女巫': 'Witch',
+    '決鬥者': 'Duelist',
+    '聖騎士': 'Templar',
+    '暗影刺客': 'Shadow',
+    '貴族': 'Scion',
+}
+
 
 def get_encoded_tree(char, tree):
     classId, ascendancyClass = CLASS_AND_ASCENDANCY_CLASS_IDS[char['class']]
@@ -323,6 +333,9 @@ class POBGenerator:
             item.get('enchantMods', ())
         )
         yield 'Implicits: {}'.format(n_implicits)
+        if item['name'] in ['禁忌烈焰', '禁忌血肉']:
+            requiredClass = item['requirements'][0]['values'][0][0]
+            yield 'Requires Class ' + CLASS_MAP[requiredClass]
         for mod in itertools.chain(
             item.get('implicitMods', ()),
             item.get('enchantMods', ()),

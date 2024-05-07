@@ -292,9 +292,11 @@ _ALLOCATES_TC = '配置 '
 # https://github.com/Kyusung4698/PoE-Overlay/issues/324
 GH_ISSUE3_TC = '附加的小型天賦給予：'
 GH_ISSUE3_EN = 'Added Small Passive Skills grant: '
-
+FORBIDDEN_GEM_RE = re.compile('(若禁忌..上有符合的詞綴，配置 )(.*)')
 
 def translate(mod, index, passives):
+    if FORBIDDEN_GEM_RE.match(mod) is not None:
+        return translateForbiddenGem(mod, index, passives)
     if mod.startswith(_ALLOCATES_TC):
         try:
             return 'Allocates ' + passives[mod[len(_ALLOCATES_TC) :].strip()]
@@ -332,6 +334,20 @@ def translate(mod, index, passives):
             'Matched TC {!r} has no corresponding ' 'default translations'.format(tc)
         )
     raise CannotTranslateMod(mod) from None
+
+
+def translateForbiddenGem(mod, index, passives):
+    passive = FORBIDDEN_GEM_RE.match(mod).group(2)
+    if passive is None:
+        raise CannotTranslateMod(mod) from None
+    query_key = FORBIDDEN_GEM_RE.sub('\g<1>#', mod)
+    try:
+        variants = index[query_key]
+    except KeyError:
+        raise CannotTranslateMod(mod) from None
+    _, defaults =  variants[0]
+
+    return defaults[0].symbolic.replace('#', passives[passive])
 
 
 def debug(mod):
