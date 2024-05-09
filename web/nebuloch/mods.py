@@ -293,10 +293,13 @@ _ALLOCATES_TC = '配置 '
 GH_ISSUE3_TC = '附加的小型天賦給予：'
 GH_ISSUE3_EN = 'Added Small Passive Skills grant: '
 FORBIDDEN_GEM_RE = re.compile('(若禁忌..上有符合的詞綴，配置 )(.*)')
+IMPOSSIBLE_ESCAPE_RE = re.compile('(範圍 )(.+)( 內的天賦可以在沒有連結你的天賦樹下被配置)')
 
 def translate(mod, index, passives):
     if FORBIDDEN_GEM_RE.match(mod) is not None:
         return translateForbiddenGem(mod, index, passives)
+    if IMPOSSIBLE_ESCAPE_RE.match(mod) is not None:
+        return translateImpossibleEscape(mod, index, passives)
     if mod.startswith(_ALLOCATES_TC):
         try:
             return 'Allocates ' + passives[mod[len(_ALLOCATES_TC) :].strip()]
@@ -341,6 +344,21 @@ def translateForbiddenGem(mod, index, passives):
     if passive is None:
         raise CannotTranslateMod(mod) from None
     query_key = FORBIDDEN_GEM_RE.sub('\g<1>#', mod)
+    try:
+        variants = index[query_key]
+    except KeyError:
+        raise CannotTranslateMod(mod) from None
+    _, defaults =  variants[0]
+
+    return defaults[0].symbolic.replace('#', passives[passive])
+
+
+def translateImpossibleEscape(mod, index, passives):
+    passive = IMPOSSIBLE_ESCAPE_RE.match(mod).group(2)
+    if passive is None:
+        raise CannotTranslateMod(mod) from None
+    query_key = IMPOSSIBLE_ESCAPE_RE.sub('\g<1>#\g<3>', mod)
+    m = IMPOSSIBLE_ESCAPE_RE.sub('#', mod)
     try:
         variants = index[query_key]
     except KeyError:
