@@ -356,7 +356,7 @@ def translateForbiddenGem(mod, index, passives):
 def translateImpossibleEscape(mod, index, passives):
     passive = IMPOSSIBLE_ESCAPE_RE.match(mod).group(2)
     if passive is None:
-        raise CannotTranslateMod(mod) from None
+        raise CannotTranslateMod(mod)
     query_key = IMPOSSIBLE_ESCAPE_RE.sub('\g<1>#\g<3>', mod)
     m = IMPOSSIBLE_ESCAPE_RE.sub('#', mod)
     try:
