@@ -1,25 +1,11 @@
 import os
 import shlex
 import subprocess
+import sys
 
 import ninja_syntax
 
 
-targets = [
-    "PathOfExile.exe",
-
-    "Bundles2/_.index.bin",
-    "Bundles2/_Startup.bundle.bin",
-    "Bundles2/Login_2.bundle.bin",
-    "Bundles2/Preload.bundle.bin",
-
-    "Bundles2/Folders/data/0/traditional chinese.dat64.bundle.bin",
-    "Bundles2/Folders/data/1/traditional chinese.dat64.bundle.bin",
-    "Bundles2/Folders/data/4/traditional chinese.dat64.bundle.bin",
-    "Bundles2/Folders/data/F/traditional chinese.dat64.bundle.bin",
-]
-
-objects = [os.path.join("Content.ggpk.d", "latest", target) for target in targets]
 stampfile = "out/extracted/ggpk.stamp"
 
 
@@ -28,11 +14,10 @@ def write_build(writer):
 
 
 def write_dat2json(writer, table_name, path, out):
-    writer.build(
+    write_extract(
+        writer,
         f"{out}.dat64",
-        "extract",
-        implicit=["extract/build/extract", stampfile],
-        variables={"path": shlex.quote(path)},
+        path,
     )
     writer.build(
         f"{out}.jsonl",
@@ -43,22 +28,29 @@ def write_dat2json(writer, table_name, path, out):
     )
 
 
-subprocess.check_call(['bin/poepatcher', *targets])
+extract_deps = set()
+
+
+def write_extract(writer, out, path):
+    writer.build(
+        out,
+        "extract",
+        implicit=["extract/build/extract", stampfile],
+        variables={"path": shlex.quote(path)},
+    )
+    extract_deps.add(path)
 
 
 with open("build.ninja", "w", encoding="utf8") as file:
     writer = ninja_syntax.Writer(file)
-
-    writer.rule("stamp", "touch $out")
-    writer.build("out/extracted/ggpk.stamp", "stamp", implicit=objects)
 
     writer.rule(
         "extract",
         [
             "extract/build/extract",
             "Content.ggpk.d/latest",
-            "$out",
             "$path",
+            "$out",
         ],
     )
     writer.rule(
@@ -66,11 +58,10 @@ with open("build.ninja", "w", encoding="utf8") as file:
         "bin/dat2jsonl --dat=$in --table-name=$table_name --schema=schema.min.json > $out",
     )
 
-    writer.build(
+    write_extract(
+        writer,
         "out/extracted/stat_descriptions.txt",
-        "extract",
-        implicit=["extract/build/extract", stampfile],
-        variables={"path": "Metadata/StatDescriptions/stat_descriptions.txt"},
+        "Metadata/StatDescriptions/stat_descriptions.txt",
     )
 
     json_files = []
@@ -139,3 +130,30 @@ with open("build.ninja", "w", encoding="utf8") as file:
         ],
         implicit="scripts/fingerprint.py",
     )
+
+    targets = {
+        "PathOfExile.exe",
+        "Bundles2/_.index.bin",
+    }
+    subprocess.check_call(["bin/poepatcher", *targets])
+
+    for extract_dep in extract_deps:
+        result = subprocess.run(
+            ["extract/build/extract", "Content.ggpk.d/latest", extract_dep],
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        if result.returncode:
+            print(result.stderr, file=sys.stderr)
+            result.check_returncode()
+        bundle_path = f"Bundles2/{result.stdout.strip()}.bundle.bin"
+        print(f"{extract_dep} => {bundle_path}", file=sys.stderr)
+        targets.add(bundle_path)
+
+    subprocess.check_call(["bin/poepatcher", *targets])
+
+    objects = [os.path.join("Content.ggpk.d", "latest", target) for target in targets]
+
+    writer.rule("stamp", "touch $out")
+    writer.build("out/extracted/ggpk.stamp", "stamp", implicit=objects)
