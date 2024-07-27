@@ -5,15 +5,19 @@
 #include <cassert>
 #include <filesystem>
 #include <fstream>
+#include <optional>
 #include <string>
 
 #include <bun.h>
 
 int main(int argc, char **argv) {
-    assert(argc == 4);
+    assert(argc == 3 || argc == 4);
     std::string ggpkd(argv[1]);
-    std::filesystem::path out(argv[2]);
-    std::string path(argv[3]);
+    std::string path(argv[2]);
+    std::optional<std::filesystem::path> out;
+    if (argc == 4) {
+        out = argv[3];
+    }
 
     Bun *bun =
         BunNew("extract/build/subprojects/ooz/liblibooz.so", "Ooz_Decompress");
@@ -32,13 +36,20 @@ int main(int argc, char **argv) {
     assert(BunIndexFileInfo(idx, file_id, &path_hash, &bundle_id, &offset,
                             &size) == 0);
 
-    BunMem p = BunIndexExtractBundle(idx, bundle_id);
-    assert(p);
+    if (!out) {
+        const char* name;
+        uint32_t uncompressed_size;
+        assert(BunIndexBundleInfo(idx, bundle_id, &name, &uncompressed_size) == 0);
+        printf("%s\n", name);
+    } else {
+        BunMem p = BunIndexExtractBundle(idx, bundle_id);
+        assert(p);
 
-    std::filesystem::create_directories(out.parent_path());
+        std::filesystem::create_directories(out->parent_path());
 
-    std::ofstream outf(out);
-    outf.write(reinterpret_cast<char *>(p) + offset, size);
+        std::ofstream outf(*out);
+        outf.write(reinterpret_cast<char *>(p) + offset, size);
+    }
 
     return 0;
 }
