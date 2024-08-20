@@ -39,7 +39,7 @@ CLASS_AND_ASCENDANCY_CLASS_IDS = {
     'Berserker': (1, 2),
     'Chieftain': (1, 3),
     'Ranger': (2, 0),
-    'Raider': (2, 1),
+    'Warden': (2, 1),
     'Deadeye': (2, 2),
     'Pathfinder': (2, 3),
     'Witch': (3, 0),
