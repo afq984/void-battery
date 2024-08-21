@@ -241,6 +241,7 @@ class Parser:
     def atStart(self):
         emap = {
             'no_description': self.atNoDescription,
+            'include': self.atInclude,
             'description': self.atDescription,
             '': self.END,
         }
@@ -248,6 +249,11 @@ class Parser:
 
     def atNoDescription(self):
         self.expect(TokenType.Text)
+        self.expect(TokenType.Line)
+        return self.atStart
+    
+    def atInclude(self):
+        self.expect(TokenType.String)
         self.expect(TokenType.Line)
         return self.atStart
 
@@ -299,6 +305,7 @@ class Parser:
                         'lang': self.atLang,
                         'description': self.atDescription,
                         'no_description': self.atNoDescription,
+                        'include': self.atInclude,
                         '': self.END,
                     }
                     return emap[self.expect(*emap).value]
@@ -394,18 +401,23 @@ sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 import pjson
 
 parser = argparse.ArgumentParser()
-parser.add_argument('filename')
+parser.add_argument('filename', nargs='+')
 args = parser.parse_args()
-with open(args.filename, encoding='utf-16') as file:
-    size = file_chars(file)
-    file.seek(0)
-    lexer = Lexer(args.filename, file, size=size)
-    parser = Parser()
-    parsed = parser.parse(lexer)
-    for item in parsed:
+parsed = []
+for filename in args.filename:
+    with open(filename, encoding='utf-16') as file:
+        size = file_chars(file)
+        file.seek(0)
+        lexer = Lexer(args.filename, file, size=size)
+        parser = Parser()
+        stats = parser.parse(lexer)
+
+    for item in stats:
         langs = item['langs']
         item['langs'] = {k: langs[k] for k in langs if k in LANG_WHITELIST}
         # remove other languages do decrease memory usage on GAE
-    hack(parsed)
-    sys.stdout.writelines(pjson.PrettyJSONEncoder().iterencode(parsed))
-    lexer.tqdm.close()
+    parsed.extend(stats)
+
+hack(parsed)
+sys.stdout.writelines(pjson.PrettyJSONEncoder().iterencode(parsed))
+lexer.tqdm.close()

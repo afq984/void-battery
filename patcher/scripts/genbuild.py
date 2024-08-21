@@ -64,6 +64,12 @@ with open("build.ninja", "w", encoding="utf8") as file:
         "Metadata/StatDescriptions/stat_descriptions.txt",
     )
 
+    write_extract(
+        writer,
+        "out/extracted/tincture_stat_descriptions.txt",
+        "Metadata/StatDescriptions/tincture_stat_descriptions.txt",
+    )
+
     json_files = []
     for datfile in [
         "BaseItemTypes",
@@ -105,7 +111,10 @@ with open("build.ninja", "w", encoding="utf8") as file:
     writer.build(
         "out/release/stat_descriptions.json",
         "statparse",
-        "out/extracted/stat_descriptions.txt",
+        [
+            "out/extracted/stat_descriptions.txt",
+            "out/extracted/tincture_stat_descriptions.txt",
+        ],
         implicit="scripts/statparse.py",
     )
 
