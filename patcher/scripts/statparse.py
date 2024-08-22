@@ -408,7 +408,7 @@ for filename in args.filename:
     with open(filename, encoding='utf-16') as file:
         size = file_chars(file)
         file.seek(0)
-        lexer = Lexer(args.filename, file, size=size)
+        lexer = Lexer(filename, file, size=size)
         parser = Parser()
         stats = parser.parse(lexer)
 
