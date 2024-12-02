@@ -109,7 +109,7 @@ def submit(chrome: Chrome, pob_url: str, account_name: str, character: str):
 
 
 def test_is_valid_base64(chrome: Chrome, pob_url: str):
-    result = submit(chrome, pob_url, 'afg984', 'GPGPU')
+    result = submit(chrome, pob_url, 'afg984#0342', 'GPGPU')
 
     z = base64.urlsafe_b64decode(result)
     x = zlib.decompress(z)
@@ -130,6 +130,6 @@ def test_bad_account(chrome: Chrome, pob_url: str):
 
 
 def test_bad_character(chrome: Chrome, pob_url: str):
-    result = submit(chrome, pob_url, 'afg984', '--bad-character--')
+    result = submit(chrome, pob_url, 'afg984#0342', '--bad-character--')
 
     assert result == '錯誤：角色名稱不正確'
