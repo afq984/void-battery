@@ -6,6 +6,27 @@ import (
 	"io"
 )
 
+type Int16 struct{}
+
+var _ Scalar = &Int16{}
+
+func (t *Int16) Size() int64 {
+	return 2
+}
+
+func (t *Int16) ValueAt(r *File, off int64) (Value, error) {
+	var result int16
+	err := binary.Read(
+		io.NewSectionReader(r, off, int64(t.Size())),
+		binary.LittleEndian,
+		&result,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return IntValue(result), nil
+}
+
 type Int32 struct{}
 
 var _ Scalar = &Int32{}

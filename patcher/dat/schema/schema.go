@@ -32,6 +32,8 @@ func (c *column) asStructField() (*types.StructField, error) {
 	switch c.Type {
 	case "bool":
 		t = &types.Bool{}
+	case "i16":
+		t = &types.Int16{}
 	case "i32":
 		t = &types.Int32{}
 	case "f32":
