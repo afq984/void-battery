@@ -7,3 +7,4 @@ build.ninja
 /Content.ggpk.d
 /venv/
 /out/
+.wraplock
