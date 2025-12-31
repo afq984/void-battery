@@ -390,6 +390,11 @@ def hack(data):
                 for variant in variants:
                     if variant['source'] == '被擊中時，玩家獲得隨機移動速度詞綴，\n從 {0}% 更少至 {1}% 更多，直到再次被擊中':
                         variant['source'] = '被擊中時，玩家獲得隨機移動速度詞綴，\n從 {0}% 更少至 {0}% 更多，直到再次被擊中'
+        if item['keys'] == ['number_of_additional_searing_bond_totems_allowed']:
+            for (lang, variants) in item['langs'].items():
+                for variant in variants:
+                    if variant['source'] == '+{0:+d}最大召喚灼熱連結圖騰數量':
+                        variant['source'] = '{0:+d}最大召喚灼熱連結圖騰數量'
 
 
 LANG_WHITELIST = {'Traditional Chinese', ''}
