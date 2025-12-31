@@ -17,8 +17,9 @@ type schema struct {
 }
 
 type table struct {
-	Name    string
-	Columns []column
+	ValidFor int
+	Name     string
+	Columns  []column
 }
 
 type column struct {
@@ -69,6 +70,11 @@ func Parse(data []byte) (map[string]*types.Struct, error) {
 
 	m := make(map[string]*types.Struct)
 	for _, table := range sch.Tables {
+		// Filter for PoE1 only: validFor=1 (PoE1) or validFor=3 (common)
+		// validFor is a bitmask: 0x01 = PoE1, 0x02 = PoE2
+		if table.ValidFor&1 == 0 {
+			continue
+		}
 		st := &types.Struct{}
 		for _, column := range table.Columns {
 			sf, err := column.asStructField()
