@@ -16,13 +16,13 @@ def write_build(writer):
 def write_dat2json(writer, table_name, path, out):
     write_extract(
         writer,
-        f"{out}.dat64",
+        f"{out}.datc64",
         path,
     )
     writer.build(
         f"{out}.jsonl",
         "dat2jsonl",
-        inputs=f"{out}.dat64",
+        inputs=f"{out}.datc64",
         implicit=["bin/dat2jsonl", "schema.min.json"],
         variables={"table_name": table_name},
     )
@@ -61,34 +61,34 @@ with open("build.ninja", "w", encoding="utf8") as file:
     write_extract(
         writer,
         "out/extracted/stat_descriptions.txt",
-        "Metadata/StatDescriptions/stat_descriptions.txt",
+        "metadata/statdescriptions/stat_descriptions.txt",
     )
 
     write_extract(
         writer,
         "out/extracted/tincture_stat_descriptions.txt",
-        "Metadata/StatDescriptions/tincture_stat_descriptions.txt",
+        "metadata/statdescriptions/tincture_stat_descriptions.txt",
     )
 
     json_files = []
-    for datfile in [
-        "BaseItemTypes",
-        "ActiveSkills",
-        "PassiveSkills",
-        "SkillGems",
-        "Words",
+    for (table_name, datfile) in [
+        ("BaseItemTypes", "baseitemtypes"),
+        ("ActiveSkills", "activeskills"),
+        ("PassiveSkills", "passiveskills"),
+        ("SkillGems", "skillgems"),
+        ("Words", "words"),
     ]:
         for l, lang in [
             ["en", ""],
-            ["tc", "Traditional Chinese/"],
+            ["tc", "traditional chinese/"],
         ]:
             write_dat2json(
                 writer,
-                datfile,
-                f"Data/{lang}{datfile}.dat64",
-                f"out/extracted/{datfile}.{l}",
+                table_name,
+                f"data/{lang}{datfile}.datc64",
+                f"out/extracted/{table_name}.{l}",
             )
-            json_files.append(f"out/extracted/{datfile}.{l}.jsonl")
+            json_files.append(f"out/extracted/{table_name}.{l}.jsonl")
 
     writer.rule("datrelease", "venv/bin/python scripts/datrelease.py")
     writer.build(
