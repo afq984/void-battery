@@ -126,7 +126,7 @@ def Tree(char, tree):
             ascendClassId=str(ascendancyClass),
             classId=str(classId),
             nodes='.'.join(str(node) for node in tree['hashes']),
-            treeVersion='3_25',
+            treeVersion='3_27',
         ),
         activeSpec='1',
     )
