@@ -35,8 +35,12 @@ func (c *column) asStructField() (*types.StructField, error) {
 		t = &types.Bool{}
 	case "i16":
 		t = &types.Int16{}
+	case "u16":
+		t = &types.UInt16{}
 	case "i32":
 		t = &types.Int32{}
+	case "u32":
+		t = &types.UInt32{}
 	case "f32":
 		t = &types.Pad{Bytes: 4}
 	case "foreignrow":

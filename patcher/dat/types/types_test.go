@@ -49,6 +49,48 @@ func TestValueAt(t *testing.T) {
 		},
 
 		{
+			ty:     &UInt16{},
+			fixed:  []byte{0xff, 0xff},
+			output: IntValue(0xffff),
+		},
+		{
+			ty:     &UInt16{},
+			fixed:  []byte{0, 0},
+			output: IntValue(0),
+		},
+		{
+			ty:     &UInt16{},
+			fixed:  []byte{0xff, 0},
+			output: IntValue(255),
+		},
+		{
+			ty:     &UInt16{},
+			fixed:  []byte{1, 2},
+			output: IntValue(0x201),
+		},
+
+		{
+			ty:     &UInt32{},
+			fixed:  []byte{0xff, 0xff, 0xff, 0xff},
+			output: IntValue(0xffffffff),
+		},
+		{
+			ty:     &UInt32{},
+			fixed:  []byte{0, 0, 0, 0},
+			output: IntValue(0),
+		},
+		{
+			ty:     &UInt32{},
+			fixed:  []byte{0xff, 0, 0, 0},
+			output: IntValue(255),
+		},
+		{
+			ty:     &UInt32{},
+			fixed:  []byte{1, 2, 3, 4},
+			output: IntValue(0x4030201),
+		},
+
+		{
 			ty:     &Bool{},
 			fixed:  []byte{0},
 			output: BoolValue(false),
