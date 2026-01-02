@@ -70,16 +70,22 @@ def pob_url(live_server):
 
 
 def get_chrome_extension_id(chrome: Chrome):
+    # Navigate to chrome://extensions to ensure the extension is loaded
+    chrome.get('chrome://extensions')
+    time.sleep(1)  # Give the extension service worker time to start
+    
     # Use Chrome DevTools Protocol to find extension from its service worker target
     # The extension's service worker URL contains the extension ID
-    targets = chrome.execute_cdp_cmd('Target.getTargets', {})
-    for target in targets.get('targetInfos', []):
-        url = target.get('url', '')
-        # Extension URLs start with chrome-extension://
-        if url.startswith('chrome-extension://'):
-            # Extract extension ID from URL: chrome-extension://<id>/...
-            extension_id = url.split('://')[1].split('/')[0]
-            return extension_id
+    for _ in range(5):  # Retry a few times
+        targets = chrome.execute_cdp_cmd('Target.getTargets', {})
+        for target in targets.get('targetInfos', []):
+            url = target.get('url', '')
+            # Extension URLs start with chrome-extension://
+            if url.startswith('chrome-extension://'):
+                # Extract extension ID from URL: chrome-extension://<id>/...
+                extension_id = url.split('://')[1].split('/')[0]
+                return extension_id
+        time.sleep(0.5)  # Wait before retrying
     return None
 
 
