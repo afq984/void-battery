@@ -70,18 +70,27 @@ def pob_url(live_server):
 
 
 def get_chrome_extension_id(chrome: Chrome):
+    # Navigate to chrome://extensions and extract the extension ID from the DOM
     chrome.get('chrome://extensions')
-    # Use execute_async_script to properly handle the async chrome.management.getAll() call
-    # The callback is automatically injected as the last argument
-    extensions = chrome.execute_async_script(
-        '''
-        const callback = arguments[arguments.length - 1];
-        chrome.management.getAll().then(callback);
-        '''
-    )
-    for extension in extensions:
-        if extension['name'] == EXTENSION_NAME:
-            return extension['id']
+    # Wait a bit for the page to load
+    time.sleep(1)
+    # The extensions page uses shadow DOM, so we need to traverse it
+    # Use JavaScript to find the extension card with our extension name
+    extension_id = chrome.execute_script('''
+        const manager = document.querySelector('extensions-manager');
+        if (!manager) return null;
+        const itemList = manager.shadowRoot.querySelector('extensions-item-list');
+        if (!itemList) return null;
+        const items = itemList.shadowRoot.querySelectorAll('extensions-item');
+        for (const item of items) {
+            const nameEl = item.shadowRoot.querySelector('#name');
+            if (nameEl && nameEl.textContent.trim() === arguments[0]) {
+                return item.id;
+            }
+        }
+        return null;
+    ''', EXTENSION_NAME)
+    return extension_id
 
 
 def submit(chrome: Chrome, pob_url: str, account_name: str, character: str):
