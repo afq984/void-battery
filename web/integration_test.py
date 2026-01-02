@@ -1,6 +1,5 @@
 import base64
-import contextlib
-import os
+import json
 import pathlib
 import tempfile
 import time
@@ -19,7 +18,17 @@ import main
 BASE_DIR = pathlib.Path(__file__).absolute().parent.parent
 WEB_DIR = BASE_DIR / 'web'
 EXTENSION_DIR = BASE_DIR / 'chrome_extension'
-EXTENSION_NAME = 'Path of Building Exporter'
+
+# Hardcoded extension key for consistent extension ID in tests
+EXTENSION_KEY = '''
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAhHPs7jp+O7/M8aFGSTUS
+hOAnpUhcJUJj7dYRlhLviQxWTKHY/owrIlLnPAtrXGIOVPGr7iNZD7NJt+J2hH3+
+NEb/qRwqxGv1RCcApcYPW6lX5vLgkqo/sm1YrnFNjexFKvkpkH3s2a7CqwKbpHnG
+vRrthIfDM9/PjBypacYksa6bqLvAb5HAnHQ+QMukRpX5O/XnFw4eOXcHuelmLmMT
+/hDifpbrc+vYF0RGMR3l92+GzlnqiJHEIgLK33cehv0MPcAQTPk6K4MBuoRypgIl
+k22WERtSA/+hz0f8MXPn/BBkvG9f74lNfl2S5J6y1pW5H02uiclsQ5c/kfhoAxql
+eQIDAQAB
+'''.replace('\n', '')
 
 
 def create_zip(dst: pathlib.Path, src: pathlib.Path):
@@ -27,7 +36,13 @@ def create_zip(dst: pathlib.Path, src: pathlib.Path):
 
         def add_to_zip(path: pathlib.Path, zippath: pathlib.Path):
             if path.is_file():
-                z.write(path, zippath)
+                if path.name == 'manifest.json':
+                    # Inject the hardcoded key into manifest.json
+                    manifest = json.loads(path.read_text())
+                    manifest['key'] = EXTENSION_KEY
+                    z.writestr(str(zippath), json.dumps(manifest, indent=4))
+                else:
+                    z.write(path, zippath)
             elif path.is_dir():
                 for child in path.iterdir():
                     add_to_zip(child, zippath / child.name)
@@ -58,46 +73,13 @@ def chrome(extension_zip):
 
 
 @pytest.fixture(scope='session')
-def app(chrome: Chrome):
-    # HACK: override app extension ID
-    main.EXTENSION_ID = get_chrome_extension_id(chrome)
+def app():
     return main.app
 
 
 @pytest.fixture(scope='function')
 def pob_url(live_server):
     return url_for('pob', _external=True)
-
-
-def get_chrome_extension_id(chrome: Chrome):
-    # Navigate to chrome://extensions to get the extension ID from the page
-    chrome.get('chrome://extensions')
-    time.sleep(1)  # Give the page time to load
-
-    # Query the extensions page shadow DOM to find our extension
-    # The extensions page uses nested shadow DOMs
-    js_code = """
-    const extensionsManager = document.querySelector('extensions-manager');
-    if (!extensionsManager) return null;
-    const itemsList = extensionsManager.shadowRoot.querySelector('extensions-item-list');
-    if (!itemsList) return null;
-    const items = itemsList.shadowRoot.querySelectorAll('extensions-item');
-    for (const item of items) {
-        const name = item.shadowRoot.querySelector('#name');
-        if (name && name.textContent.trim() === arguments[0]) {
-            return item.id;
-        }
-    }
-    return null;
-    """
-
-    # Retry a few times as the page may take time to fully load
-    for _ in range(10):
-        extension_id = chrome.execute_script(js_code, EXTENSION_NAME)
-        if extension_id:
-            return extension_id
-        time.sleep(0.5)
-    return None
 
 
 def submit(chrome: Chrome, pob_url: str, account_name: str, character: str):
