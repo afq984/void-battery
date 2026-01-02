@@ -343,29 +343,53 @@ def translateForbiddenGem(mod, index, passives):
     passive = FORBIDDEN_GEM_RE.match(mod).group(2)
     if passive is None:
         raise CannotTranslateMod(mod) from None
-    query_key = FORBIDDEN_GEM_RE.sub('\g<1>#', mod)
+    query_key = FORBIDDEN_GEM_RE.sub(r'\g<1>#', mod)
     try:
         variants = index[query_key]
     except KeyError:
         raise CannotTranslateMod(mod) from None
-    _, defaults =  variants[0]
 
-    return defaults[0].symbolic.replace('#', passives[passive])
+    if not variants:
+        raise CannotTranslateMod(mod) from None
+
+    _, defaults = variants[0]
+
+    if not defaults:
+        raise CannotTranslateMod(mod) from None
+
+    try:
+        translated_passive = passives[passive]
+    except KeyError:
+        raise CannotTranslateMod(mod) from None
+
+    return defaults[0].symbolic.replace('#', translated_passive)
 
 
 def translateImpossibleEscape(mod, index, passives):
     passive = IMPOSSIBLE_ESCAPE_RE.match(mod).group(2)
     if passive is None:
         raise CannotTranslateMod(mod)
-    query_key = IMPOSSIBLE_ESCAPE_RE.sub('\g<1>#\g<3>', mod)
+    query_key = IMPOSSIBLE_ESCAPE_RE.sub(r'\g<1>#\g<3>', mod)
     m = IMPOSSIBLE_ESCAPE_RE.sub('#', mod)
     try:
         variants = index[query_key]
     except KeyError:
         raise CannotTranslateMod(mod) from None
-    _, defaults =  variants[0]
 
-    return defaults[0].symbolic.replace('#', passives[passive])
+    if not variants:
+        raise CannotTranslateMod(mod) from None
+
+    _, defaults = variants[0]
+
+    if not defaults:
+        raise CannotTranslateMod(mod) from None
+
+    try:
+        translated_passive = passives[passive]
+    except KeyError:
+        raise CannotTranslateMod(mod) from None
+
+    return defaults[0].symbolic.replace('#', translated_passive)
 
 
 def debug(mod):
