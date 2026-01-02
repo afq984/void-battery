@@ -1,10 +1,6 @@
 import base64
-import contextlib
-import os
 import pathlib
-import tempfile
 import time
-import zipfile
 import zlib
 
 import lxml.etree
@@ -22,34 +18,17 @@ EXTENSION_DIR = BASE_DIR / 'chrome_extension'
 EXTENSION_NAME = 'Path of Building Exporter'
 
 
-def create_zip(dst: pathlib.Path, src: pathlib.Path):
-    with zipfile.ZipFile(dst, 'x', compression=zipfile.ZIP_STORED) as z:
-
-        def add_to_zip(path: pathlib.Path, zippath: pathlib.Path):
-            if path.is_file():
-                z.write(path, zippath)
-            elif path.is_dir():
-                for child in path.iterdir():
-                    add_to_zip(child, zippath / child.name)
-
-        add_to_zip(src, pathlib.Path('.'))
-
-
 @pytest.fixture(scope='session')
-def extension_zip():
-    with tempfile.TemporaryDirectory() as tempdir:
-        zipname = pathlib.Path(tempdir) / 'chrome_extension.zip'
-        create_zip(zipname, EXTENSION_DIR)
-        yield zipname
-
-
-@pytest.fixture(scope='session')
-def chrome(extension_zip):
+def chrome():
     opts = ChromeOptions()
     # crbug.com/706008: No support for extensions in headless mode
-    opts.add_extension(extension_zip)
+    # Use BiDi to load extensions since Chrome 137+ removed --load-extension
+    # https://github.com/SeleniumHQ/selenium/issues/15788
+    opts.enable_bidi = True
+    opts.enable_webextensions = True
 
     chrome = Chrome(options=opts)
+    chrome.webextension.install(path=str(EXTENSION_DIR))
     chrome.implicitly_wait(3)
     try:
         yield chrome
