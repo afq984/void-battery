@@ -70,22 +70,33 @@ def pob_url(live_server):
 
 
 def get_chrome_extension_id(chrome: Chrome):
-    # Navigate to chrome://extensions to ensure the extension is loaded
+    # Navigate to chrome://extensions to get the extension ID from the page
     chrome.get('chrome://extensions')
-    time.sleep(1)  # Give the extension service worker time to start
-    
-    # Use Chrome DevTools Protocol to find extension from its service worker target
-    # The extension's service worker URL contains the extension ID
-    for _ in range(5):  # Retry a few times
-        targets = chrome.execute_cdp_cmd('Target.getTargets', {})
-        for target in targets.get('targetInfos', []):
-            url = target.get('url', '')
-            # Extension URLs start with chrome-extension://
-            if url.startswith('chrome-extension://'):
-                # Extract extension ID from URL: chrome-extension://<id>/...
-                extension_id = url.split('://')[1].split('/')[0]
-                return extension_id
-        time.sleep(0.5)  # Wait before retrying
+    time.sleep(1)  # Give the page time to load
+
+    # Query the extensions page shadow DOM to find our extension
+    # The extensions page uses nested shadow DOMs
+    js_code = """
+    const extensionsManager = document.querySelector('extensions-manager');
+    if (!extensionsManager) return null;
+    const itemsList = extensionsManager.shadowRoot.querySelector('extensions-item-list');
+    if (!itemsList) return null;
+    const items = itemsList.shadowRoot.querySelectorAll('extensions-item');
+    for (const item of items) {
+        const name = item.shadowRoot.querySelector('#name');
+        if (name && name.textContent.trim() === arguments[0]) {
+            return item.id;
+        }
+    }
+    return null;
+    """
+
+    # Retry a few times as the page may take time to fully load
+    for _ in range(10):
+        extension_id = chrome.execute_script(js_code, EXTENSION_NAME)
+        if extension_id:
+            return extension_id
+        time.sleep(0.5)
     return None
 
 
