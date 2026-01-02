@@ -71,7 +71,12 @@ def pob_url(live_server):
 
 def get_chrome_extension_id(chrome: Chrome):
     chrome.get('chrome://extensions')
-    extensions = chrome.execute_script('return await chrome.management.getAll()')
+    # Use execute_async_script to properly handle the async chrome.management.getAll() call
+    # The callback is automatically injected as the last argument
+    extensions = chrome.execute_async_script(
+        'const callback = arguments[arguments.length - 1];'
+        'chrome.management.getAll().then(callback);'
+    )
     for extension in extensions:
         if extension['name'] == EXTENSION_NAME:
             return extension['id']
