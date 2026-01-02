@@ -70,40 +70,17 @@ def pob_url(live_server):
 
 
 def get_chrome_extension_id(chrome: Chrome):
-    # Use Chrome DevTools Protocol to get extensions from the service worker targets
-    # This works because the extension has a service worker
+    # Use Chrome DevTools Protocol to find extension from its service worker target
+    # The extension's service worker URL contains the extension ID
     targets = chrome.execute_cdp_cmd('Target.getTargets', {})
     for target in targets.get('targetInfos', []):
-        if target.get('type') == 'service_worker':
-            url = target.get('url', '')
-            # Extension service worker URLs are like: chrome-extension://xxxxxxxx/background.js
-            if url.startswith('chrome-extension://') and url.endswith('/background.js'):
-                # Extract the extension ID from the URL
-                extension_id = url.split('://')[1].split('/')[0]
-                # Verify this is our extension by checking if it matches
-                # We can verify by looking at the title which contains the extension name
-                if EXTENSION_NAME in target.get('title', ''):
-                    return extension_id
-                # If title doesn't have the name, just return the ID (there's only one extension)
-                return extension_id
-    # Fallback: navigate to chrome://extensions and parse the DOM
-    chrome.get('chrome://extensions')
-    time.sleep(1)
-    extension_id = chrome.execute_script('''
-        const manager = document.querySelector('extensions-manager');
-        if (!manager) return null;
-        const itemList = manager.shadowRoot.querySelector('extensions-item-list');
-        if (!itemList) return null;
-        const items = itemList.shadowRoot.querySelectorAll('extensions-item');
-        for (const item of items) {
-            const nameEl = item.shadowRoot.querySelector('#name');
-            if (nameEl && nameEl.textContent.trim() === arguments[0]) {
-                return item.id;
-            }
-        }
-        return null;
-    ''', EXTENSION_NAME)
-    return extension_id
+        url = target.get('url', '')
+        # Extension URLs start with chrome-extension://
+        if url.startswith('chrome-extension://'):
+            # Extract extension ID from URL: chrome-extension://<id>/...
+            extension_id = url.split('://')[1].split('/')[0]
+            return extension_id
+    return None
 
 
 def submit(chrome: Chrome, pob_url: str, account_name: str, character: str):
