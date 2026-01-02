@@ -1,9 +1,6 @@
 import base64
-import json
 import pathlib
-import tempfile
 import time
-import zipfile
 import zlib
 
 import lxml.etree
@@ -19,61 +16,34 @@ BASE_DIR = pathlib.Path(__file__).absolute().parent.parent
 WEB_DIR = BASE_DIR / 'web'
 EXTENSION_DIR = BASE_DIR / 'chrome_extension'
 
-# Hardcoded extension key for consistent extension ID in tests
-EXTENSION_KEY = '''
-MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAhHPs7jp+O7/M8aFGSTUS
-hOAnpUhcJUJj7dYRlhLviQxWTKHY/owrIlLnPAtrXGIOVPGr7iNZD7NJt+J2hH3+
-NEb/qRwqxGv1RCcApcYPW6lX5vLgkqo/sm1YrnFNjexFKvkpkH3s2a7CqwKbpHnG
-vRrthIfDM9/PjBypacYksa6bqLvAb5HAnHQ+QMukRpX5O/XnFw4eOXcHuelmLmMT
-/hDifpbrc+vYF0RGMR3l92+GzlnqiJHEIgLK33cehv0MPcAQTPk6K4MBuoRypgIl
-k22WERtSA/+hz0f8MXPn/BBkvG9f74lNfl2S5J6y1pW5H02uiclsQ5c/kfhoAxql
-eQIDAQAB
-'''.replace('\n', '')
-
-
-def create_zip(dst: pathlib.Path, src: pathlib.Path):
-    with zipfile.ZipFile(dst, 'x', compression=zipfile.ZIP_STORED) as z:
-
-        def add_to_zip(path: pathlib.Path, zippath: pathlib.Path):
-            if path.is_file():
-                if path.name == 'manifest.json':
-                    # Inject the hardcoded key into manifest.json
-                    manifest = json.loads(path.read_text())
-                    manifest['key'] = EXTENSION_KEY
-                    z.writestr(str(zippath), json.dumps(manifest, indent=4))
-                else:
-                    z.write(path, zippath)
-            elif path.is_dir():
-                for child in path.iterdir():
-                    add_to_zip(child, zippath / child.name)
-
-        add_to_zip(src, pathlib.Path('.'))
-
 
 @pytest.fixture(scope='session')
-def extension_zip():
-    with tempfile.TemporaryDirectory() as tempdir:
-        zipname = pathlib.Path(tempdir) / 'chrome_extension.zip'
-        create_zip(zipname, EXTENSION_DIR)
-        yield zipname
-
-
-@pytest.fixture(scope='session')
-def chrome(extension_zip):
+def chrome():
     opts = ChromeOptions()
-    # crbug.com/706008: No support for extensions in headless mode
-    opts.add_extension(extension_zip)
+    # Chrome 142+ requires BiDi for extension loading
+    # See: https://github.com/SeleniumHQ/selenium/issues/15788
+    opts.enable_bidi = True
+    opts.enable_webextensions = True
 
     chrome = Chrome(options=opts)
     chrome.implicitly_wait(3)
+
+    # Install extension via BiDi after driver creation
+    extension_result = chrome.webextension.install(path=str(EXTENSION_DIR))
+    extension_id = extension_result.get('extension')
+
+    # Override the app's extension ID to match the installed extension
+    main.EXTENSION_ID = extension_id
+
     try:
         yield chrome
     finally:
-        chrome.close()
+        chrome.quit()
 
 
 @pytest.fixture(scope='session')
-def app():
+def app(chrome: Chrome):
+    # chrome fixture must run first to set main.EXTENSION_ID
     return main.app
 
 
