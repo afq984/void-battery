@@ -75,6 +75,7 @@ def get_chrome_extension_id(chrome: Chrome):
     for extension in extensions:
         if extension['name'] == EXTENSION_NAME:
             return extension['id']
+    raise Exception(f'Extension {EXTENSION_NAME!r} not found. {extensions=!r}')
 
 
 def submit(chrome: Chrome, pob_url: str, account_name: str, character: str):
