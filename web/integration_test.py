@@ -70,12 +70,25 @@ def pob_url(live_server):
 
 
 def get_chrome_extension_id(chrome: Chrome):
-    # Navigate to chrome://extensions and extract the extension ID from the DOM
+    # Use Chrome DevTools Protocol to get extensions from the service worker targets
+    # This works because the extension has a service worker
+    targets = chrome.execute_cdp_cmd('Target.getTargets', {})
+    for target in targets.get('targetInfos', []):
+        if target.get('type') == 'service_worker':
+            url = target.get('url', '')
+            # Extension service worker URLs are like: chrome-extension://xxxxxxxx/background.js
+            if url.startswith('chrome-extension://') and url.endswith('/background.js'):
+                # Extract the extension ID from the URL
+                extension_id = url.split('://')[1].split('/')[0]
+                # Verify this is our extension by checking if it matches
+                # We can verify by looking at the title which contains the extension name
+                if EXTENSION_NAME in target.get('title', ''):
+                    return extension_id
+                # If title doesn't have the name, just return the ID (there's only one extension)
+                return extension_id
+    # Fallback: navigate to chrome://extensions and parse the DOM
     chrome.get('chrome://extensions')
-    # Wait a bit for the page to load
     time.sleep(1)
-    # The extensions page uses shadow DOM, so we need to traverse it
-    # Use JavaScript to find the extension card with our extension name
     extension_id = chrome.execute_script('''
         const manager = document.querySelector('extensions-manager');
         if (!manager) return null;
