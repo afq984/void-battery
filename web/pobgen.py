@@ -106,7 +106,7 @@ def Tree(char, tree):
 
     for nodeId in tree['skill_overrides']:
         item = tree['skill_overrides'][nodeId]
-        if not item['isTattoo'] :
+        if not item.get('isTattoo'):
             continue
         try:
             name = nebuloch.names.translate(item['name'])
