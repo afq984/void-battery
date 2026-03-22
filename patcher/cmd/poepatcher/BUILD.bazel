@@ -1,0 +1,18 @@
+load("@rules_go//go:def.bzl", "go_binary", "go_library")
+
+go_library(
+    name = "poepatcher_lib",
+    srcs = ["main.go"],
+    importpath = "github.com/afq984/void-battery/patcher/cmd/poepatcher",
+    visibility = ["//visibility:private"],
+    deps = [
+        "//patcher/cmd",
+        "//patcher/poepatcher",
+    ],
+)
+
+go_binary(
+    name = "poepatcher",
+    embed = [":poepatcher_lib"],
+    visibility = ["//visibility:public"],
+)

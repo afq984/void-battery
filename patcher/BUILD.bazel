@@ -1,1 +1,5 @@
-# Patcher BUILD file
+load("@gazelle//:def.bzl", "gazelle")
+
+# gazelle:prefix github.com/afq984/void-battery/patcher
+
+gazelle(name = "gazelle")

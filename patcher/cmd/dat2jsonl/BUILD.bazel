@@ -1,0 +1,21 @@
+load("@rules_go//go:def.bzl", "go_binary", "go_library")
+
+go_library(
+    name = "dat2jsonl_lib",
+    srcs = ["main.go"],
+    importpath = "github.com/afq984/void-battery/patcher/cmd/dat2jsonl",
+    visibility = ["//visibility:private"],
+    deps = [
+        "//patcher/cmd",
+        "//patcher/dat",
+        "//patcher/dat/schema",
+        "//patcher/dat/types",
+        "@com_github_spf13_pflag//:pflag",
+    ],
+)
+
+go_binary(
+    name = "dat2jsonl",
+    embed = [":dat2jsonl_lib"],
+    visibility = ["//visibility:public"],
+)
