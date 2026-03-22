@@ -1,10 +1,5 @@
 __pycache__/
 /bin/
 schema.min.json
-build.ninja
-.ninja_log
-/scripts/ninja_syntax.py
 /Content.ggpk.d
-/venv/
 /out/
-.wraplock

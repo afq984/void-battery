@@ -5,7 +5,6 @@ cc_binary(
     srcs = ["extract.cpp"],
     copts = ["-std=c++17"],
     data = ["@ooz//:libooz_so"],
-    local_defines = ["BAZEL_BUILD"],
     visibility = ["//patcher:__subpackages__"],
     deps = [
         "@ooz//:libbun",

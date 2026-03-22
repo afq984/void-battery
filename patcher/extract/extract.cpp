@@ -1,17 +1,14 @@
 #include <cstdio>
-#include <cstdlib>
 #include <filesystem>
 #include <fstream>
+#include <memory>
 #include <optional>
 #include <string>
 
 #include <bun.h>
-
-#ifdef BAZEL_BUILD
-#include <memory>
 #include "rules_cc/cc/runfiles/runfiles.h"
+
 using rules_cc::cc::runfiles::Runfiles;
-#endif
 
 int main(int argc, char **argv) {
     if (argc != 3 && argc != 4) {
@@ -25,7 +22,6 @@ int main(int argc, char **argv) {
         out = argv[3];
     }
 
-#ifdef BAZEL_BUILD
     std::string error;
     auto runfiles = std::unique_ptr<Runfiles>(
         Runfiles::Create(argv[0], BAZEL_CURRENT_REPOSITORY, &error));
@@ -35,10 +31,6 @@ int main(int argc, char **argv) {
     }
     auto ooz_path = runfiles->Rlocation("ooz/liblibooz.so");
     Bun *bun = BunNew(ooz_path.c_str(), "Ooz_Decompress");
-#else
-    Bun *bun =
-        BunNew("extract/build/subprojects/ooz/liblibooz.so", "Ooz_Decompress");
-#endif
     if (!bun) {
         fprintf(stderr, "Failed to load liblibooz.so\n");
         return 1;
