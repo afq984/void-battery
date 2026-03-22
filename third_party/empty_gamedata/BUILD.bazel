@@ -1,10 +1,26 @@
+# Stub gamedata repository. Override with --override_repository to provide real data.
+# All targets are marked incompatible so `bazel build //...` skips pipeline targets
+# that depend on @gamedata rather than failing.
+
+_INCOMPATIBLE = ["@platforms//:incompatible"]
+
 filegroup(
     name = "all",
-    srcs = glob(["**"], exclude = ["BUILD.bazel", "MODULE.bazel"], allow_empty = True),
+    srcs = glob(["**"], exclude = ["BUILD.bazel", "MODULE.bazel"]),
+    target_compatible_with = _INCOMPATIBLE,
     visibility = ["//visibility:public"],
 )
 
-exports_files(
-    glob(["**"], exclude = ["BUILD.bazel", "MODULE.bazel"], allow_empty = True),
+filegroup(
+    name = "Bundles2/_.index.bin",
+    srcs = ["Bundles2/_.index.bin"],
+    target_compatible_with = _INCOMPATIBLE,
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "PathOfExile.exe",
+    srcs = ["PathOfExile.exe"],
+    target_compatible_with = _INCOMPATIBLE,
     visibility = ["//visibility:public"],
 )

@@ -14,7 +14,7 @@ jobs:
         bazelisk-cache: true
         disk-cache: ${{ github.workflow }}
         repository-cache: true
-    - run: bazel test //patcher/dat/types:types_test
+    - run: bazel test //patcher/...
 
   web-test:
     runs-on: ubuntu-latest
