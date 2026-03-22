@@ -13,6 +13,7 @@ bazel_dep(name = "ooz", version = "0")
 bazel_dep(name = "libunistring", version = "1.3")
 bazel_dep(name = "rules_python", version = "1.9.0")
 bazel_dep(name = "rules_pkg", version = "1.2.0")
+bazel_dep(name = "platforms", version = "1.0.0")
 bazel_dep(name = "gamedata", version = "0")
 
 git_override(
