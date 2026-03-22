@@ -1,16 +1,10 @@
 import os
 import shlex
-import subprocess
-import sys
 
 import ninja_syntax
 
 
 stampfile = "out/extracted/ggpk.stamp"
-
-
-def write_build(writer):
-    write_download(writer)
 
 
 def write_dat2json(writer, table_name, path, out):
@@ -28,9 +22,6 @@ def write_dat2json(writer, table_name, path, out):
     )
 
 
-extract_deps = set()
-
-
 def write_extract(writer, out, path):
     writer.build(
         out,
@@ -38,7 +29,6 @@ def write_extract(writer, out, path):
         implicit=["extract/build/extract", stampfile],
         variables={"path": shlex.quote(path)},
     )
-    extract_deps.add(path)
 
 
 with open("build.ninja", "w", encoding="utf8") as file:
@@ -140,29 +130,11 @@ with open("build.ninja", "w", encoding="utf8") as file:
         implicit="scripts/fingerprint.py",
     )
 
-    targets = {
-        "PathOfExile.exe",
-        "Bundles2/_.index.bin",
-    }
-    subprocess.check_call(["bin/poepatcher", *targets])
-
-    for extract_dep in extract_deps:
-        result = subprocess.run(
-            ["extract/build/extract", "Content.ggpk.d/latest", extract_dep],
-            text=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-        )
-        if result.returncode:
-            print(result.stderr, file=sys.stderr)
-            result.check_returncode()
-        bundle_path = f"Bundles2/{result.stdout.strip()}.bundle.bin"
-        print(f"{extract_dep} => {bundle_path}", file=sys.stderr)
-        targets.add(bundle_path)
-
-    subprocess.check_call(["bin/poepatcher", *targets])
-
-    objects = [os.path.join("Content.ggpk.d", "latest", target) for target in targets]
-
+    # Game data must be fetched beforehand via `bazel run //patcher:fetch`.
+    # Stamp on the bundle index so ninja re-extracts when game data changes.
     writer.rule("stamp", "touch $out")
-    writer.build("out/extracted/ggpk.stamp", "stamp", implicit=objects)
+    writer.build(
+        "out/extracted/ggpk.stamp",
+        "stamp",
+        implicit=["Content.ggpk.d/latest/Bundles2/_.index.bin"],
+    )
