@@ -1,0 +1,11 @@
+--- /dev/null
++++ MODULE.bazel
+@@ -0,0 +1,8 @@
++module(
++    name = "ooz",
++    version = "0",
++)
++
++bazel_dep(name = "rules_cc", version = "0.2.14")
++bazel_dep(name = "libsodium", version = "1.0.19")
++bazel_dep(name = "simde", version = "0.8.2")
