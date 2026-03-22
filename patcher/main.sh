@@ -2,8 +2,10 @@
 
 set -eux
 
-mkdir -p out/release
-mkdir -p out/extracted
+REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 
-venv/bin/python scripts/genbuild.py
-ninja
+bazel build //patcher/pipeline:release \
+  --override_repository=gamedata+="$REPO_ROOT/patcher/Content.ggpk.d/latest"
+
+mkdir -p out/release
+tar xf "$REPO_ROOT/bazel-bin/patcher/pipeline/release.tar" -C out/release/

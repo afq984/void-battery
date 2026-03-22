@@ -1,3 +1,5 @@
+load("@rules_pkg//pkg:tar.bzl", "pkg_tar")
+
 # Data processing pipeline: extract game data → JSON release files.
 #
 # Requires game data to be fetched first via: bazel run //patcher:fetch
@@ -191,4 +193,21 @@ genrule(
     ],
     outs = ["release/fingerprint.txt"],
     cmd = "python3 $(location //patcher/scripts:fingerprint.py) $(location release/bases.json) $(location release/stat_descriptions.json) $(location release/words.json) $(location release/passives.json) $(location release/version.txt) > $@",
+)
+
+_RELEASE_FILES = [
+    "release/bases.json",
+    "release/fingerprint.txt",
+    "release/passives.json",
+    "release/stat_descriptions.json",
+    "release/version.txt",
+    "release/words.json",
+]
+
+pkg_tar(
+    name = "release",
+    srcs = _RELEASE_FILES,
+    mode = "0644",
+    strip_prefix = "release",
+    visibility = ["//visibility:public"],
 )
