@@ -1,0 +1,10 @@
+filegroup(
+    name = "all",
+    srcs = glob(["**"], exclude = ["BUILD.bazel", "MODULE.bazel"], allow_empty = True),
+    visibility = ["//visibility:public"],
+)
+
+exports_files(
+    glob(["**"], exclude = ["BUILD.bazel", "MODULE.bazel"], allow_empty = True),
+    visibility = ["//visibility:public"],
+)

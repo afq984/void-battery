@@ -64,6 +64,7 @@ cc_library(
     ],
     copts = [
         "-DHAVE_CONFIG_H",
+        "-DIN_LIBUNISTRING",
         "-Wno-unused-parameter",
     ],
     includes = [
