@@ -59,6 +59,16 @@ def main():
     # Fetch all discovered bundles
     subprocess.check_call([poepatcher, *targets])
 
+    # Write Bazel files so --override_repository can point here
+    latest = os.path.join(patcher_dir, "Content.ggpk.d", "latest")
+    with open(os.path.join(latest, "MODULE.bazel"), "w") as f:
+        f.write('module(name = "gamedata", version = "0")\n')
+    with open(os.path.join(latest, "BUILD.bazel"), "w") as f:
+        f.write(
+            'filegroup(name = "all", srcs = glob(["**"], exclude = ["BUILD.bazel", "MODULE.bazel"]), visibility = ["//visibility:public"])\n'
+            'exports_files(glob(["**"], exclude = ["BUILD.bazel", "MODULE.bazel"]), visibility = ["//visibility:public"])\n'
+        )
+
 
 if __name__ == "__main__":
     main()
