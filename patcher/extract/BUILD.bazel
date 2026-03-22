@@ -1,0 +1,12 @@
+load("@rules_cc//cc:defs.bzl", "cc_binary")
+
+cc_binary(
+    name = "extract",
+    srcs = ["extract.cpp"],
+    copts = ["-std=c++17"],
+    visibility = ["//patcher:__subpackages__"],
+    deps = [
+        "@ooz//:libbun",
+        "@ooz//:libooz",
+    ],
+)

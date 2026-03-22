@@ -1,0 +1,32 @@
+module(
+    name = "void-battery",
+    version = "0.0.0",
+)
+
+bazel_dep(name = "toolchains_chromium", version = "0.0.1")
+bazel_dep(name = "rules_cc", version = "0.2.14")
+bazel_dep(name = "libsodium", version = "1.0.19")
+bazel_dep(name = "simde", version = "0.8.2")
+bazel_dep(name = "ooz", version = "0")
+
+git_override(
+    module_name = "toolchains_chromium",
+    remote = "https://github.com/afq984/toolchains_chromium.git",
+    commit = "1a93deae0f654933afe585749d35b7ef82d89bd8",
+)
+
+git_override(
+    module_name = "ooz",
+    remote = "https://github.com/zao/ooz.git",
+    commit = "6307b387e45c6b2283d622d82d2713a38e25e503",
+    build_file = "//third_party:ooz.BUILD",
+    init_submodules = False,
+    patches = ["//third_party/patches:ooz_add_module.patch"],
+    patch_strip = 0,
+)
+
+chromium = use_extension("@toolchains_chromium//:extensions.bzl", "chromium")
+chromium.toolchain()
+use_repo(chromium, "chromium_toolchain")
+
+register_toolchains("@chromium_toolchain//:all")
