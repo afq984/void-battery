@@ -10,6 +10,12 @@
 
 #include <bun.h>
 
+#ifdef BAZEL_BUILD
+#include <memory>
+#include "rules_cc/cc/runfiles/runfiles.h"
+using rules_cc::cc::runfiles::Runfiles;
+#endif
+
 int main(int argc, char **argv) {
     assert(argc == 3 || argc == 4);
     std::string ggpkd(argv[1]);
@@ -19,8 +25,17 @@ int main(int argc, char **argv) {
         out = argv[3];
     }
 
+#ifdef BAZEL_BUILD
+    std::string error;
+    auto runfiles = std::unique_ptr<Runfiles>(
+        Runfiles::Create(argv[0], BAZEL_CURRENT_REPOSITORY, &error));
+    assert(runfiles);
+    auto ooz_path = runfiles->Rlocation("ooz/liblibooz.so");
+    Bun *bun = BunNew(ooz_path.c_str(), "Ooz_Decompress");
+#else
     Bun *bun =
         BunNew("extract/build/subprojects/ooz/liblibooz.so", "Ooz_Decompress");
+#endif
     assert(bun);
 
     BunIndex *idx = BunIndexOpen(bun, nullptr, ggpkd.c_str());

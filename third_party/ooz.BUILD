@@ -1,4 +1,4 @@
-load("@rules_cc//cc:defs.bzl", "cc_library")
+load("@rules_cc//cc:defs.bzl", "cc_library", "cc_shared_library")
 
 cc_library(
     name = "libooz",
@@ -46,6 +46,13 @@ cc_library(
     ],
     visibility = ["//visibility:public"],
     deps = ["@simde"],
+)
+
+cc_shared_library(
+    name = "libooz_so",
+    shared_lib_name = "liblibooz.so",
+    visibility = ["//visibility:public"],
+    deps = [":libooz"],
 )
 
 cc_library(
