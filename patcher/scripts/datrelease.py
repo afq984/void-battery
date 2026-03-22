@@ -1,37 +1,39 @@
 import json
 import collections
 import sys
+import argparse
+import os
 
 
-def getjson(name, lang):
+def getjson(input_dir, name, lang):
     out = []
-    with open(f'out/extracted/{name}.{lang}.jsonl', encoding='utf8') as file:
+    with open(os.path.join(input_dir, f'{name}.{lang}.jsonl'), encoding='utf8') as file:
         for line in file:
             out.append(json.loads(line))
     return out
 
 
-def generate_words():
-    data = getjson('Words', 'tc')
+def generate_words(input_dir, output_dir):
+    data = getjson(input_dir, 'Words', 'tc')
 
     words = {}
 
     for m in data:
         words[m['Text2'].strip()] = m['Text'].strip()
 
-    write_to_file(words, 'out/release/words.json')
+    write_to_file(words, os.path.join(output_dir, 'words.json'))
 
 
-def getnames(fn, lang, fieldname):
-    data = getjson(fn, lang)
+def getnames(input_dir, fn, lang, fieldname):
+    data = getjson(input_dir, fn, lang)
     return [m[fieldname].strip() for m in data]
 
 
-def generate_bases():
-    z = getnames('BaseItemTypes', 'tc', 'Name')
-    e = getnames('BaseItemTypes', 'en', 'Name')
-    z.extend(getnames('ActiveSkills', 'tc', 'DisplayedName'))
-    e.extend(getnames('ActiveSkills', 'en', 'DisplayedName'))
+def generate_bases(input_dir, output_dir):
+    z = getnames(input_dir, 'BaseItemTypes', 'tc', 'Name')
+    e = getnames(input_dir, 'BaseItemTypes', 'en', 'Name')
+    z.extend(getnames(input_dir, 'ActiveSkills', 'tc', 'DisplayedName'))
+    e.extend(getnames(input_dir, 'ActiveSkills', 'en', 'DisplayedName'))
 
     ze = build_mapping(z, e)
 
@@ -40,7 +42,7 @@ def generate_bases():
     ze['鏽劍'] = 'Rusted Sword'
     ze['奉獻'] = 'The Offering'
 
-    write_to_file(ze, 'out/release/bases.json')
+    write_to_file(ze, os.path.join(output_dir, 'bases.json'))
 
 
 def build_mapping(z, e):
@@ -61,13 +63,25 @@ def write_to_file(ze, filename):
         json.dump(ze, file, ensure_ascii=False, indent=0, sort_keys=True)
 
 
-def generate_passives():
-    z = getnames('PassiveSkills', 'tc', 'Name')
-    e = getnames('PassiveSkills', 'en', 'Name')
+def generate_passives(input_dir, output_dir):
+    z = getnames(input_dir, 'PassiveSkills', 'tc', 'Name')
+    e = getnames(input_dir, 'PassiveSkills', 'en', 'Name')
     ze = build_mapping(z, e)
-    write_to_file(ze, 'out/release/passives.json')
+    write_to_file(ze, os.path.join(output_dir, 'passives.json'))
 
 
-generate_words()
-generate_bases()
-generate_passives()
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--input-dir', default='out/extracted')
+    parser.add_argument('--output-dir', default='out/release')
+    args = parser.parse_args()
+
+    os.makedirs(args.output_dir, exist_ok=True)
+
+    generate_words(args.input_dir, args.output_dir)
+    generate_bases(args.input_dir, args.output_dir)
+    generate_passives(args.input_dir, args.output_dir)
+
+
+if __name__ == '__main__':
+    main()

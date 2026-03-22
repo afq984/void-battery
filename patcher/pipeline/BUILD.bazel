@@ -43,21 +43,14 @@ _JSONL_SRCS = [":dat2jsonl_%s_%s" % (table, lang) for table in _TABLES for lang 
 
 genrule(
     name = "datrelease",
-    srcs = _JSONL_SRCS + ["//patcher/scripts:datrelease.py"],
+    srcs = _JSONL_SRCS,
     outs = [
         "release/bases.json",
         "release/passives.json",
         "release/words.json",
     ],
-    cmd = """
-        set -e
-        EXTRACTDIR=$$(dirname $(location :dat2jsonl_BaseItemTypes_en))
-        RELEASEDIR=$$(dirname $(location release/bases.json))
-        mkdir -p out/extracted out/release
-        for f in $$EXTRACTDIR/*.jsonl; do ln -sf $$PWD/$$f out/extracted/$$(basename $$f); done
-        python3 $(execpath //patcher/scripts:datrelease.py)
-        cp out/release/bases.json out/release/passives.json out/release/words.json $$RELEASEDIR/
-    """,
+    cmd = "$(location //patcher/scripts:datrelease) --input-dir=$$(dirname $(location :dat2jsonl_BaseItemTypes_en)) --output-dir=$$(dirname $(location release/bases.json))",
+    tools = ["//patcher/scripts:datrelease"],
 )
 
 genrule(
@@ -65,17 +58,18 @@ genrule(
     srcs = [
         ":extract_stat_descriptions",
         ":extract_tincture_stat_descriptions",
-        "//patcher/scripts:statparse.py",
     ],
     outs = ["release/stat_descriptions.json"],
-    cmd = "python3 $(location //patcher/scripts:statparse.py) $(location :extract_stat_descriptions) $(location :extract_tincture_stat_descriptions) > $@",
+    cmd = "$(location //patcher/scripts:statparse) $(location :extract_stat_descriptions) $(location :extract_tincture_stat_descriptions) > $@",
+    tools = ["//patcher/scripts:statparse"],
 )
 
 genrule(
     name = "charversion",
-    srcs = ["@gamedata//:PathOfExile.exe", "//patcher/scripts:charversion.py"],
+    srcs = ["@gamedata//:PathOfExile.exe"],
     outs = ["release/version.txt"],
-    cmd = "python3 $(location //patcher/scripts:charversion.py) $(location @gamedata//:PathOfExile.exe) > $@",
+    cmd = "$(location //patcher/scripts:charversion) $(location @gamedata//:PathOfExile.exe) > $@",
+    tools = ["//patcher/scripts:charversion"],
 )
 
 genrule(
@@ -86,10 +80,10 @@ genrule(
         "release/words.json",
         "release/passives.json",
         "release/version.txt",
-        "//patcher/scripts:fingerprint.py",
     ],
     outs = ["release/fingerprint.txt"],
-    cmd = "python3 $(location //patcher/scripts:fingerprint.py) $(location release/bases.json) $(location release/stat_descriptions.json) $(location release/words.json) $(location release/passives.json) $(location release/version.txt) > $@",
+    cmd = "$(location //patcher/scripts:fingerprint) $(location release/bases.json) $(location release/stat_descriptions.json) $(location release/words.json) $(location release/passives.json) $(location release/version.txt) > $@",
+    tools = ["//patcher/scripts:fingerprint"],
 )
 
 # --- Release tarball ---

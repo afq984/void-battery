@@ -1,6 +1,35 @@
-exports_files([
-    "charversion.py",
-    "datrelease.py",
-    "fingerprint.py",
-    "statparse.py",
-])
+py_binary(
+    name = "datrelease",
+    srcs = ["datrelease.py"],
+    visibility = ["//patcher:__subpackages__"],
+)
+
+py_binary(
+    name = "statparse",
+    srcs = ["statparse.py"],
+    visibility = ["//patcher:__subpackages__"],
+    deps = [":pjson", ":tqdm_stub"],
+)
+
+py_binary(
+    name = "charversion",
+    srcs = ["charversion.py"],
+    visibility = ["//patcher:__subpackages__"],
+)
+
+py_binary(
+    name = "fingerprint",
+    srcs = ["fingerprint.py"],
+    visibility = ["//patcher:__subpackages__"],
+)
+
+py_library(
+    name = "pjson",
+    srcs = ["pjson.py"],
+)
+
+py_library(
+    name = "tqdm_stub",
+    srcs = ["tqdm/__init__.py"],
+    imports = ["."],
+)
