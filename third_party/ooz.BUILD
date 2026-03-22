@@ -49,23 +49,12 @@ cc_library(
 )
 
 cc_library(
-    name = "bunutil_utf",
-    srcs = ["utf.cpp"],
-    hdrs = ["utf.h"],
-    copts = ["-std=c++17"],
-    visibility = ["//visibility:public"],
-    deps = [
-        # TODO: add libunistring (not on BCR, needs http_archive + BUILD file)
-    ],
-    tags = ["manual"],  # skip until libunistring is available
-)
-
-cc_library(
     name = "bunutil",
     srcs = [
         "fnv.cpp",
         "murmur.cpp",
         "path_rep.cpp",
+        "utf.cpp",
         "util.cpp",
     ],
     hdrs = [
@@ -79,6 +68,7 @@ cc_library(
     visibility = ["//visibility:public"],
     deps = [
         "@libsodium",
+        "@libunistring",
     ],
 )
 
@@ -89,19 +79,6 @@ cc_library(
 )
 
 cc_library(
-    name = "libpoe_utf",
-    srcs = ["libpoe/poe/util/utf.cpp"],
-    hdrs = ["libpoe/poe/util/utf.hpp"],
-    copts = ["-std=c++17"],
-    strip_include_prefix = "libpoe",
-    visibility = ["//visibility:public"],
-    deps = [
-        # TODO: add libunistring (not on BCR, needs http_archive + BUILD file)
-    ],
-    tags = ["manual"],  # skip until libunistring is available
-)
-
-cc_library(
     name = "libpoe",
     srcs = [
         "libpoe/poe/format/ggpk.cpp",
@@ -109,6 +86,7 @@ cc_library(
         "libpoe/poe/util/murmur2.cpp",
         "libpoe/poe/util/random_access_file.cpp",
         "libpoe/poe/util/sha256.cpp",
+        "libpoe/poe/util/utf.cpp",
     ],
     hdrs = [
         "libpoe/poe/format/ggpk.hpp",
@@ -124,6 +102,7 @@ cc_library(
     deps = [
         ":mio",
         "@libsodium",
+        "@libunistring",
     ],
 )
 

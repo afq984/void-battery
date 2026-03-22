@@ -1,0 +1,56 @@
+diff --git a/MODULE.bazel b/MODULE.bazel
+new file mode 100644
+--- /dev/null
++++ b/MODULE.bazel
+@@ -0,0 +1,6 @@
++module(
++    name = "libunistring",
++    version = "1.3",
++)
++
++bazel_dep(name = "rules_cc", version = "0.2.14")
+diff --git a/config.h b/config.h
+new file mode 100644
+--- /dev/null
++++ b/config.h
+@@ -0,0 +1,21 @@
++/* Minimal config.h for Bazel build of libunistring subset. */
++#ifndef _LIBUNISTRING_CONFIG_H
++#define _LIBUNISTRING_CONFIG_H
++
++#define _GL_CONFIG_H_INCLUDED 1
++
++#include <stdbool.h>
++
++#if __has_attribute(__nonstring__)
++# define _GL_ATTRIBUTE_NONSTRING __attribute__ ((__nonstring__))
++#else
++# define _GL_ATTRIBUTE_NONSTRING
++#endif
++
++#if __has_attribute(__fallthrough__)
++# define _GL_ATTRIBUTE_FALLTHROUGH __attribute__ ((__fallthrough__))
++#else
++# define _GL_ATTRIBUTE_FALLTHROUGH
++#endif
++
++#endif /* _LIBUNISTRING_CONFIG_H */
+diff --git a/lib/u16_normalize_stub.c b/lib/u16_normalize_stub.c
+new file mode 100644
+--- /dev/null
++++ b/lib/u16_normalize_stub.c
+@@ -0,0 +1,14 @@
++/* Stub: u16_normalize is referenced by u16_casemap but never called
++   when nf==NULL (which is how u16_tolower uses it). */
++#include <stdint.h>
++#include <stddef.h>
++#include <stdlib.h>
++
++uint16_t *
++u16_normalize(const void *nf, const uint16_t *s, size_t n,
++              uint16_t *resultbuf, size_t *lengthp)
++{
++    (void)nf; (void)s; (void)n; (void)resultbuf; (void)lengthp;
++    abort();
++    return ((void*)0);
++}

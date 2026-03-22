@@ -1,1 +1,4 @@
-exports_files(["ooz_add_module.patch"])
+exports_files([
+    "libunistring_bazel.patch",
+    "ooz_add_module.patch",
+])
