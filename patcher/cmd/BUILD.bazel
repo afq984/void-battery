@@ -1,0 +1,8 @@
+load("@rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "cmd",
+    srcs = ["init.go"],
+    importpath = "github.com/afq984/void-battery/patcher/cmd",
+    visibility = ["//visibility:public"],
+)

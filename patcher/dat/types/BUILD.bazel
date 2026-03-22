@@ -1,0 +1,27 @@
+load("@rules_go//go:def.bzl", "go_library", "go_test")
+
+go_library(
+    name = "types",
+    srcs = [
+        "array.go",
+        "bool.go",
+        "int.go",
+        "layout.go",
+        "null.go",
+        "pointer.go",
+        "string.go",
+        "struct.go",
+        "type.go",
+        "value.go",
+    ],
+    importpath = "github.com/afq984/void-battery/patcher/dat/types",
+    visibility = ["//visibility:public"],
+    deps = ["@org_golang_x_text//encoding/unicode"],
+)
+
+go_test(
+    name = "types_test",
+    srcs = ["types_test.go"],
+    embed = [":types"],
+    deps = ["@com_github_google_go_cmp//cmp"],
+)

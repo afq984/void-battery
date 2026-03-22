@@ -4,8 +4,8 @@ cc_binary(
     name = "extract",
     srcs = ["extract.cpp"],
     copts = ["-std=c++17"],
-    local_defines = ["BAZEL_BUILD"],
     data = ["@ooz//:libooz_so"],
+    local_defines = ["BAZEL_BUILD"],
     visibility = ["//patcher:__subpackages__"],
     deps = [
         "@ooz//:libbun",
