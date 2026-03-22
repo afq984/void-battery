@@ -1,0 +1,2 @@
+# ooz compression code has undefined behavior that manifests under -O2 with Clang.
+build --host_compilation_mode=dbg

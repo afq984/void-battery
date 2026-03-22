@@ -1,0 +1,6 @@
+exports_files([
+    "charversion.py",
+    "datrelease.py",
+    "fingerprint.py",
+    "statparse.py",
+])

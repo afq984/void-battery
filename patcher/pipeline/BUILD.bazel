@@ -1,0 +1,194 @@
+# Data processing pipeline: extract game data → JSON release files.
+#
+# Requires game data to be fetched first via: bazel run //patcher:fetch
+#
+# Build with:
+#   bazel build //patcher/pipeline:fingerprint \
+#     --override_repository=gamedata=$PWD/patcher/Content.ggpk.d/latest
+
+_GAMEDATA = "@gamedata//:all"
+_INDEX_BIN = "@gamedata//:Bundles2/_.index.bin"
+_EXTRACT = "//patcher/extract"
+_DAT2JSONL = "//patcher/cmd/dat2jsonl"
+_SCHEMA = "//patcher:schema.min.json"
+
+# The extract binary needs the gamedata root as its first arg.
+# We derive it from the index.bin path: .../Bundles2/_.index.bin → ...
+_GGPKD = "$$(dirname $$(dirname $(location @gamedata//:Bundles2/_.index.bin)))"
+
+# --- Extract rules: extract raw files from game bundles ---
+
+genrule(
+    name = "extract_stat_descriptions",
+    srcs = [_GAMEDATA, _INDEX_BIN],
+    outs = ["extracted/stat_descriptions.txt"],
+    cmd = "$(location {extract}) {ggpkd} 'metadata/statdescriptions/stat_descriptions.txt' $@".format(extract = _EXTRACT, ggpkd = _GGPKD),
+    tools = [_EXTRACT],
+)
+
+genrule(
+    name = "extract_tincture_stat_descriptions",
+    srcs = [_GAMEDATA, _INDEX_BIN],
+    outs = ["extracted/tincture_stat_descriptions.txt"],
+    cmd = "$(location {extract}) {ggpkd} 'metadata/statdescriptions/tincture_stat_descriptions.txt' $@".format(extract = _EXTRACT, ggpkd = _GGPKD),
+    tools = [_EXTRACT],
+)
+
+genrule(
+    name = "extract_BaseItemTypes_en",
+    srcs = [_GAMEDATA, _INDEX_BIN],
+    outs = ["extracted/BaseItemTypes.en.datc64"],
+    cmd = "$(location {extract}) {ggpkd} 'data/baseitemtypes.datc64' $@".format(extract = _EXTRACT, ggpkd = _GGPKD),
+    tools = [_EXTRACT],
+)
+
+genrule(
+    name = "extract_BaseItemTypes_tc",
+    srcs = [_GAMEDATA, _INDEX_BIN],
+    outs = ["extracted/BaseItemTypes.tc.datc64"],
+    cmd = "$(location {extract}) {ggpkd} 'data/traditional chinese/baseitemtypes.datc64' $@".format(extract = _EXTRACT, ggpkd = _GGPKD),
+    tools = [_EXTRACT],
+)
+
+genrule(
+    name = "extract_ActiveSkills_en",
+    srcs = [_GAMEDATA, _INDEX_BIN],
+    outs = ["extracted/ActiveSkills.en.datc64"],
+    cmd = "$(location {extract}) {ggpkd} 'data/activeskills.datc64' $@".format(extract = _EXTRACT, ggpkd = _GGPKD),
+    tools = [_EXTRACT],
+)
+
+genrule(
+    name = "extract_ActiveSkills_tc",
+    srcs = [_GAMEDATA, _INDEX_BIN],
+    outs = ["extracted/ActiveSkills.tc.datc64"],
+    cmd = "$(location {extract}) {ggpkd} 'data/traditional chinese/activeskills.datc64' $@".format(extract = _EXTRACT, ggpkd = _GGPKD),
+    tools = [_EXTRACT],
+)
+
+genrule(
+    name = "extract_PassiveSkills_en",
+    srcs = [_GAMEDATA, _INDEX_BIN],
+    outs = ["extracted/PassiveSkills.en.datc64"],
+    cmd = "$(location {extract}) {ggpkd} 'data/passiveskills.datc64' $@".format(extract = _EXTRACT, ggpkd = _GGPKD),
+    tools = [_EXTRACT],
+)
+
+genrule(
+    name = "extract_PassiveSkills_tc",
+    srcs = [_GAMEDATA, _INDEX_BIN],
+    outs = ["extracted/PassiveSkills.tc.datc64"],
+    cmd = "$(location {extract}) {ggpkd} 'data/traditional chinese/passiveskills.datc64' $@".format(extract = _EXTRACT, ggpkd = _GGPKD),
+    tools = [_EXTRACT],
+)
+
+genrule(
+    name = "extract_SkillGems_en",
+    srcs = [_GAMEDATA, _INDEX_BIN],
+    outs = ["extracted/SkillGems.en.datc64"],
+    cmd = "$(location {extract}) {ggpkd} 'data/skillgems.datc64' $@".format(extract = _EXTRACT, ggpkd = _GGPKD),
+    tools = [_EXTRACT],
+)
+
+genrule(
+    name = "extract_SkillGems_tc",
+    srcs = [_GAMEDATA, _INDEX_BIN],
+    outs = ["extracted/SkillGems.tc.datc64"],
+    cmd = "$(location {extract}) {ggpkd} 'data/traditional chinese/skillgems.datc64' $@".format(extract = _EXTRACT, ggpkd = _GGPKD),
+    tools = [_EXTRACT],
+)
+
+genrule(
+    name = "extract_Words_en",
+    srcs = [_GAMEDATA, _INDEX_BIN],
+    outs = ["extracted/Words.en.datc64"],
+    cmd = "$(location {extract}) {ggpkd} 'data/words.datc64' $@".format(extract = _EXTRACT, ggpkd = _GGPKD),
+    tools = [_EXTRACT],
+)
+
+genrule(
+    name = "extract_Words_tc",
+    srcs = [_GAMEDATA, _INDEX_BIN],
+    outs = ["extracted/Words.tc.datc64"],
+    cmd = "$(location {extract}) {ggpkd} 'data/traditional chinese/words.datc64' $@".format(extract = _EXTRACT, ggpkd = _GGPKD),
+    tools = [_EXTRACT],
+)
+
+# --- dat2jsonl rules: convert .datc64 → .jsonl ---
+
+[
+    genrule(
+        name = "dat2jsonl_%s_%s" % (table, lang),
+        srcs = [":extract_%s_%s" % (table, lang), _SCHEMA],
+        outs = ["extracted/%s.%s.jsonl" % (table, lang)],
+        cmd = "$(location {dat2jsonl}) --dat=$(location :extract_{table}_{lang}) --table-name={table} --schema=$(location {schema}) > $@".format(
+            dat2jsonl = _DAT2JSONL,
+            table = table,
+            lang = lang,
+            schema = _SCHEMA,
+        ),
+        tools = [_DAT2JSONL],
+    )
+    for table in ["BaseItemTypes", "ActiveSkills", "PassiveSkills", "SkillGems", "Words"]
+    for lang in ["en", "tc"]
+]
+
+# --- Python processing: .jsonl/.txt → release JSON ---
+
+_JSONL_SRCS = [
+    ":dat2jsonl_%s_%s" % (table, lang)
+    for table in ["BaseItemTypes", "ActiveSkills", "PassiveSkills", "SkillGems", "Words"]
+    for lang in ["en", "tc"]
+]
+
+genrule(
+    name = "datrelease",
+    srcs = _JSONL_SRCS + ["//patcher/scripts:datrelease.py"],
+    outs = [
+        "release/bases.json",
+        "release/passives.json",
+        "release/words.json",
+    ],
+    cmd = """
+        set -e
+        EXTRACTDIR=$$(dirname $(location :dat2jsonl_BaseItemTypes_en))
+        RELEASEDIR=$$(dirname $(location release/bases.json))
+        # datrelease.py expects hardcoded paths: out/extracted/*.jsonl and out/release/*.json
+        mkdir -p out/extracted out/release
+        for f in $$EXTRACTDIR/*.jsonl; do ln -sf $$PWD/$$f out/extracted/$$(basename $$f); done
+        python3 $(execpath //patcher/scripts:datrelease.py)
+        cp out/release/bases.json out/release/passives.json out/release/words.json $$RELEASEDIR/
+    """,
+)
+
+genrule(
+    name = "statparse",
+    srcs = [
+        ":extract_stat_descriptions",
+        ":extract_tincture_stat_descriptions",
+        "//patcher/scripts:statparse.py",
+    ],
+    outs = ["release/stat_descriptions.json"],
+    cmd = "python3 $(location //patcher/scripts:statparse.py) $(location :extract_stat_descriptions) $(location :extract_tincture_stat_descriptions) > $@",
+)
+
+genrule(
+    name = "charversion",
+    srcs = ["@gamedata//:PathOfExile.exe", "//patcher/scripts:charversion.py"],
+    outs = ["release/version.txt"],
+    cmd = "python3 $(location //patcher/scripts:charversion.py) $(location @gamedata//:PathOfExile.exe) > $@",
+)
+
+genrule(
+    name = "fingerprint",
+    srcs = [
+        "release/bases.json",
+        "release/stat_descriptions.json",
+        "release/words.json",
+        "release/passives.json",
+        "release/version.txt",
+        "//patcher/scripts:fingerprint.py",
+    ],
+    outs = ["release/fingerprint.txt"],
+    cmd = "python3 $(location //patcher/scripts:fingerprint.py) $(location release/bases.json) $(location release/stat_descriptions.json) $(location release/words.json) $(location release/passives.json) $(location release/version.txt) > $@",
+)
