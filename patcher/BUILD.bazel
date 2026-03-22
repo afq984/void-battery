@@ -3,3 +3,18 @@ load("@gazelle//:def.bzl", "gazelle")
 # gazelle:prefix github.com/afq984/void-battery/patcher
 
 gazelle(name = "gazelle")
+
+py_binary(
+    name = "fetch",
+    srcs = ["fetch.py"],
+    args = [
+        "$(location //patcher/extract)",
+        "$(location //patcher/cmd/poepatcher)",
+    ],
+    data = [
+        "//patcher/cmd/poepatcher",
+        "//patcher/extract",
+    ],
+)
+
+exports_files(["go.mod"])
