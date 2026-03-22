@@ -4,40 +4,38 @@ on:
   pull_request:
 name: test
 
-defaults:
-  run:
-    working-directory: patcher
-
 jobs:
   patcher-test:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - uses: actions/setup-go@v2
+    - uses: actions/checkout@v4
+    - uses: bazel-contrib/setup-bazel@0.14.0
       with:
-        go-version: 1.x
-    - run: go test -v ./...
+        bazelisk-cache: true
+        disk-cache: ${{ github.workflow }}
+        repository-cache: true
+    - run: bazel test //patcher/dat/types:types_test
 
   web-test:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
+    - uses: bazel-contrib/setup-bazel@0.14.0
       with:
-        submodules: recursive
-    - run: sudo apt-get install -y ninja-build cmake libsodium-dev libunistring-dev
-    - uses: actions/setup-go@v2
-      with:
-        go-version: 1.x
-    - uses: actions/setup-python@v2
+        bazelisk-cache: true
+        disk-cache: ${{ github.workflow }}
+        repository-cache: true
+
+    - run: bash fetch.sh
+      working-directory: patcher
+    - run: bash main.sh
+      working-directory: patcher
+    - run: bash release.sh
+      working-directory: patcher
+
+    - uses: actions/setup-python@v5
       with:
         python-version: 3.x
-
-    - run: python -m pip install virtualenv meson
-
-    - run: ./install.sh
-    - run: ./main.sh
-    - run: ./release.sh
-
     - run: python -m pip install -r requirements.txt -r test-requirements.txt
       working-directory: web
     - run: python -m pytest tests

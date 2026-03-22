@@ -1,11 +1,9 @@
-FROM docker.io/alpine:latest AS patcher
+FROM gcr.io/bazel-public/bazel:8.6.0 AS patcher
 
-WORKDIR /patcher
-COPY patcher /patcher
-RUN apk add --no-cache python3 py3-virtualenv go build-base git curl bash samurai \
-    meson cmake pkgconfig libsodium-dev libunistring-dev
-RUN ./install.sh
-RUN ./main.sh
+WORKDIR /build
+COPY --chown=ubuntu . /build
+RUN cd patcher && bash fetch.sh
+RUN cd patcher && bash main.sh
 
 
 FROM docker.io/alpine:latest as web
@@ -16,6 +14,6 @@ ENV PYTHONUNBUFFERED True
 
 WORKDIR /web
 COPY web /web
-COPY --from=patcher /patcher/out/release /web/nebuloch/data
+COPY --from=patcher /build/patcher/out/release /web/nebuloch/data
 
 CMD exec gunicorn --bind :$PORT --workers 1 --threads 8 --timeout 0 main:app
