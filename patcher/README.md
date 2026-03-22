@@ -1,38 +1,44 @@
 # Patcher
 
-This directory contains tools to update the game data.
+Tools for downloading and extracting game data from the PoE TW patch server.
 
-### Build tools
+## Prerequisites
 
-First have these dependencies installed:
+* [Bazelisk](https://github.com/bazelbuild/bazelisk) installed as `bazel`
+* `curl`
 
-* bash
-* python3
-* go
-* curl
-* gcc
-* ninja
+## Usage
 
-Then run:
+### Fetch game data
+
+Downloads the schema and game files from the patch server:
 
 ```
-./install.sh
+bash fetch.sh
 ```
 
-### Download the game files and extract them
+### Build release files
+
+Runs the Bazel pipeline (extract → dat2jsonl → release JSON):
 
 ```
-./main.sh
+bash main.sh
 ```
 
-### Compare the current extracted data with the ones in `../web`:
+### Compare with current web data
 
 ```
-./diff.sh
+bash diff.sh
 ```
 
-### Copy the extracted data to `../web`:
+### Copy release files to the web app
 
 ```
-./release.sh
+bash release.sh
+```
+
+## Running tests
+
+```
+bazel test //patcher/...
 ```
