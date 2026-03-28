@@ -34,6 +34,7 @@ alt_matcher = '|'.join(map(re.escape, ALTERNATE_MAP))
 CLASS_AND_ASCENDANCY_CLASS_IDS = {
     'Scion': (0, 0),
     'Ascendant': (0, 1),
+    'Reliquarian': (0, 2),
     'Marauder': (1, 0),
     'Juggernaut': (1, 1),
     'Berserker': (1, 2),
@@ -126,7 +127,7 @@ def Tree(char, tree):
             ascendClassId=str(ascendancyClass),
             classId=str(classId),
             nodes='.'.join(str(node) for node in tree['hashes']),
-            treeVersion='3_27',
+            treeVersion='3_28',
         ),
         activeSpec='1',
     )
@@ -141,12 +142,15 @@ SLOT_MAP = {
     'Belt': 'Belt',
     'BodyArmour': 'Body Armour',
     'Boots': 'Boots',
+    'BrequelGrafts': 'Graft 1',
+    'BrequelGrafts2': 'Graft 2',
     'Gloves': 'Gloves',
     'Helm': 'Helmet',
     'Offhand': 'Weapon 2',
     'Offhand2': 'Weapon 2 Swap',
     'Ring': 'Ring 1',
     'Ring2': 'Ring 2',
+    'Ring3': 'Ring 3',
     'Trinket': 'Trinket',  # https://github.com/PathOfBuildingCommunity/PathOfBuilding/issues/1721
     'Weapon': 'Weapon 1',
     'Weapon2': 'Weapon 1 Swap',
