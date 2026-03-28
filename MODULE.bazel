@@ -18,8 +18,8 @@ bazel_dep(name = "gamedata", version = "0")
 
 git_override(
     module_name = "toolchains_chromium",
-    remote = "https://github.com/afq984/toolchains_chromium.git",
-    commit = "1a93deae0f654933afe585749d35b7ef82d89bd8",
+    remote = "https://github.com/google/toolchains_chromium.git",
+    commit = "1cc2c49e1e120e42349ad643dc3e09cda2f2fbcb",
 )
 
 git_override(

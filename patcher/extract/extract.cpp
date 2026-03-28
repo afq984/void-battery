@@ -29,7 +29,7 @@ int main(int argc, char **argv) {
         fprintf(stderr, "Failed to create runfiles: %s\n", error.c_str());
         return 1;
     }
-    auto ooz_path = runfiles->Rlocation("ooz/liblibooz.so");
+    auto ooz_path = runfiles->Rlocation("ooz/libooz.so");
     Bun *bun = BunNew(ooz_path.c_str(), "Ooz_Decompress");
     if (!bun) {
         fprintf(stderr, "Failed to load liblibooz.so\n");

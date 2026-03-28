@@ -50,7 +50,7 @@ cc_library(
 
 cc_shared_library(
     name = "libooz_so",
-    shared_lib_name = "liblibooz.so",
+    shared_lib_name = "libooz.so",
     visibility = ["//visibility:public"],
     deps = [":libooz"],
 )
