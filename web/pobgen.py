@@ -61,19 +61,46 @@ CLASS_AND_ASCENDANCY_CLASS_IDS = {
     'Saboteur': (6, 3),
 }
 
+# TW class name -> EN class name
+# Names come from the TW passive skill tree: https://pathofexile.tw/passive-skill-tree
+# (look for the "classes" key in the inline JSON)
 CLASS_MAP = {
-    '野蠻人': 'Marauder',
-    '遊俠': 'Ranger',
-    '女巫': 'Witch',
-    '決鬥者': 'Duelist',
-    '聖騎士': 'Templar',
-    '暗影刺客': 'Shadow',
     '貴族': 'Scion',
+    '昇華使徒': 'Ascendant',
+    '遺守使徒': 'Reliquarian',
+    '野蠻人': 'Marauder',
+    '勇士': 'Juggernaut',
+    '暴徒': 'Berserker',
+    '酋長': 'Chieftain',
+    '遊俠': 'Ranger',
+    '守林人': 'Warden',
+    '銳眼': 'Deadeye',
+    '追獵者': 'Pathfinder',
+    '女巫': 'Witch',
+    '秘術家': 'Occultist',
+    '元素使': 'Elementalist',
+    '死靈師': 'Necromancer',
+    '決鬥者': 'Duelist',
+    '處刑者': 'Slayer',
+    '衛士': 'Gladiator',
+    '冠軍': 'Champion',
+    '聖堂武僧': 'Templar',
+    '判官': 'Inquisitor',
+    '聖宗': 'Hierophant',
+    '守護者': 'Guardian',
+    '暗影刺客': 'Shadow',
+    '刺客': 'Assassin',
+    '詐欺師': 'Trickster',
+    '破壞者': 'Saboteur',
 }
 
 
+def _translate_class(name):
+    return CLASS_MAP.get(name, name)
+
+
 def get_encoded_tree(char, tree):
-    classId, ascendancyClass = CLASS_AND_ASCENDANCY_CLASS_IDS[char['class']]
+    classId, ascendancyClass = CLASS_AND_ASCENDANCY_CLASS_IDS[_translate_class(char['class'])]
     head = [0, 0, 0, 6, classId, ascendancyClass, len(tree['hashes'])]
     masteryEffects = []
     for child in tree['mastery_effects']:
@@ -99,7 +126,7 @@ def Tree(char, tree):
     # fmt: on
     sockets = []
     overrides = []
-    classId, ascendancyClass = CLASS_AND_ASCENDANCY_CLASS_IDS[char['class']]
+    classId, ascendancyClass = CLASS_AND_ASCENDANCY_CLASS_IDS[_translate_class(char['class'])]
 
     for id, item in enumerate(tree['items'], 1):
         x = item['x']
