@@ -189,6 +189,35 @@ def clean_name(name):
     return re.sub(r'\<\<set\:\w+\>\>', '', name)
 
 
+# The character API used to return every mod list as a list of strings, with
+# crafted, fractured and mutated mods split off into a `<flag>Mods` list each.
+# Since poe 3.29 it returns implicit/explicit mods as objects instead, and
+# folds those three lists back into `explicitMods`, tagged via `flags`:
+#   {"description": "+40 最大魔力", "flags": {"crafted": true}}
+# Some lists (`enchantMods`, ...) are still plain strings, so handle both.
+# See `ImportTab.lua:ImportItemsAndSkills` in PathOfBuilding, which reads the
+# same three flags and keeps the same three legacy lists, and `lineFlags` in
+# `Item.lua` for the prefixes its item text parser accepts.
+MOD_FLAG_PREFIXES = (
+    ('crafted', '{crafted}'),
+    ('fractured', '{fractured}'),
+    ('mutated', '{mutated}'),
+)
+
+
+def mod_description(mod):
+    if isinstance(mod, dict):
+        return mod['description']
+    return mod
+
+
+def mod_prefix(mod):
+    if not isinstance(mod, dict):
+        return ''
+    flags = mod.get('flags', {})
+    return ''.join(prefix for flag, prefix in MOD_FLAG_PREFIXES if flags.get(flag))
+
+
 # XXX since poe 3.8, category is removed
 # These are the categories that we are uncapable of handling at the moment
 CATEGORY_BLACKLIST = set('gems currency maps cards monsters leaguestones'.split())
@@ -312,6 +341,24 @@ class POBGenerator:
     def item_to_pob(self, item):
         return '\n'.join(self.i_item_to_pob(item))
 
+    def tr_mod_lines(self, mod, prefix):
+        """Translate one mod into the PoB item text lines it becomes.
+
+        POB tags mods per line -- `ImportTab.lua` splits every mod on newlines
+        before applying its flags -- and both the mod and its translation can
+        span several lines, so `prefix` goes on each of them.
+        """
+        description = mod_description(mod)
+        loc = description.find('\n附加的小型天賦給予：')
+        if loc != -1:
+            parts = (description[:loc], description[loc + 1 :])
+        else:
+            parts = (description,)
+        for part in parts:
+            for line in self.tr_mod(part).split('\n'):
+                if line:
+                    yield prefix + line
+
     def parse_magic(self, item):
         twbase = clean_name(item['typeLine']).rpartition('精良的 ')[-1]
         parts = re.findall('([^的之]+[的之]?)', twbase)
@@ -360,28 +407,31 @@ class POBGenerator:
             yield 'Sockets: ' + sockstr
         if item.get('corrupted'):
             yield 'Corrupted'
-        n_implicits = len(item.get('implicitMods', ())) + len(
-            item.get('enchantMods', ())
+        # `Implicits` counts lines, not mods: a mod whose translation spans
+        # several lines contributes one line each, so the lines have to be
+        # generated before the count can be emitted.
+        implicit_lines = list(
+            itertools.chain.from_iterable(
+                self.tr_mod_lines(mod, mod_prefix(mod))
+                for mod in itertools.chain(
+                    item.get('implicitMods', ()),
+                    item.get('enchantMods', ()),
+                )
+            )
         )
-        yield 'Implicits: {}'.format(n_implicits)
+        yield 'Implicits: {}'.format(len(implicit_lines))
         if item['name'] in ['禁忌烈焰', '禁忌血肉']:
             requiredClass = item['requirements'][0]['values'][0][0]
             yield 'Requires Class ' + CLASS_MAP[requiredClass]
-        for mod in itertools.chain(
-            item.get('implicitMods', ()),
-            item.get('enchantMods', ()),
-            item.get('explicitMods', ()),
-        ):
-            loc = mod.find('\n附加的小型天賦給予：')
-            if loc != -1:
-                yield self.tr_mod(mod[:loc])
-                yield self.tr_mod(mod[loc + 1 :])
-            else:
-                yield self.tr_mod(mod)
-        for cmod in item.get('craftedMods', ()):
-            yield '{crafted}' + self.tr_mod(cmod)
-        for fmod in item.get('fracturedMods', ()):
-            yield '{fractured}' + self.tr_mod(fmod)
+        for line in implicit_lines:
+            yield line
+        for mod in item.get('explicitMods', ()):
+            for line in self.tr_mod_lines(mod, mod_prefix(mod)):
+                yield line
+        for flag, prefix in MOD_FLAG_PREFIXES:
+            for mod in item.get('{}Mods'.format(flag), ()):
+                for line in self.tr_mod_lines(mod, prefix):
+                    yield line
         if item.get('shaper'):
             yield 'Shaper Item'
         if item.get('elder'):
