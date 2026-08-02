@@ -19,7 +19,10 @@ def test_roundtrip_1():
 
 
 def test_prev_failed():
-    assert tr('每顆暴擊球 +0.3% 暴擊率') == '+0.3% Critical Strike Chance per Power Charge'
+    assert (
+        tr('每顆暴擊球 +0.3% 暴擊率')
+        == '+0.3% to Critical Strike Chance per Power Charge'
+    )
     assert tr('增加 15% 地雷傷害') == '15% increased Mine Damage'
     assert (
         tr('0.27% 物理攻擊傷害偷取魔力') == '0.27% of Physical Attack Damage Leeched as Mana'
