@@ -24,6 +24,7 @@ EXTRACT_DEPS = [
     "data/traditional chinese/words.datc64",
     "metadata/statdescriptions/stat_descriptions.txt",
     "metadata/statdescriptions/tincture_stat_descriptions.txt",
+    "metadata/statdescriptions/graft_stat_descriptions.txt",
 ]
 
 
