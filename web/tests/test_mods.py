@@ -2,7 +2,9 @@
 
 from __future__ import unicode_literals
 
-from nebuloch.mods import Variant, Translator, M
+import pytest
+
+from nebuloch.mods import CannotTranslateMod, Variant, Translator, M
 
 
 tr = Translator('Traditional Chinese', '')
@@ -161,4 +163,102 @@ def test_negative():
     assert (
         tr('範圍內每 1 點配置敏捷為 -1 敏捷')
         == '-1 Dexterity per 1 Dexterity on Allocated Passives in Radius'
+    )
+
+
+def test_indexable_skill_name():
+    """Dragonfang's Flight rolls a skill name into the line itself.
+
+    The stat description has `全部 {1} 寶石等級 +{0}`, so the rendered mod
+    carries a gem name where the matcher expects a number.
+    """
+    assert tr('全部 電弧 寶石等級 +3') == '+3 to Level of all Arc Gems'
+    assert tr('全部 火球 寶石等級 +2') == '+2 to Level of all Fireball Gems'
+
+
+def test_indexable_unknown_skill_name():
+    with pytest.raises(CannotTranslateMod):
+        tr('全部 不是技能 寶石等級 +3')
+
+
+def test_precision_suffixed_flag():
+    """`milliseconds_to_seconds_2dp` scales like `milliseconds_to_seconds`.
+
+    Getting this wrong does not merely misformat the number: the unscaled
+    value falls outside the variant's range and the mod stops matching.
+    """
+    assert (
+        tr('格擋時觸發 1 個插槽中的元素法術，冷卻時間為 0.25 秒')
+        == 'Trigger a Socketed Elemental Spell on Block, with a 0.25 second Cooldown'
+    )
+
+
+def test_resolve_flag_strips_precision_suffixes():
+    from nebuloch.mods import FLAGS, resolve_flag
+
+    assert resolve_flag('milliseconds_to_seconds_2dp') is FLAGS['milliseconds_to_seconds']
+    assert resolve_flag('per_minute_to_per_second_2dp_if_required') is FLAGS[
+        'per_minute_to_per_second'
+    ]
+    assert resolve_flag('divide_by_ten_0dp') is FLAGS['divide_by_ten']
+    assert resolve_flag('not_a_flag') is None
+
+
+def test_impossible_escape():
+    """Reworded in 3.29; the notable's name is looked up in the passive data."""
+    assert (
+        tr('天賦樹中在範圍祭血術內未連結的天賦仍然可以配置\n通途')
+        == 'Passive Skills in Radius of Blood Magic can be Allocated\n'
+           'without being connected to your tree\nPassage'
+    )
+
+
+def test_impossible_escape_unknown_notable():
+    # Used to raise KeyError, which pobgen turns into a 500 rather than a
+    # reported translation failure.
+    with pytest.raises(CannotTranslateMod):
+        tr('天賦樹中在範圍不是天賦內未連結的天賦仍然可以配置\n通途')
+
+
+def test_indexable_does_not_swallow_trailing_text():
+    with pytest.raises(CannotTranslateMod):
+        tr('全部 電弧 寶石等級 +3 還有別的')
+
+
+def test_non_invertible_flag_is_left_unknown():
+    """POB renders this as `round(value / 20) * 2`, which is many-to-one.
+
+    Treating it as a plain ratio would translate the mod to a number that is
+    quietly wrong; leaving it unknown fails loudly instead.
+    """
+    from nebuloch.mods import resolve_flag
+
+    assert resolve_flag('divide_by_twenty_then_double_0dp') is None
+
+
+@pytest.mark.parametrize(
+    'mod, english',
+    [
+        ('10% 法術傷害格擋率', '10% Chance to Block Spell Damage'),
+        ('+10% 壓抑法術傷害率', '+10% chance to Suppress Spell Damage'),
+    ],
+)
+def test_no_decimal_artifacts_from_shared_symbolic_keys(mod, english):
+    """A legacy variant sharing this key must not corrupt the ordinary mod.
+
+    Scaling by a fraction that does not terminate in decimal used to render
+    these as 9.999999999999999999999999999%.
+    """
+    assert tr(mod) == english
+
+
+def test_indexable_support_prefers_the_support_gem():
+    """The template supplies 輔助, so 分裂 here is Fork Support, not Forked."""
+    assert (
+        tr('插槽中的寶石被等級 20 的 分裂 輔助')
+        == 'Socketed Gems are Supported by Level 20 Fork'
+    )
+    assert (
+        tr('插槽中的寶石被等級 20 的 嗜血 輔助')
+        == 'Socketed Gems are Supported by Level 20 Bloodlust'
     )
