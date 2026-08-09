@@ -22,6 +22,15 @@ from nebuloch import TranslateError
 
 _tr = Translator('Traditional Chinese', '')
 
+# The passive tree POB should resolve the exported node ids against.  It has to
+# track the game data: 3.29 added 52 nodes and the Luminary ascendancy, none of
+# which exist in POB's 3_28 tree, so leaving this behind silently drops
+# passives from the imported build.  `test_tree_version_matches_game_data`
+# fails when the data moves on, which is the cue to check that POB has shipped
+# a tree for the new version (`treeVersionList` in its GameVersions.lua) and
+# bump this.
+TREE_VERSION = '3_29'
+
 ALTERNATE_MAP = {
     '異常的 ': 'Alternate1',
     '相異的 ': 'Alternate2',
@@ -35,6 +44,7 @@ CLASS_AND_ASCENDANCY_CLASS_IDS = {
     'Scion': (0, 0),
     'Ascendant': (0, 1),
     'Reliquarian': (0, 2),
+    'Luminary': (0, 3),
     'Marauder': (1, 0),
     'Juggernaut': (1, 1),
     'Berserker': (1, 2),
@@ -68,6 +78,7 @@ CLASS_MAP = {
     '貴族': 'Scion',
     '昇華使徒': 'Ascendant',
     '遺守使徒': 'Reliquarian',
+    '輝耀使徒': 'Luminary',
     '野蠻人': 'Marauder',
     '勇士': 'Juggernaut',
     '暴徒': 'Berserker',
@@ -119,7 +130,7 @@ def get_encoded_tree(char, tree):
     ).decode('ascii')
 
 
-def Tree(char, tree):
+def Tree(char, tree, translate_name=nebuloch.names.translate):
     # from https://web.poe.garena.tw/passive-skill-tree
     # fmt: off
     jewelSlots = [26725, 36634, 33989, 41263, 60735, 61834, 31683, 28475, 6230, 48768, 34483, 7960, 46882, 55190, 61419, 2491, 54127, 32763, 26196, 33631, 21984, 29712, 48679, 9408, 12613, 16218, 2311, 22994, 40400, 46393, 61305, 12161, 3109, 49080, 17219, 44169, 24970, 36931, 14993, 10532, 23756, 46519, 23984, 51198, 61666, 6910, 49684, 33753, 18436, 11150, 22748, 64583, 61288, 13170, 9797, 41876, 59585, 43670, 29914, 18060]
@@ -136,12 +147,12 @@ def Tree(char, tree):
         item = tree['skill_overrides'][nodeId]
         if not item.get('isTattoo'):
             continue
-        try:
-            name = nebuloch.names.translate(item['name'])
-        except TranslateError as e:
-            # todo: handle error
-            continue
-        overrides.append(E.Override(dn=str(name), nodeId=str(nodeId)))
+        # `translate_name` is the generator's reporting wrapper when called
+        # from export(), so an untranslatable tattoo is listed for the user
+        # instead of the passive silently keeping its original stats.
+        overrides.append(
+            E.Override(dn=str(translate_name(item['name'])), nodeId=str(nodeId))
+        )
 
     return E.Tree(
         E.Spec(
@@ -154,7 +165,7 @@ def Tree(char, tree):
             ascendClassId=str(ascendancyClass),
             classId=str(classId),
             nodes='.'.join(str(node) for node in tree['hashes']),
-            treeVersion='3_28',
+            treeVersion=TREE_VERSION,
         ),
         activeSpec='1',
     )
@@ -184,8 +195,15 @@ SLOT_MAP = {
 }
 
 
+# League variants of uniques are spelled as a prefix on the unique's own name
+# rather than as an item of their own, so strip the prefix and let POB match
+# the unique underneath: 追憶之 is Replica, 穢生 is Allflame's Foulborn.
+UNIQUE_VARIANT_PREFIXES = ('追憶之 ', '穢生 ')
+
+
 def clean_name(name):
-    name = name.replace('追憶之 ', '')
+    for prefix in UNIQUE_VARIANT_PREFIXES:
+        name = name.replace(prefix, '')
     return re.sub(r'\<\<set\:\w+\>\>', '', name)
 
 
@@ -252,6 +270,7 @@ class POBGenerator:
 
     tr_mod = functools.partialmethod(tr_with_report, _tr)
     tr_name = functools.partialmethod(tr_with_report, nebuloch.names.translate)
+    tr_gem_name = functools.partialmethod(tr_with_report, nebuloch.names.translate_gem)
 
     def export(self, items, tree):
         char = items['character']
@@ -268,7 +287,7 @@ class POBGenerator:
                 mainSocketGroup=str(defsock),
             ),
             skills,
-            Tree(char, tree),
+            Tree(char, tree, self.tr_name),
             items,
         )
         return base64.urlsafe_b64encode(zlib.compress(lxml.etree.tostring(pob))).decode(
@@ -321,7 +340,9 @@ class POBGenerator:
     def Gem(self, item):
         match = re.match(r'(%s)(.+)' % alt_matcher, item['typeLine'])
         alternate, gemName = match.groups()
-        nameSpec = self.tr_name(gemName).replace(' Support', '')
+        # POB names a support gem without the suffix, which is also what
+        # translate_gem hands back regardless of how the name was spelled.
+        nameSpec = self.tr_gem_name(gemName)
         qualityId = ALTERNATE_MAP[alternate]
         level = 20
         quality = 0
