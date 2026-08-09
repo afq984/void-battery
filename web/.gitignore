@@ -2,3 +2,4 @@
 .pytest_cache
 /venv/
 /nebuloch/data/
+/.ladder-cache/
