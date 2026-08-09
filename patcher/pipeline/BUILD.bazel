@@ -37,6 +37,14 @@ patcher_extract(
     out = "extracted/tincture_stat_descriptions.txt",
 )
 
+# 3.29 moved some item mod text out of stat_descriptions.txt; without this the
+# affected mods have no description in any language and cannot be translated.
+patcher_extract(
+    name = "extract_graft_stat_descriptions",
+    path = "metadata/statdescriptions/graft_stat_descriptions.txt",
+    out = "extracted/graft_stat_descriptions.txt",
+)
+
 # --- Python processing: .jsonl/.txt → release JSON ---
 
 _JSONL_SRCS = [":dat2jsonl_%s_%s" % (table, lang) for table in _TABLES for lang in ["en", "tc"]]
@@ -58,9 +66,10 @@ genrule(
     srcs = [
         ":extract_stat_descriptions",
         ":extract_tincture_stat_descriptions",
+        ":extract_graft_stat_descriptions",
     ],
     outs = ["release/stat_descriptions.json"],
-    cmd = "$(location //patcher/scripts:statparse) $(location :extract_stat_descriptions) $(location :extract_tincture_stat_descriptions) > $@",
+    cmd = "$(location //patcher/scripts:statparse) $(location :extract_stat_descriptions) $(location :extract_tincture_stat_descriptions) $(location :extract_graft_stat_descriptions) > $@",
     tools = ["//patcher/scripts:statparse"],
 )
 
