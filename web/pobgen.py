@@ -189,7 +189,9 @@ SLOT_MAP = {
     'Ring': 'Ring 1',
     'Ring2': 'Ring 2',
     'Ring3': 'Ring 3',
-    'Trinket': 'Trinket',  # https://github.com/PathOfBuildingCommunity/PathOfBuilding/issues/1721
+    # Trinket intentionally omitted: PoB has no Trinket slot / no Thief's Trinket
+    # base (PathOfBuildingCommunity/PathOfBuilding#1721 WONTFIX — Heist-only).
+    # Blacklisted in INVENTORY_BLACKLIST so we do not emit Item/Slot PoB drops.
     'Weapon': 'Weapon 1',
     'Weapon2': 'Weapon 1 Swap',
 }
@@ -248,7 +250,10 @@ INVENTORY_BLACKLIST = set(
         'MainInventory',
         'Map',  # The item is on Zana's Map Device
         'Cursor',  # The item is on the cursor
-        'ExpandedMainInventory' # 3.23 Wildwood bag
+        'ExpandedMainInventory',  # 3.23 Wildwood bag
+        # Heist trinket: PoB refuses to support it (#1721). Emitting it produced
+        # a silent drop on loadBuildFromXML (unknown item base + missing slot).
+        'Trinket',
     )
 )
 
