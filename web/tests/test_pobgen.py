@@ -193,3 +193,41 @@ def test_tree_version_matches_game_data():
 
     major, minor = nebuloch.version.split('.')[:2]
     assert TREE_VERSION == '{}_{}'.format(major, minor)
+
+
+def test_trinket_is_not_exported():
+    """PoB has no Trinket slot and no Thief's Trinket base (#1721 WONTFIX).
+
+    Emitting inventoryId=Trinket used to produce Item+Slot XML that
+    loadBuildFromXML silently drops (item.base is nil; slots['Trinket'] missing).
+    Skip it so the export matches what PoB can actually keep.
+    """
+    items = [
+        {
+            'inventoryId': 'Trinket',
+            'frameType': 2,
+            'id': 'a' * 64,
+            'name': '',
+            'typeLine': '竊賊飾品',
+            'ilvl': 84,
+            'explicitMods': [],
+        },
+        {
+            'inventoryId': 'Weapon2',
+            'frameType': 2,
+            'id': 'b' * 64,
+            'name': '',
+            'typeLine': '幻影錘',
+            'ilvl': 80,
+            'explicitMods': [],
+            'properties': [{'name': '品質', 'values': [['+20%', 0]]}],
+        },
+    ]
+    item_xml, _ = POBGenerator().ItemsSkills(items)
+    bodies = [el.text or '' for el in item_xml if el.tag == 'Item']
+    slots = [(el.get('name'), el.get('itemId')) for el in item_xml if el.tag == 'Slot']
+    assert len(bodies) == 1
+    assert "Thief's Trinket" not in bodies[0]
+    assert 'Trinket' not in bodies[0]
+    assert all(name != 'Trinket' for name, _ in slots)
+    assert [name for name, _ in slots] == ['Weapon 1 Swap']
