@@ -394,6 +394,16 @@ def load_mods():
 
 _ALLOCATES_TC = '配置 '
 
+# Eldritch implicits prepend a presence condition the character API already
+# folds into the displayed line.  Those composed strings are not in
+# stat_descriptions.json; strip the TW prefix, translate the residual mod,
+# then put the English condition back.  TW labels 傳奇頭目 for Unique Enemy
+# (known GGG mistranslation) and 巔峰頭目 for Pinnacle Atlas Boss.
+ELDRITCH_PRESENCE_PREFIXES = (
+    ('在巔峰頭目面前時，', 'While a Pinnacle Atlas Boss is in your Presence, '),
+    ('在傳奇頭目面前時，', 'While a Unique Enemy is in your Presence, '),
+)
+
 
 # Not all mods that starts with `GH_ISSUE3_TC`
 # has a corresponding entry in stats_descriptions.json (at least for now)
@@ -412,6 +422,11 @@ def translate(mod, index, passives, indexable=()):
         return translateForbiddenGem(mod, index, passives)
     if IMPOSSIBLE_ESCAPE_RE.match(mod) is not None:
         return translateImpossibleEscape(mod, index, passives)
+    for tc_prefix, en_prefix in ELDRITCH_PRESENCE_PREFIXES:
+        if mod.startswith(tc_prefix):
+            return en_prefix + translate(
+                mod[len(tc_prefix) :], index, passives, indexable
+            )
     if mod.startswith(_ALLOCATES_TC):
         try:
             return 'Allocates ' + passives[mod[len(_ALLOCATES_TC) :].strip()]

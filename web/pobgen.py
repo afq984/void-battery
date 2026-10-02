@@ -209,6 +209,22 @@ def clean_name(name):
     return re.sub(r'\<\<set\:\w+\>\>', '', name)
 
 
+# Prefixes on typeLine (not the unique name) that PoB strips before matching
+# the base: Superior / Synthesised / Vestigial.  TW: 精良的 / (追憶之 on some
+# payloads) / 殘存.  Prefer `baseType` from the character API when present.
+BASE_TYPE_PREFIXES = ('精良的 ', '追憶之 ', '殘存 ')
+
+
+def item_base_tc(item):
+    """Traditional-Chinese base type for the PoB item text base line."""
+    if item.get('baseType'):
+        return item['baseType']
+    name = item['typeLine']
+    for prefix in BASE_TYPE_PREFIXES:
+        name = name.rpartition(prefix)[-1]
+    return name
+
+
 # The character API used to return every mod list as a list of strings, with
 # crafted, fractured and mutated mods split off into a `<flag>Mods` list each.
 # Since poe 3.29 it returns implicit/explicit mods as objects instead, and
@@ -222,6 +238,8 @@ MOD_FLAG_PREFIXES = (
     ('crafted', '{crafted}'),
     ('fractured', '{fractured}'),
     ('mutated', '{mutated}'),
+    # Vestigial (殘存) unique variants; PoB Item.lua lineFlags + ImportTab.
+    ('vestigial', '{vestigial}'),
 )
 
 
@@ -408,9 +426,7 @@ class POBGenerator:
         if rarity == 'MAGIC':
             yield self.tr_with_report(self.parse_magic, item)
         else:
-            yield self.tr_name(
-                item['typeLine'].rpartition('精良的 ')[-1].rpartition('追憶之 ')[-1]
-            )
+            yield self.tr_name(item_base_tc(item))
         yield "Unique ID: {}".format(item['id'])
         yield "Item Level: {}".format(item['ilvl'])
         quality = 0
