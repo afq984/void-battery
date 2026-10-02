@@ -262,3 +262,19 @@ def test_indexable_support_prefers_the_support_gem():
         tr('插槽中的寶石被等級 20 的 嗜血 輔助')
         == 'Socketed Gems are Supported by Level 20 Bloodlust'
     )
+
+def test_eldritch_pinnacle_presence_prefix():
+    """Eldritch implicits fold the presence condition into the API mod text."""
+    assert (
+        tr('在巔峰頭目面前時，攻擊擊中時獲得 3 層盛怒')
+        == 'While a Pinnacle Atlas Boss is in your Presence, Gain 3 Rage on Attack Hit'
+    )
+
+
+def test_eldritch_unique_enemy_presence_prefix():
+    """TW labels Unique Enemy as 傳奇頭目; English still says Unique Enemy."""
+    assert (
+        tr('在傳奇頭目面前時，攻擊擊中時獲得 2 層盛怒')
+        == 'While a Unique Enemy is in your Presence, Gain 2 Rage on Attack Hit'
+    )
+

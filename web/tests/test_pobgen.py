@@ -231,3 +231,36 @@ def test_trinket_is_not_exported():
     assert 'Trinket' not in bodies[0]
     assert all(name != 'Trinket' for name, _ in slots)
     assert [name for name, _ in slots] == ['Weapon 1 Swap']
+
+def test_mod_prefix_vestigial():
+    mod = {'description': '增加 30% 物品稀有度', 'flags': {'vestigial': True}}
+    assert mod_prefix(mod) == '{vestigial}'
+
+
+def test_vestigial_type_line_uses_base_type():
+    """Vestigial (殘存) uniques prefix typeLine; PoB strips it / uses baseType.
+
+    See ImportTab.lua gsub("^Vestigial ", "") and Item.lua lineFlags.vestigial.
+    """
+    lines = pob_lines(
+        frameType=3,
+        name='迴光之跡',
+        typeLine='殘存 絲絨便鞋',
+        baseType='絲絨便鞋',
+        implicitMods=[{'description': '增加 30% 物品稀有度', 'flags': {'vestigial': True}}],
+        explicitMods=[{'description': '+9 力量'}],
+    )
+    assert lines[1] == 'Wondertrap'
+    assert lines[2] == 'Velvet Slippers'
+    assert '{vestigial}30% increased Rarity of Items found' in lines
+
+
+def test_vestigial_prefix_stripped_without_base_type():
+    """Older payloads without baseType still need the 殘存 prefix removed."""
+    lines = pob_lines(
+        frameType=3,
+        name='迴光之跡',
+        typeLine='殘存 絲絨便鞋',
+    )
+    assert lines[2] == 'Velvet Slippers'
+
