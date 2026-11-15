@@ -11,6 +11,19 @@ py_binary(
     deps = [":pjson", ":tqdm_stub"],
 )
 
+py_test(
+    name = "statparse_test",
+    srcs = [
+        "statparse.py",
+        "statparse_test.py",
+    ],
+    imports = ["."],
+    deps = [
+        ":pjson",
+        ":tqdm_stub",
+    ],
+)
+
 py_binary(
     name = "charversion",
     srcs = ["charversion.py"],

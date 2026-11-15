@@ -11,7 +11,7 @@ load(":defs.bzl", "patcher_dat2jsonl", "patcher_extract")
 
 # --- Extract + dat2jsonl for each table × language ---
 
-_TABLES = ["BaseItemTypes", "ActiveSkills", "PassiveSkills", "SkillGems", "Words"]
+_TABLES = ["BaseItemTypes", "ActiveSkills", "PassiveSkills", "Words"]
 
 [
     patcher_dat2jsonl(
@@ -25,27 +25,29 @@ _TABLES = ["BaseItemTypes", "ActiveSkills", "PassiveSkills", "SkillGems", "Words
 
 # --- Extract stat description files ---
 
+# 3.30 renamed these from .txt to .csd (still UTF-16-LE text).
 patcher_extract(
     name = "extract_stat_descriptions",
-    path = "metadata/statdescriptions/stat_descriptions.txt",
-    out = "extracted/stat_descriptions.txt",
+    path = "metadata/statdescriptions/stat_descriptions.csd",
+    out = "extracted/stat_descriptions.csd",
 )
 
 patcher_extract(
     name = "extract_tincture_stat_descriptions",
-    path = "metadata/statdescriptions/tincture_stat_descriptions.txt",
-    out = "extracted/tincture_stat_descriptions.txt",
+    path = "metadata/statdescriptions/tincture_stat_descriptions.csd",
+    out = "extracted/tincture_stat_descriptions.csd",
 )
 
-# 3.29 moved some item mod text out of stat_descriptions.txt; without this the
-# affected mods have no description in any language and cannot be translated.
+# 3.29 moved some item mod text out of the main stat descriptions file;
+# without this the affected mods have no description in any language and
+# cannot be translated.
 patcher_extract(
     name = "extract_graft_stat_descriptions",
-    path = "metadata/statdescriptions/graft_stat_descriptions.txt",
-    out = "extracted/graft_stat_descriptions.txt",
+    path = "metadata/statdescriptions/graft_stat_descriptions.csd",
+    out = "extracted/graft_stat_descriptions.csd",
 )
 
-# --- Python processing: .jsonl/.txt → release JSON ---
+# --- Python processing: .jsonl/.csd → release JSON ---
 
 _JSONL_SRCS = [":dat2jsonl_%s_%s" % (table, lang) for table in _TABLES for lang in ["en", "tc"]]
 
