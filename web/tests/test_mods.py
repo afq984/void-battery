@@ -4,7 +4,14 @@ from __future__ import unicode_literals
 
 import pytest
 
-from nebuloch.mods import CannotTranslateMod, Variant, Translator, M
+from nebuloch.mods import (
+    CannotTranslateMod,
+    Variant,
+    Translator,
+    M,
+    qualify_range,
+    range_default_value,
+)
 
 
 tr = Translator('Traditional Chinese', '')
@@ -30,8 +37,8 @@ def test_prev_failed():
         tr('0.27% 物理攻擊傷害偷取魔力') == '0.27% of Physical Attack Damage Leeched as Mana'
     )
     assert (
-        tr('插槽中寶石被等級 18 的急凍輔助')
-        == 'Socketed Gems are Supported by Level 18 Hypothermia'
+        tr('插槽中寶石被等級 18 的穿透輔助')
+        == 'Socketed Gems are Supported by Level 18 Pierce'
     )
 
 
@@ -278,3 +285,28 @@ def test_eldritch_unique_enemy_presence_prefix():
         == 'While a Unique Enemy is in your Presence, Gain 2 Rage on Attack Hit'
     )
 
+
+def test_qualify_range_hash_suffixed_bounds():
+    assert qualify_range(1, '1|99#')
+    assert qualify_range(99, '1|99#')
+    assert not qualify_range(100, '1|99#')
+    assert qualify_range(100, '100|#')
+    assert qualify_range(99, '99#')
+    assert not qualify_range(98, '99#')
+    assert range_default_value('1|99#') == 1
+    assert range_default_value('99#') == 99
+
+
+def test_variant_accepts_multi_number_flag():
+    """3.30 stores flags such as alternate_tree_version_keystone 3 1 4 as a list."""
+    v = Variant(
+        'Bathed in the blood of {1} sacrificed in the name of {2}',
+        ['1', '#', '#', '#'],
+        [
+            ['alternate_tree_version_name', 1],
+            ['alternate_tree_version_keystone', [3, 1, 4]],
+        ],
+    )
+    assert 'alternate_tree_version_name' in v.flags[0]
+    assert 'alternate_tree_version_keystone' in v.flags[2]
+    assert 'alternate_tree_version_keystone' not in v.flags[0]

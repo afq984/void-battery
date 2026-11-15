@@ -10,21 +10,21 @@ import os
 import subprocess
 import sys
 
-# Files to extract (must match genbuild.py)
+# Files to extract (must match pipeline extract paths).
+# 3.30 dropped localized SkillGems.datc64 (the table has no string columns, and
+# datrelease does not use it) and renamed stat descriptions from .txt to .csd.
 EXTRACT_DEPS = [
     "data/activeskills.datc64",
     "data/baseitemtypes.datc64",
     "data/passiveskills.datc64",
-    "data/skillgems.datc64",
     "data/words.datc64",
     "data/traditional chinese/activeskills.datc64",
     "data/traditional chinese/baseitemtypes.datc64",
     "data/traditional chinese/passiveskills.datc64",
-    "data/traditional chinese/skillgems.datc64",
     "data/traditional chinese/words.datc64",
-    "metadata/statdescriptions/stat_descriptions.txt",
-    "metadata/statdescriptions/tincture_stat_descriptions.txt",
-    "metadata/statdescriptions/graft_stat_descriptions.txt",
+    "metadata/statdescriptions/stat_descriptions.csd",
+    "metadata/statdescriptions/tincture_stat_descriptions.csd",
+    "metadata/statdescriptions/graft_stat_descriptions.csd",
 ]
 
 

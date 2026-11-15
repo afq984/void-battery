@@ -2,6 +2,8 @@
 
 from __future__ import unicode_literals
 
+import pytest
+
 from pobgen import (
     CLASS_AND_ASCENDANCY_CLASS_IDS,
     CLASS_MAP,
@@ -181,6 +183,14 @@ def test_luminary_is_a_known_class():
     assert CLASS_AND_ASCENDANCY_CLASS_IDS[CLASS_MAP['輝耀使徒']] == (0, 3)
 
 
+@pytest.mark.xfail(
+    reason=(
+        'PoB v2.67.2 has no 3_30 tree (treeVersionList still ends at 3_29). '
+        'Do not bump TREE_VERSION until Path of Building ships one; this '
+        'xfail should be removed when that happens.'
+    ),
+    strict=True,
+)
 def test_tree_version_matches_game_data():
     """The exported tree version has to track the data the mods come from.
 
@@ -233,7 +243,7 @@ def test_trinket_is_not_exported():
     assert [name for name, _ in slots] == ['Weapon 1 Swap']
 
 def test_mod_prefix_vestigial():
-    mod = {'description': '增加 30% 物品稀有度', 'flags': {'vestigial': True}}
+    mod = {'description': '+30%[PlayerItemRarity|物品稀有度]', 'flags': {'vestigial': True}}
     assert mod_prefix(mod) == '{vestigial}'
 
 
@@ -247,12 +257,12 @@ def test_vestigial_type_line_uses_base_type():
         name='迴光之跡',
         typeLine='殘存 絲絨便鞋',
         baseType='絲絨便鞋',
-        implicitMods=[{'description': '增加 30% 物品稀有度', 'flags': {'vestigial': True}}],
+        implicitMods=[{'description': '+30%[PlayerItemRarity|物品稀有度]', 'flags': {'vestigial': True}}],
         explicitMods=[{'description': '+9 力量'}],
     )
     assert lines[1] == 'Wondertrap'
     assert lines[2] == 'Velvet Slippers'
-    assert '{vestigial}30% increased Rarity of Items found' in lines
+    assert '{vestigial}+30% to [PlayerItemRarity|Item Rarity]' in lines
 
 
 def test_vestigial_prefix_stripped_without_base_type():

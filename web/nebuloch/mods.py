@@ -136,33 +136,48 @@ class ConfigurationError(Exception):
     pass
 
 
+def parse_range_bound(part):
+    """Return None for an open bound, otherwise the integer bound.
+
+    3.30 added closed bounds written `N#` (for example `1|99#`).
+    """
+    if part == '' or part == '#':
+        return None
+    if part.endswith('#') and part[:-1].lstrip('-').isdigit():
+        return int(part[:-1])
+    return int(part)
+
+
 def qualify_range(value, r):
     if r.startswith('!'):
         assert '|' not in r
-        return value != int(r[1:])
+        return value != parse_range_bound(r[1:])
     low, sep, up = r.partition('|')
     if not sep:
-        if low == '#':
+        bound = parse_range_bound(low)
+        if bound is None:
             return True
-        return value == int(low)
-    if low != '#':
-        if int(low) > value:
-            return False
-    if up != '#':
-        if int(up) < value:
-            return False
+        return value == bound
+    low_b = parse_range_bound(low)
+    if low_b is not None and low_b > value:
+        return False
+    up_b = parse_range_bound(up)
+    if up_b is not None and up_b < value:
+        return False
     return True
 
 
 def range_default_value(r):
     if r.startswith('!'):
         assert '|' not in r
-        return int(r[1:]) + 1
+        return parse_range_bound(r[1:]) + 1
     low, sep, up = r.partition('|')
-    if low != '#':
-        return int(low)
-    if up and up != '#':
-        return int(up)
+    low_b = parse_range_bound(low)
+    if low_b is not None:
+        return low_b
+    up_b = parse_range_bound(up)
+    if up_b is not None:
+        return up_b
     return 1
 
 
@@ -198,6 +213,12 @@ class Variant:
                 continue
             if idx1 is None:
                 continue
+            # 3.30 flags may record several numbers (e.g. [3, 1, 4]);
+            # only the first is the 1-based stat index this layer uses.
+            if isinstance(idx1, (list, tuple)):
+                if not idx1:
+                    continue
+                idx1 = idx1[0]
             self.flags[int(idx1) - 1].add(flag)
 
         self.indexable = frozenset(

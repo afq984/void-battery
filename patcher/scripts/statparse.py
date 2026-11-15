@@ -189,6 +189,8 @@ def inStringEscaped(lexer):
 
 
 def getTextType(s):
+    if not s:
+        return TokenType.Text
     if s.isdigit():
         return TokenType.Number
     if s[0] == '-' and s[1:].isdigit():
@@ -196,6 +198,9 @@ def getTextType(s):
     if s[0] == '!' and getTextType(s[1:]) == TokenType.Number:
         return TokenType.Range
     if s == '#':
+        return TokenType.Range
+    # 3.30: closed numeric bounds like 99# (and thus 1|99#)
+    if s.endswith('#') and s[:-1].isdigit():
         return TokenType.Range
     if '|' not in s:
         return TokenType.Text
@@ -205,6 +210,8 @@ def getTextType(s):
 
 
 assert getTextType('1|#') == TokenType.Range
+assert getTextType('99#') == TokenType.Range
+assert getTextType('1|99#') == TokenType.Range
 
 
 def inText(lexer):
@@ -312,8 +319,19 @@ class Parser:
             else:
                 nexttok = self.expect(TokenType.Text, TokenType.Number, TokenType.Line)
                 if nexttok.type == TokenType.Number or token.string == 'reminderstring':
-                    flags.append([token.value, nexttok.value])
-                    token = self.expect(TokenType.Text, TokenType.Line)
+                    if nexttok.type == TokenType.Number:
+                        # 3.30: flags may take several numbers, e.g.
+                        # alternate_tree_version_keystone 3 1 4
+                        nums = [nexttok.value]
+                        token2 = self.expect(TokenType.Text, TokenType.Number, TokenType.Line)
+                        while token2.type == TokenType.Number:
+                            nums.append(token2.value)
+                            token2 = self.expect(TokenType.Text, TokenType.Number, TokenType.Line)
+                        flags.append([token.value, nums if len(nums) > 1 else nums[0]])
+                        token = token2
+                    else:
+                        flags.append([token.value, nexttok.value])
+                        token = self.expect(TokenType.Text, TokenType.Line)
                 else:
                     flags.append([token.value, None])
                     token = nexttok
@@ -405,24 +423,39 @@ import os
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 import pjson
 
-parser = argparse.ArgumentParser()
-parser.add_argument('filename', nargs='+')
-args = parser.parse_args()
-parsed = []
-for filename in args.filename:
-    with open(filename, encoding='utf-16') as file:
-        size = file_chars(file)
-        file.seek(0)
-        lexer = Lexer(filename, file, size=size)
-        parser = Parser()
-        stats = parser.parse(lexer)
 
-    for item in stats:
-        langs = item['langs']
-        item['langs'] = {k: langs[k] for k in langs if k in LANG_WHITELIST}
-        # remove other languages do decrease memory usage on GAE
-    parsed.extend(stats)
+def parse_stat_files(filenames, lang_whitelist=None):
+    """Parse one or more UTF-16 stat description files (.txt or .csd)."""
+    if lang_whitelist is None:
+        lang_whitelist = LANG_WHITELIST
+    parsed = []
+    lexer = None
+    try:
+        for filename in filenames:
+            with open(filename, encoding='utf-16') as file:
+                size = file_chars(file)
+                file.seek(0)
+                lexer = Lexer(filename, file, size=size)
+                stats = Parser().parse(lexer)
+            for item in stats:
+                langs = item['langs']
+                item['langs'] = {k: langs[k] for k in langs if k in lang_whitelist}
+                # remove other languages do decrease memory usage on GAE
+            parsed.extend(stats)
+        hack(parsed)
+        return parsed
+    finally:
+        if lexer is not None and getattr(lexer, 'tqdm', None) is not None:
+            lexer.tqdm.close()
 
-hack(parsed)
-sys.stdout.writelines(pjson.PrettyJSONEncoder().iterencode(parsed))
-lexer.tqdm.close()
+
+def main(argv=None):
+    argparser = argparse.ArgumentParser()
+    argparser.add_argument('filename', nargs='+')
+    args = argparser.parse_args(argv)
+    parsed = parse_stat_files(args.filename)
+    sys.stdout.writelines(pjson.PrettyJSONEncoder().iterencode(parsed))
+
+
+if __name__ == '__main__':
+    main()
