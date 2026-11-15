@@ -310,3 +310,40 @@ def test_variant_accepts_multi_number_flag():
     assert 'alternate_tree_version_name' in v.flags[0]
     assert 'alternate_tree_version_keystone' in v.flags[2]
     assert 'alternate_tree_version_keystone' not in v.flags[0]
+
+
+def test_unwraps_wiki_link_before_allocates_lookup():
+    """3.30 API wraps spliced passive names as [internalId|displayText]."""
+    assert tr('配置 [nimbleness412|輕巧]') == 'Allocates Nimbleness'
+    assert tr('配置 輕巧') == 'Allocates Nimbleness'
+
+
+def test_unwraps_wiki_link_on_cluster_added_notable():
+    assert (
+        tr('1 個附加的天賦為[affliction_notable_martial_momentum|武術氣勢]')
+        == '1 Added Passive Skill is Martial Momentum'
+    )
+
+
+def test_stat_template_wiki_link_is_not_unwrapped():
+    """Rarity (and similar) templates contain the link in both languages."""
+    assert tr('+30%[PlayerItemRarity|物品稀有度]') == '+30% to [PlayerItemRarity|Item Rarity]'
+
+
+def test_already_english_mod_is_passed_through():
+    """TW sometimes returns an already-English line; keep it if it is a real template."""
+    assert (
+        tr('12% increased Attack Damage while Dual Wielding')
+        == '12% increased Attack Damage while Dual Wielding'
+    )
+    assert (
+        tr('附加的小型天賦給予：12% increased Attack Damage while Dual Wielding')
+        == 'Added Small Passive Skills grant: 12% increased Attack Damage while Dual Wielding'
+    )
+
+
+def test_unknown_mod_still_fails():
+    with pytest.raises(CannotTranslateMod):
+        tr('這不是一個詞綴')
+    with pytest.raises(CannotTranslateMod):
+        tr('this is not a real english stat line')

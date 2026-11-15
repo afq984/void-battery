@@ -350,14 +350,18 @@ def repl_formatter(match):
 
 class Translator:
     def __init__(self, source_lang, dest_lang, mods=None):
-        self.index, indexable = build_index(source_lang, dest_lang, mods=mods)
+        self.index, indexable, self.dest_index = build_index(
+            source_lang, dest_lang, mods=mods
+        )
         # Resolving a spliced-in gem name goes through the Traditional Chinese
         # name tables, so the fallback only means anything in that direction.
         self.indexable = indexable if source_lang == TRADITIONAL_CHINESE else []
         self.passives = build_passives_index()
 
     def __call__(self, mod):
-        return translate(mod, self.index, self.passives, self.indexable)
+        return translate(
+            mod, self.index, self.passives, self.indexable, self.dest_index
+        )
 
 
 def build_passives_index():
@@ -376,6 +380,7 @@ def build_index(source_lang, dest_lang, mods=None):
     if mods is None:
         mods = load_mods()
     index = collections.defaultdict(list)
+    dest_index = collections.defaultdict(list)
     indexable = []
     for mod in mods:
         keys = mod['keys']
@@ -395,13 +400,16 @@ def build_index(source_lang, dest_lang, mods=None):
         else:
             raw_source_variants = mod['langs'][source_lang]
         target = [Variant(**v) for v in raw_target_variants]
+        for dest_variant in target:
+            if not dest_variant.indexable:
+                dest_index[dest_variant.symbolic].append(dest_variant)
         for raw_variant in raw_source_variants:
             variant = Variant(**raw_variant)
             if variant.indexable:
                 indexable.append((variant, target))
             else:
                 index[variant.symbolic].append((variant, target))
-    return dict(index), indexable
+    return dict(index), indexable, dict(dest_index)
 
 
 class CannotTranslateMod(TranslateError):
@@ -414,6 +422,27 @@ def load_mods():
 
 
 _ALLOCATES_TC = '配置 '
+
+# 3.30 wraps spliced names as [internalId|displayText] in API mod text.
+# Templates that themselves contain a link (e.g. rarity) must still match the
+# raw string; unwrap only as a fallback after the raw form misses.
+WIKI_LINK_RE = re.compile(r'\[(?:[^\]|]+)\|([^\]]+)\]')
+
+
+def unwrap_display_links(text):
+    return WIKI_LINK_RE.sub(r'\1', text)
+
+
+def matches_dest_template(mod, dest_index):
+    """True if `mod` already reads as a dest-language (English) stat line."""
+    if dest_index is None or not mod.isascii():
+        return False
+    for variant in dest_index.get(M.sub('#', mod), ()):
+        match = variant.match(mod)
+        if match is not None and variant.qualify(match):
+            return True
+    return False
+
 
 # Eldritch implicits prepend a presence condition the character API already
 # folds into the displayed line.  Those composed strings are not in
@@ -438,7 +467,25 @@ IMPOSSIBLE_ESCAPE_RE = re.compile(
     '(天賦樹中在範圍)(.+?)(內未連結的天賦仍然可以配置\n通途)'
 )
 
-def translate(mod, index, passives, indexable=()):
+def translate(mod, index, passives, indexable=(), dest_index=None):
+    try:
+        return _translate_once(mod, index, passives, indexable, dest_index)
+    except CannotTranslateMod:
+        pass
+    unwrapped = unwrap_display_links(mod)
+    if unwrapped != mod:
+        try:
+            return _translate_once(unwrapped, index, passives, indexable, dest_index)
+        except CannotTranslateMod:
+            pass
+        if matches_dest_template(unwrapped, dest_index):
+            return unwrapped
+    if matches_dest_template(mod, dest_index):
+        return mod
+    raise CannotTranslateMod(mod)
+
+
+def _translate_once(mod, index, passives, indexable=(), dest_index=None):
     if FORBIDDEN_GEM_RE.match(mod) is not None:
         return translateForbiddenGem(mod, index, passives)
     if IMPOSSIBLE_ESCAPE_RE.match(mod) is not None:
@@ -446,7 +493,7 @@ def translate(mod, index, passives, indexable=()):
     for tc_prefix, en_prefix in ELDRITCH_PRESENCE_PREFIXES:
         if mod.startswith(tc_prefix):
             return en_prefix + translate(
-                mod[len(tc_prefix) :], index, passives, indexable
+                mod[len(tc_prefix) :], index, passives, indexable, dest_index
             )
     if mod.startswith(_ALLOCATES_TC):
         try:
@@ -466,6 +513,9 @@ def translate(mod, index, passives, indexable=()):
             try:
                 variants = index[query_key]
             except KeyError:
+                # Residual is sometimes already English (TW API mixed language).
+                if matches_dest_template(mod, dest_index):
+                    return GH_ISSUE3_EN + mod
                 raise CannotTranslateMod(mod) from None
         else:
             variants = ()
@@ -554,7 +604,7 @@ def substitute_passive(mod, index, passives, query_key, passive):
 
 
 def debug(mod):
-    index, indexable = build_index('Traditional Chinese', '')
+    index, indexable, _dest_index = build_index('Traditional Chinese', '')
     print('Translating:', mod)
     query_key = M.sub('#', mod)
     print('Query Key:', query_key)
