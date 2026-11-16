@@ -2,8 +2,6 @@
 
 from __future__ import unicode_literals
 
-import pytest
-
 from pobgen import (
     CLASS_AND_ASCENDANCY_CLASS_IDS,
     CLASS_MAP,
@@ -183,14 +181,6 @@ def test_luminary_is_a_known_class():
     assert CLASS_AND_ASCENDANCY_CLASS_IDS[CLASS_MAP['輝耀使徒']] == (0, 3)
 
 
-@pytest.mark.xfail(
-    reason=(
-        'PoB v2.67.2 has no 3_30 tree (treeVersionList still ends at 3_29). '
-        'Do not bump TREE_VERSION until Path of Building ships one; this '
-        'xfail should be removed when that happens.'
-    ),
-    strict=True,
-)
 def test_tree_version_matches_game_data():
     """The exported tree version has to track the data the mods come from.
 

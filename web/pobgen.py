@@ -29,7 +29,7 @@ _tr = Translator('Traditional Chinese', '')
 # fails when the data moves on, which is the cue to check that POB has shipped
 # a tree for the new version (`treeVersionList` in its GameVersions.lua) and
 # bump this.
-TREE_VERSION = '3_29'
+TREE_VERSION = '3_30'
 
 ALTERNATE_MAP = {
     '異常的 ': 'Alternate1',
