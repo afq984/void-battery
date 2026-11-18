@@ -467,6 +467,24 @@ IMPOSSIBLE_ESCAPE_RE = re.compile(
     '(天賦樹中在範圍)(.+?)(內未連結的天賦仍然可以配置\n通途)'
 )
 
+# Granted-skill lines on uniques (Hyrri's Truth: `Grants Level 30 Precision`)
+# are not stat descriptions; the game renders them from the item template,
+# with the skill linked as `[Precision::30|精準]`.  PoB reads the English form.
+GRANTS_SKILL_RE = re.compile(r'^賦予等級 (\d+) 的 (?:\[[^\]|]*\|)?([^\[\]|]+?)\]?$')
+
+
+def translateGrantedSkill(mod):
+    match = GRANTS_SKILL_RE.match(mod)
+    if match is None:
+        return None
+    level, skill = match.groups()
+    try:
+        name = names.translate_gem(skill, support=False)
+    except TranslateError:
+        raise CannotTranslateMod(mod) from None
+    return 'Grants Level {} {}'.format(level, name)
+
+
 def translate(mod, index, passives, indexable=(), dest_index=None):
     try:
         return _translate_once(mod, index, passives, indexable, dest_index)
@@ -490,6 +508,9 @@ def _translate_once(mod, index, passives, indexable=(), dest_index=None):
         return translateForbiddenGem(mod, index, passives)
     if IMPOSSIBLE_ESCAPE_RE.match(mod) is not None:
         return translateImpossibleEscape(mod, index, passives)
+    granted = translateGrantedSkill(mod)
+    if granted is not None:
+        return granted
     for tc_prefix, en_prefix in ELDRITCH_PRESENCE_PREFIXES:
         if mod.startswith(tc_prefix):
             return en_prefix + translate(
