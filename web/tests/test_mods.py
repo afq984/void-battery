@@ -211,6 +211,17 @@ def test_resolve_flag_strips_precision_suffixes():
     assert resolve_flag('not_a_flag') is None
 
 
+def test_granted_skill_with_display_link():
+    """Unique items grant a skill through a template, not a stat description."""
+    assert tr('賦予等級 30 的 [Precision::30|精準]') == 'Grants Level 30 Precision'
+    assert tr('賦予等級 22 的 精準') == 'Grants Level 22 Precision'
+
+
+def test_granted_skill_unknown_name():
+    with pytest.raises(CannotTranslateMod):
+        tr('賦予等級 30 的 [Nope::30|不是技能]')
+
+
 def test_impossible_escape():
     """Reworded in 3.29; the notable's name is looked up in the passive data."""
     assert (
